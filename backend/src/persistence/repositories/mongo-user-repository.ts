@@ -1,18 +1,19 @@
-// src/repositories/mongodb/user.repository.ts
 import { UserRepository } from "../../domain/repositories/user-repository";
 import { CreateUserDTO } from "../../domain/use-cases/create-new-user-use-case";
-import { UserDocument, UserModel } from "../models/user.model";
+import { UserMapper } from "../mappers/user-mapper";
+import { UserModel } from "../models/user.model";
 
 export class MongoUserRepository implements UserRepository {
 
-    async createUser(user: CreateUserDTO): Promise<UserDocument> {
+    async createUser(user: CreateUserDTO){
         const newUser = new UserModel({
             ...user,
             online: false,
             chatsID: [],
             contactsID: []
         });
-        return await newUser.save();
+        await newUser.save();
+        return UserMapper.toDomain(newUser);
     }
 
     async addChatToUser(userId: string, chatId: string): Promise<void> {
@@ -27,12 +28,14 @@ export class MongoUserRepository implements UserRepository {
         });
     }
 
-    async findUserByEmail(email: string): Promise<UserDocument | null> {
-        return await UserModel.findOne({ email });
+    async findUserByEmail(email: string) {
+        const user = await UserModel.findOne({ email });
+        return user ? UserMapper.toDomain(user) : null
     }
 
-    async findUserById(id: string): Promise<UserDocument | null> {
-        return await UserModel.findById(id);
+    async findUserById(id: string) {
+        const user = await UserModel.findById(id);
+        return user ? UserMapper.toDomain(user) : null;
     }
 
     async changeStatus(userId: string, online: boolean): Promise<void> {

@@ -43,11 +43,14 @@ export class CreateNewChatUseCase {
             translatedContent: ''
         })
 
+        const bothSpeekSameLanguage = senderExists.preferredLanguage === receiverExists.preferredLanguage
+
         const chat = await this.chatRepository.createChat({
             senderId,
             receiverId,
             content,
-            message: fromContentToMessage
+            message: fromContentToMessage,
+            sameLanguage: bothSpeekSameLanguage
         })
 
         await this.userRepository.addChatToUser(senderId, chat.id.getValue)

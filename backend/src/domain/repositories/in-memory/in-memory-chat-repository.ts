@@ -9,7 +9,8 @@ export class InMemoryChatRepository implements ChatRepository {
     async createChat(data: CreateChatDTO) {
         const chat = new Chat({
             usersID: [data.senderId, data.receiverId],
-            messages: [data.message]
+            messages: [data.message],
+            sameLanguage: data.sameLanguage
         });
 
         this.chats.push(chat);
