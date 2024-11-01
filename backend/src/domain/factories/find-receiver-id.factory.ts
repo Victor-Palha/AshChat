@@ -1,8 +1,8 @@
-import { InMemoryChatRepository } from "../domain/repositories/in-memory/in-memory-chat-repository";
-import { FindReceiverIdUseCase } from "../domain/use-cases/find-receiver-id-use-case";
+import { MongoChatRepository } from "../../persistence/repositories/mongo-chat-repository";
+import { FindReceiverIdUseCase } from "../use-cases/find-receiver-id-use-case";
 
 export function findReceiverIdFactory(){
-    const chatRepository = new InMemoryChatRepository();
+    const chatRepository = new MongoChatRepository();
     const service = new FindReceiverIdUseCase(chatRepository)
     return service
 }

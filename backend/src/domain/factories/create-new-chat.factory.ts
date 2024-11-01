@@ -1,10 +1,10 @@
-import { InMemoryChatRepository } from "../domain/repositories/in-memory/in-memory-chat-repository";
-import { InMemoryUserRepository } from "../domain/repositories/in-memory/in-memory-user-repository";
-import { CreateNewChatUseCase } from "../domain/use-cases/create-new-chat-use-case";
+import { MongoChatRepository } from "../../persistence/repositories/mongo-chat-repository";
+import { MongoUserRepository } from "../../persistence/repositories/mongo-user-repository";
+import { CreateNewChatUseCase } from "../use-cases/create-new-chat-use-case";
 
 export function createNewChatFactory(){
-    const chatRepository = new InMemoryChatRepository();
-    const userRepository = new InMemoryUserRepository();
+    const chatRepository = new MongoChatRepository();
+    const userRepository = new MongoUserRepository();
     const service = new CreateNewChatUseCase(chatRepository, userRepository);
     return service
 }

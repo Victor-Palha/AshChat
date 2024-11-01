@@ -13,7 +13,7 @@ export class InMemoryUserRepository implements UserRepository {
             contactsID: []
         })
         this.users.push(...this.users, newUser)
-        console.log(newUser)
+
         return newUser
     }
 
@@ -30,7 +30,7 @@ export class InMemoryUserRepository implements UserRepository {
 
     async findUserByEmail(email: string) {
         const user = this.users.find(user => user.email === email)
-        console.log(user)
+
         return user
     }
 

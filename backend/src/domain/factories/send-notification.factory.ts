@@ -1,12 +1,12 @@
-import { InMemoryChatRepository } from "../domain/repositories/in-memory/in-memory-chat-repository";
-import { InMemoryNotificationRepository } from "../domain/repositories/in-memory/in-memory-notification-repository";
-import { InMemoryUserRepository } from "../domain/repositories/in-memory/in-memory-user-repository";
-import { SendNotificationUseCase } from "../domain/use-cases/send-notification-use-case";
+import { MongoChatRepository } from "../../persistence/repositories/mongo-chat-repository";
+import { MongoUserRepository } from "../../persistence/repositories/mongo-user-repository";
+import { InMemoryNotificationRepository } from "../repositories/in-memory/in-memory-notification-repository";
+import { SendNotificationUseCase } from "../use-cases/send-notification-use-case";
 
 export function sendNotificationFactory() {
     const notificationRepository = new InMemoryNotificationRepository();
-    const userNotificationRepository = new InMemoryUserRepository();
-    const chatRepository = new InMemoryChatRepository();
-    const service = new SendNotificationUseCase(notificationRepository, userNotificationRepository, chatRepository);
+    const userRepository = new MongoUserRepository();
+    const chatRepository = new MongoChatRepository();
+    const service = new SendNotificationUseCase(notificationRepository, userRepository, chatRepository);
     return service;
 }

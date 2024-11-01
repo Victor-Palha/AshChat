@@ -50,6 +50,6 @@ describe('AuthenticateUserUseCase', () => {
 
         const result = await sut.execute({ email: emailMocked, password: passwordMocked });
 
-        expect(result).toEqual({ authorized: true });
+        expect(result).toEqual({ user_id: expect.any(String) });
     });
 });
