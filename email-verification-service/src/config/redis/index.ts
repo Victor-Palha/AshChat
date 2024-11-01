@@ -10,7 +10,9 @@ export class RedisService implements CacheService {
         this.client = createClient({
             url: this.uri
         });
-        this.client.connect().then(() => console.log('Connected to Redis'));
+        this.client.connect()
+            .then(() => console.log('Connected to Redis'))
+            .catch((err)=> console.log(err))
     }
 
     async setEx(key: string, seconds: number, value: string): Promise<void> {

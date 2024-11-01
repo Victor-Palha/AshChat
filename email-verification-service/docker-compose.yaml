@@ -1,0 +1,15 @@
+services:
+  redis_cache_t:
+    image: redis:latest
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=somepass 
+    command: ["redis-server", "--requirepass", "somepass"] 
+    volumes:
+      - redis_data:/data  
+
+volumes:
+  redis_data:
+    driver: local

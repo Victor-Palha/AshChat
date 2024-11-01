@@ -5,16 +5,15 @@ import { CacheService } from "../config/redis/cache-service";
 
 export class CreateTemporaryUserService {
     constructor(
-        // private mailerService: MailerService,
+        private mailerService: MailerService,
         private messageBroker: MessageBroker,
-        // private cacheService: CacheService
+        private cacheService: CacheService
     ) {}
 
     async execute(): Promise<void> {
-        await this.messageBroker.connect();
-
         this.messageBroker.consumeFromQueue(Queues.ACCOUNT_CREATION_QUEUE, async (msg) => {
-            console.log('Received message:', msg);
+            const {email, emailCode, nickName, password, preferredLanguage} = JSON.parse(msg.toString());
+            
         });
 
         console.log('Serviço de criação de usuário temporário iniciado e escutando a fila "account_creation_queue"');

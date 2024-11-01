@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:dev": "ts-node-dev --env-file=development.env --respawn src/index.ts --transpile-only"
+    "start:dev": "ts-node-dev --env-file=.env --respawn src/index.ts --transpile-only"
   },
   "keywords": [],
   "author": "",
@@ -14,14 +14,15 @@
     "amqplib": "^0.10.4",
     "express": "^4.21.1",
     "nodemailer": "^6.9.16",
-    "redis": "^4.7.0"
+    "redis": "^4.7.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.5",
     "@types/express": "^5.0.0",
     "@types/nodemailer": "^6.4.16",
     "@types/redis": "^4.0.11",
-    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.6.3"
   }
 }
