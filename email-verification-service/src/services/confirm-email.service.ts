@@ -7,6 +7,16 @@ type ConfirmEmailMessage = {
     emailCode: string;
 };
 
+type ConfirmEmailServiceResponse = {
+    success: boolean;
+    message: string;
+    data?: {
+        email: string;
+        nickname: string;
+        password: string;
+        preferredLanguage: string;
+    }
+}
 export class ConfirmEmailService {
     constructor(
         private messageBroker: MessageBroker,
@@ -19,25 +29,9 @@ export class ConfirmEmailService {
 
             try {
                 const { email, emailCode } = JSON.parse(msg.content.toString()) as ConfirmEmailMessage;
-                console.log("Email code received:", emailCode);
-
-                const cacheUserInfo = await this.cacheService.get(email);
-
-                if (!cacheUserInfo) {
-                    console.log(`No cache info found for email: ${email}`);
-                    return;
-                }
-
-                const jsonCacheUserInfo = JSON.parse(cacheUserInfo);
-                const isValid = jsonCacheUserInfo.emailCode === emailCode;
-
-                const response = { 
-                    success: isValid, 
-                    email
-                };
+                const response = await this.validateEmailCode(email, emailCode);
 
                 const { replyTo, correlationId } = msg.properties;
-                console.log("Replying to:", replyTo, "with correlationId:", correlationId);
                 if (replyTo) {
                     await this.messageBroker.sendToQueue(replyTo, JSON.stringify(response), { correlationId });
                 }
@@ -46,7 +40,39 @@ export class ConfirmEmailService {
                 console.error("Error processing message:", error);
             }
         });
-
         console.log('Serviço de confirmação de e-mail iniciado e escutando a fila "confirm_email_code_queue"');
+    }
+
+
+    private async validateEmailCode(email: string, emailCode: string): Promise<ConfirmEmailServiceResponse> {
+        const cacheUserInfo = await this.cacheService.get(email);
+
+        if (!cacheUserInfo) {
+            return {
+                success: false,
+                message: "E-mail não encontrado",
+                data: undefined
+            }
+        }
+
+        const jsonCacheUserInfo = JSON.parse(cacheUserInfo);
+        const isValid = jsonCacheUserInfo.emailCode === emailCode;
+        const message = isValid ? "Código de e-mail confirmado com sucesso" : "Código de e-mail inválido";
+        const response = { 
+            success: isValid, 
+            message,
+            data: isValid ? {
+                email: jsonCacheUserInfo.email,
+                nickname: jsonCacheUserInfo.nickname,
+                password: jsonCacheUserInfo.password,
+                preferredLanguage: jsonCacheUserInfo.preferredLanguage
+            } : undefined
+        };
+
+        if (isValid) {
+            await this.cacheService.delete(email);
+        }
+
+        return response;
     }
 }

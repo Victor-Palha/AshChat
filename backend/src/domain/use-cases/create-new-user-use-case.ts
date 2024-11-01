@@ -15,12 +15,11 @@ export class CreateNewUserUseCase {
         if(userWithSameEmailExists){
             throw new UserWithSameEmailError()
         }
-        const passwordHash = await hash(password, 8)
 
         const newUser = await this.userRepository.createUser({
             nickname, 
             email, 
-            password: passwordHash, 
+            password,
             preferredLanguage: preferredLanguage.toUpperCase()
         })
 

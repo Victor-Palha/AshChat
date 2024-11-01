@@ -5,6 +5,7 @@ import { RabbitMQService } from "../../config/rabbitmq/index";
 import { env } from "../../config/env";
 import { Queues } from "../../config/rabbitmq/queues";
 import { randomUUID } from "crypto";
+import { UserWithSameEmailError } from "../../domain/use-cases/errors/user-with-same-email-error";
 
 export async function confirmEmailCodeController(req: Request, res: Response): Promise<any> {
 
@@ -40,9 +41,26 @@ export async function confirmEmailCodeController(req: Request, res: Response): P
             setTimeout(() => {
                 reject(new Error("Timeout ao aguardar resposta"));
             }, 5000);
-        });
+        }) as any;
 
-        return res.status(200).json(response);
+        if(response.success){
+            const { email, nickname, password, preferredLanguage } = response.data;
+
+            try {
+                const user = await service.execute({ email, nickname, password, preferredLanguage });
+                return res.status(201).json(user);
+            } catch (error) {
+                if(error instanceof UserWithSameEmailError){
+                    return res.status(400).json({
+                        message: "Já existe um usuário com o e-mail informado"
+                    });
+                }
+            }
+        }
+
+        if(!response.success){
+            return res.status(400).json(response.message);
+        }
 
     } catch (error) {
         console.error("Erro ao confirmar código de e-mail:", error);
