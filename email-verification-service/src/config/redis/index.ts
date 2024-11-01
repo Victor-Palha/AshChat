@@ -15,8 +15,14 @@ export class RedisService implements CacheService {
             .catch((err)=> console.log(err))
     }
 
-    async setEx(key: string, seconds: number, value: string): Promise<void> {
-        await this.client.setEx(key, seconds, value);
+    async setItem(key: string, seconds: number, value: any): Promise<void> {
+        await this.client.set(
+            key,
+            value,
+            {
+                EX: seconds
+            }
+        );
     }
 
     async get(key: string): Promise<string | null> {

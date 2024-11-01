@@ -12,10 +12,22 @@ export class CreateTemporaryUserService {
 
     async execute(): Promise<void> {
         this.messageBroker.consumeFromQueue(Queues.ACCOUNT_CREATION_QUEUE, async (msg) => {
-            const {email, emailCode, nickName, password, preferredLanguage} = JSON.parse(msg.toString());
-            
-        });
+            const {email, emailCode, nickname, password, preferredLanguage} = JSON.parse(msg.toString());
 
-        console.log('Serviço de criação de usuário temporário iniciado e escutando a fila "account_creation_queue"');
+            const temp_cache = 60 * 60 // 1 hour
+
+            this.cacheService.setItem(
+                email, 
+                temp_cache,
+                JSON.stringify({email, emailCode, nickname, password, preferredLanguage})
+            )
+            .then(async () => {
+                await this.mailerService.sendMail({
+                    to: email,
+                    code: emailCode,
+                    who: nickname,
+                });
+            })
+        });
     }
 }
