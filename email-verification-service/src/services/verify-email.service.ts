@@ -12,7 +12,8 @@ export class CreateTemporaryUserService {
 
     async execute(): Promise<void> {
         this.messageBroker.consumeFromQueue(Queues.ACCOUNT_CREATION_QUEUE, async (msg) => {
-            const {email, emailCode, nickname, password, preferredLanguage} = JSON.parse(msg.toString());
+            const msgToString = (Buffer.from(msg.content).toString());
+            const {email, emailCode, nickname, password, preferredLanguage} = JSON.parse(msgToString);
 
             const temp_cache = 60 * 60 // 1 hour
 

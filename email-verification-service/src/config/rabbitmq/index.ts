@@ -1,4 +1,4 @@
-import amqp, { Channel, Connection } from 'amqplib';
+import amqp, { Channel, Connection, Message, Options } from 'amqplib';
 import { MessageBroker } from './messager-broker';
 import { Queues } from './queues';
 
@@ -23,22 +23,49 @@ export class RabbitMQService implements MessageBroker {
         console.log('Connected to RabbitMQ');
     }
 
-    async sendToQueue(queue: Queues, message: string): Promise<void> {
+    async sendToQueue(queue: Queues, message: string, options?: Options.Publish): Promise<void> {
+
         if (!this.channel) throw new Error("RabbitMQ channel is not initialized");
-        await this.channel.assertQueue(queue, { durable: true });
-        this.channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
+        await this.channel.assertQueue(queue, { durable: true, autoDelete: true });
+
+        this.channel.sendToQueue(
+            queue, 
+            Buffer.from(message), 
+            { 
+                persistent: true, 
+                ...options 
+            }
+        );
     }
 
-    async consumeFromQueue(queue: Queues, onMessage: (message: string) => void): Promise<void> {
+    async consumeFromQueue(queue: Queues, onMessage: (message: Message) => void): Promise<void> {
         if (!this.channel) throw new Error("RabbitMQ channel is not initialized");
         
-        await this.channel.assertQueue(queue, { durable: true });
+        await this.channel.assertQueue(queue, {
+            durable: true,
+            autoDelete: true
+        });
+        
         this.channel.consume(queue, (msg) => {
             if (msg !== null) {
-                onMessage(msg.content.toString());
+                onMessage(msg);
                 this.channel?.ack(msg);
             }
         }, { noAck: false });
+    }
+
+    async createQueue(queueName?: string): Promise<string> {
+        if (!this.channel) throw new Error("RabbitMQ channel is not initialized");
+        const { queue } = await this.channel.assertQueue(queueName || "", {
+            durable: true,
+            autoDelete: true,
+        });
+        return queue;
+    }
+
+    ack(message: Message): void {
+        if (!this.channel) throw new Error("RabbitMQ channel is not initialized");
+        this.channel.ack(message);
     }
 
     async close(): Promise<void> {
