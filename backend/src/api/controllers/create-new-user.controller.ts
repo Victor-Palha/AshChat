@@ -4,6 +4,7 @@ import { UserWithSameEmailError } from "../../domain/use-cases/errors/user-with-
 import { createTemporaryUserFactory } from "../../domain/factories/create-temporary-user.factory";
 import { RabbitMQService } from "../../config/rabbitmq/index"; // Certifique-se de ajustar o caminho
 import { Queues } from "../../config/rabbitmq/queues";
+import { env } from "../../config/env";
 
 export async function createNewUserController(req: Request, res: Response): Promise<any> {
     const createUserSchema = z.object({
@@ -25,7 +26,7 @@ export async function createNewUserController(req: Request, res: Response): Prom
             preferredLanguage
         });
 
-        const rabbitMQ = await RabbitMQService.getInstance('amqp://user:password@localhost:5672');
+        const rabbitMQ = await RabbitMQService.getInstance(env.AMQP_URI);
 
         // Envia a mensagem para a fila
         await rabbitMQ.sendToQueue(

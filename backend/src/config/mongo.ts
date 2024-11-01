@@ -1,6 +1,4 @@
-// src/config/database.ts
 import mongoose from "mongoose";
-import { env } from "./env";
 
 export async function connectToDatabase(MONGODB_URI: string): Promise<void> {
     try {
