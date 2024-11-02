@@ -3,6 +3,7 @@ import { MailerService } from "./config/mailer/mailer";
 import { RabbitMQService } from "./config/rabbitmq";
 import { RedisService } from "./config/redis";
 import { ChangeUserPasswordService } from "./services/change-user-password.service";
+import { ConfirmChangeUserPasswordService } from "./services/confirm-change-user-password.service";
 import { ConfirmEmailService } from "./services/confirm-email.service";
 import { CreateTemporaryUserService } from "./services/verify-email.service";
 
@@ -36,10 +37,16 @@ async function initializeService() {
             messageBroker,
             cacheService
         )
+        const confirmChangeUserPasswordService = new ConfirmChangeUserPasswordService(
+            messageBroker,
+            cacheService
+        )
 
         await confirmEmailService.execute();
         await createTemporaryUserService.execute();
         await changeUserPasswordService.execute();
+        await confirmChangeUserPasswordService.execute();
+        
     } catch (error) {
         console.error("Erro ao inicializar o serviço:", error);
     }

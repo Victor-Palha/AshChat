@@ -2,6 +2,9 @@ import { NextFunction, Request, Response } from "express";
 import { JwtPayload, verify } from "jsonwebtoken";
 import { env } from "../../config/env";
 
+interface PayloadJWT{
+    sub: string
+}
 /**
  * Middleware to verify JWT token from the request headers.
  * 
@@ -15,7 +18,7 @@ import { env } from "../../config/env";
  * @param res - The response object.
  * @param next - The next middleware function.
  */
-export function jwtMiddleware(req: Request, res: Response, next: NextFunction): Promise<any> | any {
+export function temporaryJwtMiddleware(req: Request, res: Response, next: NextFunction): Promise<any> | any {
     const authToken = req.headers.authorization
     if(!authToken){
         return res.status(401).end()
@@ -24,12 +27,12 @@ export function jwtMiddleware(req: Request, res: Response, next: NextFunction): 
     const [, token] = authToken.split(" ")
 
     try {
-        const decoded = verify(token, env.JWT_SECRET) as JwtPayload;
-
+        const decoded = verify(token, env.JWT_TEMPORARY_TOKEN) as JwtPayload;
+        // console.log(decoded);
         if (!decoded.sub) {
             return res.status(401).json({ message: 'Token inválido: sub não encontrado' });
         }
-
+        
         req.user_id = { sub: decoded.sub };
 
         return next();

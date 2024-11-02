@@ -8,4 +8,5 @@ export abstract class UserRepository {
   abstract addChatToUser(userId: string, chatId: string): Promise<void>;
   abstract addContactToUser(userId: string, contactId: string): Promise<void>;
   abstract changeStatus(userId: string, online: boolean): Promise<void>
+  abstract changePassword(userId: string, newPassword: string): Promise<User>
 }

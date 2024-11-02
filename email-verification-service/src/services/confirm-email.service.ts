@@ -40,7 +40,6 @@ export class ConfirmEmailService {
                 console.error("Error processing message:", error);
             }
         });
-        console.log('Serviço de confirmação de e-mail iniciado e escutando a fila "confirm_email_code_queue"');
     }
 
 

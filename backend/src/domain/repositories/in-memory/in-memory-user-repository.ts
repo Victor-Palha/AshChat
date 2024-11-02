@@ -46,4 +46,13 @@ export class InMemoryUserRepository implements UserRepository {
             user.online = online
         }
     }
+
+    async changePassword(userId: string, newPassword: string): Promise<User> {
+        const user = this.users.find(user => user.id.getValue === userId)
+        if(user){
+            user.password = newPassword
+        }
+        
+        return user as User
+    }
 }

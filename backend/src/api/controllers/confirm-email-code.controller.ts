@@ -68,7 +68,7 @@ export async function confirmEmailCodeController(req: Request, res: Response): P
             } catch (error) {
                 if(error instanceof UserWithSameEmailError){
                     return res.status(400).json({
-                        message: "Já existe um usuário com o e-mail informado"
+                        message: error.message
                     });
                 }
             }

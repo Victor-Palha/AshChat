@@ -1,7 +1,8 @@
+import { User } from "../../domain/entities/user";
 import { UserRepository } from "../../domain/repositories/user-repository";
 import { CreateUserDTO } from "../../domain/use-cases/create-new-user-use-case";
 import { UserMapper } from "../mappers/user-mapper";
-import { UserModel } from "../models/user.model";
+import { UserDocument, UserModel } from "../models/user.model";
 
 export class MongoUserRepository implements UserRepository {
 
@@ -40,5 +41,10 @@ export class MongoUserRepository implements UserRepository {
 
     async changeStatus(userId: string, online: boolean): Promise<void> {
         await UserModel.findByIdAndUpdate(userId, { online });
+    }
+
+    async changePassword(userId: string, newPassword: string): Promise<User> {
+        const userUpdated = await UserModel.findByIdAndUpdate(userId, { password: newPassword }) as UserDocument;
+        return UserMapper.toDomain(userUpdated);
     }
 }
