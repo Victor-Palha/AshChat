@@ -2,8 +2,6 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import { authenticateUserFactory } from "../../domain/factories/authenticate-user.factory";
 import { UserCredentialsError } from "../../domain/use-cases/errors/user-credentials-error";
-import { sign } from "jsonwebtoken";
-import { env } from "../../config/env";
 import { generateToken } from "../../helper/generate-token-helper";
 
 /**

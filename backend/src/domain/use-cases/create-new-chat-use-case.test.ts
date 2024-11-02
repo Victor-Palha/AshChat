@@ -47,7 +47,6 @@ describe('CreateNewChatUseCase', () => {
         })
 
         expect(response.chat.id.getValue).toEqual(expect.any(String))
-        console.log(response.chat)
     })
 
     it('should throw UserNotFoundError if sender does not exist', async () => {

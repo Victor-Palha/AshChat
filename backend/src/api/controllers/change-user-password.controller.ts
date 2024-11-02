@@ -27,7 +27,7 @@ import { generateToken } from "../../helper/generate-token-helper";
  * @throws UserNotFoundError - If the user is not found by the provided email.
  * @throws ZodError - If the request body validation fails.
  */
-export async function changeUserPasswordController(req: Request, res: Response){
+export async function changeUserPasswordController(req: Request, res: Response): Promise<any>{
     const changeUserPasswordSchema = z.object({
         email: z.string().email(),
     });
@@ -36,6 +36,7 @@ export async function changeUserPasswordController(req: Request, res: Response){
     const service = findUserByEmailFactory();
     try {
         const { user } = await service.execute(email);
+
         const rabbitMQ = await RabbitMQService.getInstance(env.AMQP_URI);
         const emailCode = generateEmailCodeHelper();
         const expiresIn = (10 * 60 * 1000).toString(); // 10 minutes
