@@ -7,6 +7,21 @@ import { Queues } from "../../config/rabbitmq/queues";
 import { randomUUID } from "crypto";
 import { changeUserPasswordFactory } from "../../domain/factories/change-user-password.factory";
 
+/**
+ * Controller to confirm the change of a user's password.
+ * 
+ * This function handles the request to confirm a user's password change by validating the provided
+ * email code and new password, sending a message to a RabbitMQ queue, and updating the user's password
+ * if the response is successful.
+ * 
+ * @param req - The request object containing the email code and new password in the body.
+ * @param res - The response object used to send the HTTP response.
+ * @returns A promise that resolves to an HTTP response.
+ * 
+ * @throws {UserNotFoundError} If the user is not found.
+ * @throws {ZodError} If the request body validation fails.
+ * @throws {Error} If there is a timeout waiting for the RabbitMQ response or any other internal server error.
+ */
 export async function confirmChangeUserPasswordController(req: Request, res: Response): Promise<any>{
     const changeUserPasswordSchema = z.object({
         emailCode: z.string().min(6),

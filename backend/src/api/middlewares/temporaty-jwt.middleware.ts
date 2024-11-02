@@ -2,9 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import { JwtPayload, verify } from "jsonwebtoken";
 import { env } from "../../config/env";
 
-interface PayloadJWT{
-    sub: string
-}
 /**
  * Middleware to verify JWT token from the request headers.
  * 

@@ -3,6 +3,23 @@ import { MessageBroker } from "../config/rabbitmq/messager-broker";
 import { Queues } from "../config/rabbitmq/queues";
 import { CacheService } from "../config/redis/cache-service";
 
+/**
+ * Service to create a temporary user and send a verification email.
+ * 
+ * This service listens to the ACCOUNT_CREATION_QUEUE, processes the incoming messages,
+ * stores the user data in a cache for a temporary period, and sends a verification email
+ * to the user.
+ * 
+ * @class CreateTemporaryUserService
+ * @constructor
+ * @param {MailerService} mailerService - Service to send emails.
+ * @param {MessageBroker} messageBroker - Service to handle message queue operations.
+ * @param {CacheService} cacheService - Service to handle caching operations.
+ * 
+ * @method execute
+ * @async
+ * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+ */
 export class CreateTemporaryUserService {
     constructor(
         private mailerService: MailerService,

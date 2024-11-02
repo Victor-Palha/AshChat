@@ -3,6 +3,24 @@ import { MessageBroker } from "../config/rabbitmq/messager-broker";
 import { Queues } from "../config/rabbitmq/queues";
 import { CacheService } from "../config/redis/cache-service";
 
+/**
+ * Service to handle user password change requests.
+ * 
+ * This service listens to a message queue for password change requests,
+ * caches the request details, and sends an email to the user with a code
+ * to change their password.
+ * 
+ * @class ChangeUserPasswordService
+ * 
+ * @param {MailerService} mailerService - Service to send emails.
+ * @param {MessageBroker} messageBroker - Service to handle message queue operations.
+ * @param {CacheService} cacheService - Service to handle caching operations.
+ * 
+ * @method execute - Consumes messages from the password change queue, caches the request details,
+ * and sends an email to the user with a code to change their password.
+ * 
+ * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+ */
 export class ChangeUserPasswordService {
     constructor(
         private mailerService: MailerService,

@@ -8,20 +8,16 @@ import { randomUUID } from "crypto";
 import { UserWithSameEmailError } from "../../domain/use-cases/errors/user-with-same-email-error";
 
 /**
- * Controller to confirm the email code.
+ * Controller to confirm the email code sent to the user.
  * 
- * This function validates the email and email code from the request body,
- * sends the data to a RabbitMQ queue, and waits for a response. If the response
- * indicates success, it creates a new user with the provided data. If the response
- * indicates failure or if an error occurs, it sends an appropriate error response.
+ * This function validates the request body against a schema, sends the email and code to a RabbitMQ queue,
+ * waits for a response, and then processes the response to either create a new user or return an error.
  * 
  * @param req - The request object containing the email and email code in the body.
- * @param res - The response object used to send the response back to the client.
- * @returns A promise that resolves to the response sent to the client.
+ * @param res - The response object used to send back the appropriate HTTP response.
+ * @returns A promise that resolves to the HTTP response.
  * 
- * @throws Will throw an error if the RabbitMQ service instance cannot be created,
- *         if there is a timeout waiting for the RabbitMQ response, or if there is
- *         an error creating the new user.
+ * @throws Will throw an error if there is an issue with RabbitMQ communication or if the user creation fails.
  */
 export async function confirmEmailCodeController(req: Request, res: Response): Promise<any> {
 
