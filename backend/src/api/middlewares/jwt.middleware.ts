@@ -1,10 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { verify } from "jsonwebtoken";
+import { JwtPayload, verify } from "jsonwebtoken";
 import { env } from "../../config/env";
-
-interface PayloadJWT{
-    sub: string
-}
 
 /**
  * Middleware to verify JWT token from the request headers.
@@ -20,7 +16,6 @@ interface PayloadJWT{
  * @param next - The next middleware function.
  */
 export function jwtMiddleware(req: Request, res: Response, next: NextFunction){
-    //receive token
     const authToken = req.headers.authorization
     if(!authToken){
         return res.status(401).end()
@@ -29,14 +24,20 @@ export function jwtMiddleware(req: Request, res: Response, next: NextFunction){
     const [, token] = authToken.split(" ")
 
     try {
-        const {sub} = verify(token, env.JWT_SECRET) as PayloadJWT
+        const decoded = verify(token, env.JWT_SECRET) as JwtPayload;
 
-        req.user_id = {
-            sub
+        if (!decoded.sub) {
+            return res.status(401).json({ message: 'Token inválido: sub não encontrado' });
         }
 
-        return next()
+        req.user_id = { sub: decoded.sub };
+
+        return next();
     } catch (error) {
-        return res.status(401).end()
+        if (error instanceof Error && error.name === 'TokenExpiredError') {
+            return res.status(401).json({ message: 'Token expirado' });
+        }
+
+        return res.status(401).json({ message: 'Token inválido' });
     }
 }

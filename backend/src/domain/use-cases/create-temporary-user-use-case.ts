@@ -2,6 +2,7 @@ import { hash } from "bcryptjs";
 import { UserDTO } from "../entities/user";
 import { UserRepository } from "../repositories/user-repository";
 import { UserWithSameEmailError } from "./errors/user-with-same-email-error";
+import { generateEmailCodeHelper } from "../../helper/generate-email-code-helper";
 
 export type CreateTemporatyUserDTO = Omit<UserDTO, 'id' | 'online' | 'chatsID' | 'contactsID'>
 
@@ -17,7 +18,7 @@ export class CreateTemporaryUserUseCase {
         }
         
         const passwordHash = await hash(password, 8)
-        const emailCode = this.generateEmailCode()
+        const emailCode = generateEmailCodeHelper()
 
         const temporaryUser = {
             nickname,
@@ -30,9 +31,5 @@ export class CreateTemporaryUserUseCase {
         return {
             temporaryUser
         }
-    }
-
-    private generateEmailCode(): string{
-        return Math.floor(100000 + Math.random() * 900000).toString();
     }
 }

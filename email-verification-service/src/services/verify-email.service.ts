@@ -15,7 +15,7 @@ export class CreateTemporaryUserService {
             const msgToString = (Buffer.from(msg.content).toString());
             const {email, emailCode, nickname, password, preferredLanguage} = JSON.parse(msgToString);
 
-            const temp_cache = 60 * 60 // 1 hour
+            const temp_cache = 60 * 10 // 10 minutes
 
             this.cacheService.setItem(
                 email, 
@@ -23,7 +23,7 @@ export class CreateTemporaryUserService {
                 JSON.stringify({email, emailCode, nickname, password, preferredLanguage})
             )
             .then(async () => {
-                await this.mailerService.sendMail({
+                await this.mailerService.sendMailToRegister({
                     to: email,
                     code: emailCode,
                     who: nickname,

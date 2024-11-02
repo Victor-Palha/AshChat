@@ -6,6 +6,7 @@ const applicationEnvSchema = z.object({
     JWT_SECRET: z.string(),
     MONGODB_URI: z.string().url(),
     AMQP_URI: z.string().url(),
+    JWT_TEMPORARY_TOKEN: z.string(),
 })
 
 const applicationEnvConfig = applicationEnvSchema.safeParse(process.env);

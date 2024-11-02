@@ -4,6 +4,7 @@ import { authenticateUserFactory } from "../../domain/factories/authenticate-use
 import { UserCredentialsError } from "../../domain/use-cases/errors/user-credentials-error";
 import { sign } from "jsonwebtoken";
 import { env } from "../../config/env";
+import { generateToken } from "../../helper/generate-token-helper";
 
 /**
  * Controller to authenticate a user.
@@ -35,14 +36,11 @@ export async function authenticateUserController(req: Request, res: Response): P
             password
         })
 
-        const token = sign(
-            {},
-            env.JWT_SECRET,
-            {
-                subject: user_id,
-                expiresIn: "1d"
-            }
-        )
+        const token = generateToken({
+            subject: user_id,
+            expiresIn: "7d",
+            type: "MAIN"
+        })
 
         return res.status(200).send({
             token
