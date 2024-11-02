@@ -28,6 +28,15 @@ expressServer.use((err:Error, _req:Request, res:Response, _next: NextFunction): 
 })
 
 const app = createServer(expressServer);
+
+/**
+ * Configuration object for the server.
+ * 
+ * @property {Object} cors - CORS configuration.
+ * @property {string} cors.origin - Specifies the origin(s) that are allowed to access the server. 
+ *                                  Use '*' to allow all origins.
+ * @property {string[]} cors.methods - Array of HTTP methods that are allowed.
+ */
 const CONFIG_SERVER = {
     cors: {
         origin: '*',

@@ -5,7 +5,22 @@ import { UserCredentialsError } from "../../domain/use-cases/errors/user-credent
 import { sign } from "jsonwebtoken";
 import { env } from "../../config/env";
 
+/**
+ * Controller to authenticate a user.
+ * 
+ * This function handles the HTTP request for user authentication. It validates the request body
+ * against a predefined schema, invokes the authentication service, and returns a JWT token if 
+ * authentication is successful.
+ * 
+ * @param req - The HTTP request object.
+ * @param res - The HTTP response object.
+ * @returns A promise that resolves to the HTTP response.
+ * 
+ * @throws {UserCredentialsError} If the provided user credentials are invalid.
+ * @throws {Error} For any other internal server errors.
+ */
 export async function authenticateUserController(req: Request, res: Response): Promise<any> {
+
     const authenticateUserSchema = z.object({
         email: z.string().email(),
         password: z.string().min(6)

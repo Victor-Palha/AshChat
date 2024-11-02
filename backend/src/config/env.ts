@@ -15,4 +15,8 @@ if (!applicationEnvConfig.success) {
     throw new Error("Verify enviroment variables!");
 }
 
+/**
+ * The `env` constant holds the configuration data for the application environment.
+ * It is imported from the `applicationEnvConfig` object.
+ */
 export const env = applicationEnvConfig.data;

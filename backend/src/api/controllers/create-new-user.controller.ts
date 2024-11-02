@@ -6,6 +6,19 @@ import { RabbitMQService } from "../../config/rabbitmq/index"; // Certifique-se 
 import { Queues } from "../../config/rabbitmq/queues";
 import { env } from "../../config/env";
 
+/**
+ * Controller to handle the creation of a new user.
+ * 
+ * This function validates the request body against a schema, creates a temporary user,
+ * and sends a message to the account creation queue for further processing.
+ * 
+ * @param req - The request object containing the user data.
+ * @param res - The response object to send the result.
+ * @returns A promise that resolves to the response object.
+ * 
+ * @throws UserWithSameEmailError - If a user with the same email already exists.
+ * @throws Error - For any other internal server errors.
+ */
 export async function createNewUserController(req: Request, res: Response): Promise<any> {
     const createUserSchema = z.object({
         nickname: z.string(),
@@ -27,8 +40,7 @@ export async function createNewUserController(req: Request, res: Response): Prom
         });
 
         const rabbitMQ = await RabbitMQService.getInstance(env.AMQP_URI);
-
-        // Envia a mensagem para a fila
+        
         await rabbitMQ.sendToQueue(
             Queues.ACCOUNT_CREATION_QUEUE,
             JSON.stringify({ 
