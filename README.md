@@ -1,13 +1,24 @@
 # AshChat
-**AshChat** is a simple web application that allows users to chat with each other in real-time. The core functionality of the application is websockets, which allows for real-time communication between the server and the client. The application is built using __Node.js__ and __Express.js__ with __Socket.io__ for the websockets. And since we are using the JavaScript stack, we are using **TypeScript** for the type checking and better code quality.
+
+**AshChat** is a sophisticated web application designed to facilitate real-time communication between users. Leveraging the power of websockets, AshChat ensures seamless and instantaneous interaction between the server and clients. The application is developed using __Node.js__ and __Express.js__, with __Socket.io__ handling the websocket connections. To enhance code quality and maintainability, the project is implemented in **TypeScript**.
 
 ## Features
-The application is based on the premise of a chat room wich allows users to join and chat with each other in real-time. The application has the following features:
-- Users have a account
-- Users can chat with each other in real-time
-- Users can see when their friends are online
-- Users can see when their friends are typing
-- Users can see when their friends are offline
 
-### Main feature
-Create a web application to chat with friends is a common feature in many applications. The **main feature** for this application is the user choice a language to chat with friends. The application will translate the messages to the selected language and send it to the friend. The friend will receive the message in the selected language and can reply in the same language. The application will translate the message back to the user language.
+AshChat offers a robust chat room environment where users can engage in real-time conversations. Key features include:
+
+- **User Accounts**: Each user has a personal account.
+- **Real-Time Chat**: Users can communicate with each other in real-time.
+- **Online Status**: Users can see when their friends are online.
+- **Typing Indicators**: Users can see when their friends are typing.
+- **Offline Status**: Users can see when their friends are offline.
+
+### Main Feature
+
+A standout feature of AshChat is its multilingual support. Users can select their preferred language for communication. The application translates messages to the recipient's chosen language, ensuring that both parties can converse in their preferred languages. This feature enhances the user experience by breaking down language barriers and promoting inclusive communication.
+
+## Documentation
+The documentation for the application is available in the `docs` folder. The documentation includes the following:
+- [Installation](./docs/installation.md)
+- [Dependencies](./docs/dependencies.md)
+- [Architecture](./docs/architecture.md)
+- [Endpoints](./docs/endpoints.md)

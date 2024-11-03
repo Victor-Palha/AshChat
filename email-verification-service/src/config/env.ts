@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 const applicationEnvSchema = z.object({
-    AMQP_URI: z.string(),
-    REDIS_URI: z.string(),
+    AMQP_URI: z.string().url(),
+    REDIS_URI: z.string().url(),
     SMTP_EMAIL: z.string(),
     SMTP_PASSWORD: z.string()
 })

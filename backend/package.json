@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test:unit": "vitest",
-    "start:dev": "ts-node-dev --env-file=development.env --respawn src/server.ts --transpile-only"
+    "start:dev": "ts-node-dev --env-file=.env --respawn src/server.ts --transpile-only"
   },
   "keywords": [
     "websockets",
@@ -13,7 +13,7 @@
     "express"
   ],
   "author": "ASH",
-  "license": "ISC",
+  "license": "GNU",
   "devDependencies": {
     "@faker-js/faker": "^9.1.0",
     "@types/amqplib": "^0.10.5",

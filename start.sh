@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Verifica se o Docker e o Docker Compose estão instalados
 if ! command -v docker &> /dev/null; then
     echo "Docker isn't installed. Please install Docker first."
     exit 1
@@ -11,21 +10,13 @@ if ! command -v docker compose &> /dev/null; then
     exit 1
 fi
 
-DOCKER_COMPOSE_MQ_DIR="./"
-DOCKER_COMPOSE_REDIS_DIR="./email-verification-service"
-DOCKER_COMPOSE_MONGO_DIR="./backend"
+DOCKER_COMPOSE_DIR="./docker"
 
 # Navega até o diretório do docker-compose
-cd "$DOCKER_COMPOSE_MQ_DIR" || { echo "Directory not found: $DOCKER_COMPOSE_MQ_DIR"; exit 1; }
+cd "$DOCKER_COMPOSE_DIR" || { echo "Directory not found: $DOCKER_COMPOSE_DIR"; exit 1; }
 
 # Inicializa os contêineres
-echo "Initializing RabbitMQ container..."
-docker compose up -d
-
-cd "$DOCKER_COMPOSE_REDIS_DIR" || { echo "Directory not found: $DOCKER_COMPOSE_REDIS_DIR"; exit 1; }
-docker compose up -d
-
-cd "../$DOCKER_COMPOSE_MONGO_DIR" || { echo "Directory not found: $DOCKER_COMPOSE_MONGO_DIR"; exit 1; }
+echo "Initializing conteiners..."
 docker compose up -d
 
 # Verifica se os contêineres foram iniciados com sucesso
