@@ -11,7 +11,7 @@ export const userRoutes = Router();
 userRoutes
 .post("/user/register", createNewUserController)
 .post("/user/login", authenticateUserController)
-.post("/user/confirme-email", confirmEmailCodeController)
+.post("/user/confirm-email", confirmEmailCodeController)
 .post("/user/change-password", changeUserPasswordController)
 .post("/user/confirm-change-password", temporaryJwtMiddleware, confirmChangeUserPasswordController);
 

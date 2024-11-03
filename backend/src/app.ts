@@ -3,8 +3,25 @@ import {createServer} from 'node:http';
 import { Server } from 'socket.io';
 import { userRoutes } from './api/routes';
 import { ZodError } from 'zod';
+import cors from 'cors';
+
+/**
+ * Configuration object for the server.
+ * 
+ * @property {Object} cors - CORS configuration.
+ * @property {string} cors.origin - Specifies the origin(s) that are allowed to access the server. 
+ *                                  Use '*' to allow all origins.
+ * @property {string[]} cors.methods - Array of HTTP methods that are allowed.
+ */
+const CONFIG_SERVER = {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST']
+    }
+}
 
 const expressServer = express();
+expressServer.use(cors(CONFIG_SERVER.cors));
 
 expressServer.use(express.json());
 expressServer.use("/api", userRoutes)
@@ -29,21 +46,6 @@ expressServer.use((err:Error, _req:Request, res:Response, _next: NextFunction): 
 })
 
 const app = createServer(expressServer);
-
-/**
- * Configuration object for the server.
- * 
- * @property {Object} cors - CORS configuration.
- * @property {string} cors.origin - Specifies the origin(s) that are allowed to access the server. 
- *                                  Use '*' to allow all origins.
- * @property {string[]} cors.methods - Array of HTTP methods that are allowed.
- */
-const CONFIG_SERVER = {
-    cors: {
-        origin: '*',
-        methods: ['GET', 'POST']
-    }
-}
 
 const IO = new Server(app, CONFIG_SERVER);
 

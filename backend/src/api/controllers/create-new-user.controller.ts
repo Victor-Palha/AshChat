@@ -52,7 +52,7 @@ export async function createNewUserController(req: Request, res: Response): Prom
             })
         );
 
-        return res.status(201).send({ 
+        return res.status(202).send({ 
             message: "Verification email is being processed" 
         });
         

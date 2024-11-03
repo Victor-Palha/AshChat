@@ -21,11 +21,11 @@ export class IOServer {
         this._io.on("connection", (socket: Socket) => {
             console.log("New client connected");
             try {
-                const token = socket.handshake.query.token as string
+                const token = socket.handshake.auth.token as string
                 const userId = this.verifyAuthByToken(token)
                 socket.join(`user_${userId}`)
                 changeUserStatus.execute({ userId, online: true})
-                // All events are handled in the Events factory
+
                 Events(socket, this)
     
                 socket.on("disconnect", async () => {
@@ -33,7 +33,7 @@ export class IOServer {
     
                     await changeUserStatus.execute({ userId, online: false });
                 });
-
+                this._io.to(`user_${userId}`).emit("user-connected", { user_id: userId });
             } catch (error) {
                 console.log(error)
                 socket.disconnect()
@@ -48,7 +48,6 @@ export class IOServer {
     
           try {
             const payload = verify(token, env.JWT_SECRET)as PayloadJWT;
-            // Aqui, você pode adicionar o payload aos dados do socket para referência futura
             const user_id = payload.sub;
             return user_id
 
