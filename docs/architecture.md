@@ -77,4 +77,3 @@ sequenceDiagram
     BackendService->>MongoDB: Save user data
     BackendService->>User: Confirm registration
 ```
-![diagram](./mermaid-diagram-2024-11-03-192757.svg)
