@@ -33,6 +33,7 @@
     "cors": "^2.8.5",
     "express": "^4.21.1",
     "express-async-errors": "^3.1.1",
+    "firebase-admin": "^12.7.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.7.3",
     "socket.io": "^4.8.1",
