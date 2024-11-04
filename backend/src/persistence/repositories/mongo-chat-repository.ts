@@ -1,6 +1,5 @@
 
 import { ChatModel } from "../models/chat.model";
-import { Chat } from "../../domain/entities/chat";
 import { Message, MessageStatus } from "../../domain/entities/message"; 
 import { ChatRepository, CreateChatDTO } from "../../domain/repositories/chat-repository";
 import { ChatMapper } from "../mappers/chat-mapper";
@@ -9,13 +8,23 @@ import { MessageMapper } from "../mappers/message-mapper";
 export class MongoChatRepository implements ChatRepository {
 
     async createChat(data: CreateChatDTO){
-        const chat = new Chat({
-            usersID: [data.senderId, data.receiverId],
-            messages: [data.message],
-            sameLanguage: data.sameLanguage
-        });
+        const createMessage = {
+            senderId: data.senderId,
+            content: data.message.content,
+            translatedContent: data.message.content,
+            timestamp: data.message.timestamp,
+            status: "SENT"
+        }
 
-        const chatDocument = await ChatModel.create(chat); 
+        const chatDocument = await ChatModel.create({
+            usersID: [
+                data.senderId,
+                data.receiverId
+            ],
+            messages: createMessage,
+            sameLanguage: data.sameLanguage
+
+        }); 
         return ChatMapper.toDomain(chatDocument);
     }
 
@@ -34,7 +43,6 @@ export class MongoChatRepository implements ChatRepository {
                 senderId: message.senderId.getValue
             });
             await chat.save();
-
         }
         
         return message;

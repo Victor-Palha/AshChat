@@ -32,9 +32,8 @@ export class Message {
         this.translatedContent = dataMessage.translatedContent;
     }
 
-    public toDTO(): MessageDTO {
+    public toMongo(): MessageDTO {
         return {
-            id: this.id.getValue,
             senderId: this.senderId.getValue,
             content: this.content,
             timestamp: this.timestamp,
