@@ -4,15 +4,20 @@ import { createNewChatFactory } from "../../domain/factories/create-new-chat.fac
 import { sendNotificationFactory } from "../../domain/factories/send-notification.factory";
 
 type CreateChatEventDTO = {
-    senderId: string;
     receiverId: string;
     content: string;
 };
 
 export function createChatEvent(socket: Socket, ioServer: IOServer) {
     socket.on("create-chat", async (data: CreateChatEventDTO) => {
-        const { senderId, receiverId, content } = data;
+        const senderId = ioServer.verifyAuthByToken(socket.handshake.auth.token);
+        const { receiverId, content } = data;
 
+        if(!receiverId || !content){
+            socket.emit("error", { message: "Dados insuficientes para criar o chat." });
+            return;
+        }
+        
         try {
             const createNewChatUseCase = createNewChatFactory();
 
@@ -28,24 +33,13 @@ export function createChatEvent(socket: Socket, ioServer: IOServer) {
             // Entrar na sala do chat
             socket.join(`chat_${chat.id.getValue}`);
 
-            // Notificar o usuário receptor se ele não estiver na sala
-            const usersInRoom = await ioServer._io.in(`chat_${chat.id.getValue}`).fetchSockets();
-            const receiverIsInRoom = usersInRoom.some(user => user.id === receiverId);
+            const sendNotificationUseCase = sendNotificationFactory();
+            await sendNotificationUseCase.execute({
+                receiverId,
+                chatId: chat.id.getValue,
+                messageId: messageId.id.getValue
+            });
 
-            if (!receiverIsInRoom) {
-                const sendNotificationUseCase = sendNotificationFactory();
-                await sendNotificationUseCase.execute({
-                    receiverId,
-                    chatId: chat.id.getValue,
-                    messageId: messageId.id.getValue
-                });
-                console.log(`Notificação enviada para o usuário ${receiverId} sobre o novo chat ${chat.id.getValue}.`);
-            } else {
-                // Se o receptor estiver na sala, notificar todos os usuários na sala
-                ioServer._io.to(`chat_${chat.id.getValue}`).emit("chat-created", { chatId: chat.id.getValue, senderId, content });
-            }
-
-            console.log(`Chat ${chat.id.getValue} criado entre ${senderId} e ${receiverId}`);
         } catch (error) {
             console.error("Erro ao criar o chat:", error);
             socket.emit("error", { message: "Não foi possível criar o chat." });

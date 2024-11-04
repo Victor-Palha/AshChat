@@ -18,7 +18,7 @@ export interface ChatDocument extends Document {
 }
 
 const messageSchema = new Schema<Message>({
-    id: { type: String, required: true },
+    id: { type: String, required: false },
     senderId: { type: String, required: true },
     content: { type: String, required: true },
     translatedContent: { type: String, required: true },

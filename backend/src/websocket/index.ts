@@ -33,7 +33,7 @@ export class IOServer {
     
                     await changeUserStatus.execute({ userId, online: false });
                 });
-                this._io.to(`user_${userId}`).emit("user-connected", { user_id: userId });
+                this._io.to(`user_${userId}`).emit("user-connected", { user_id: userId.trim() });
             } catch (error) {
                 console.log(error)
                 socket.disconnect()
@@ -41,7 +41,7 @@ export class IOServer {
         })
     }
 
-    private verifyAuthByToken(token: string): string {
+    public verifyAuthByToken(token: string): string {
         if (!token) {
             throw new Error("Authentication error: No token provided");
           }
