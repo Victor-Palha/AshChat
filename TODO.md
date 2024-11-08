@@ -2,6 +2,7 @@
 Well, I have a lot of things to do and to me not get lost, I will write here.
 I know, i know, I can use the issues, but I want to do this way and since the repository is mine, I will do it. Deal with it.
 
+
 - [ ] Change the user modal from MongoDB
     - **Why?** Because i need to register the devices that the user is using to garantee that the user is the owner of the device and if he connects from another device, he will need to confirm the access.
     Example: If the user is using the app in his smartphone and he tries to connect from his computer, he will need to confirm the access in his smartphone. This is a security measure.
