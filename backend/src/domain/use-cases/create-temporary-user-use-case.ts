@@ -4,7 +4,7 @@ import { UserRepository } from "../repositories/user-repository";
 import { UserWithSameEmailError } from "./errors/user-with-same-email-error";
 import { generateEmailCodeHelper } from "../../helper/generate-email-code-helper";
 
-export type CreateTemporatyUserDTO = Omit<UserDTO, 'id' | 'online' | 'chatsID' | 'contactsID'>
+export type CreateTemporatyUserDTO = Omit<UserDTO, 'id' | 'online' | 'chatsID' | 'contactsID' | 'devices'>
 
 export class CreateTemporaryUserUseCase {
     constructor(

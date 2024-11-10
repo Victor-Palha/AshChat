@@ -8,12 +8,23 @@ export interface UserDocument extends Document {
     preferredLanguage: string;
     chatsID: string[];
     contactsID: string[];
+    devices: {
+        deviceOS: string;
+        deviceUniqueToken: string;
+        deviceNotificationToken: string;
+    };
 }
+
+const DevicesSchema = new Schema({
+    deviceOS: { type: String, required: true },
+    deviceUniqueToken: { type: String, required: true },
+    deviceNotificationToken: { type: String, required: true }
+});
 
 const UserSchema = new Schema<UserDocument>({
     nickname: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    devices: DevicesSchema,
     online: { type: Boolean, default: false },
     preferredLanguage: { type: String, required: true },
     chatsID: [{ type: String }],

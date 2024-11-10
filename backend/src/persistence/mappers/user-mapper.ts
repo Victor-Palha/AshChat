@@ -12,6 +12,11 @@ export class UserMapper {
             preferredLanguage: userDocument.preferredLanguage,
             chatsID: userDocument.chatsID,
             contactsID: userDocument.contactsID,
+            devices: {
+                deviceOS: userDocument.devices.deviceOS,
+                deviceUniqueToken: userDocument.devices.deviceUniqueToken,
+                deviceNotificationToken: userDocument.devices.deviceNotificationToken
+            }
         });
     }
     
@@ -25,6 +30,11 @@ export class UserMapper {
             preferredLanguage: user.preferredLanguage,
             chatsID: user.chatsID,
             contactsID: user.contactsID,
+            devices: {
+                deviceOS: user.devices.deviceOS,
+                deviceUniqueToken: user.devices.deviceUniqueToken,
+                deviceNotificationToken: user.devices.deviceNotificationToken
+            }
         } as UserDocument;
     }
 }
