@@ -11,6 +11,7 @@ import { randomUUID } from 'node:crypto';
 import { User } from '../entities/user';
 import { CreateNewChatUseCase } from './create-new-chat-use-case';
 import { UserNotFoundError } from './errors/user-not-found-error';
+import { createTestUserHelper } from './helpers/create-test-user-helper';
 
 describe('SendNotificationUseCase', () => {
     let sut: SendNotificationUseCase;
@@ -28,19 +29,15 @@ describe('SendNotificationUseCase', () => {
         userRepository = new InMemoryUserRepository();
         sut = new SendNotificationUseCase(notificationRepository, userRepository, chatRepository);
         
-        sender = await userRepository.createUser({
-            email: faker.internet.email(),
-            nickname: faker.person.firstName(),
-            password: faker.internet.password(),
-            preferredLanguage: 'en',
-        });
+        const {userMocked: userMockedSender} = await createTestUserHelper({
+            userRepository,
+        })
+        sender = userMockedSender
 
-        receiver = await userRepository.createUser({
-            email: faker.internet.email(),
-            nickname: faker.person.firstName(),
-            password: faker.internet.password(),
-            preferredLanguage: 'en',
-        });
+        const {userMocked: userMockedReceiver} = await createTestUserHelper({
+            userRepository,
+        })
+        receiver = userMockedReceiver
 
         const { chat } = await new CreateNewChatUseCase(chatRepository, userRepository).execute({
             senderId: sender.id.getValue,

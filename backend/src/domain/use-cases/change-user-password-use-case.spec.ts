@@ -1,15 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { CreateNewChatUseCase } from './create-new-chat-use-case'
-import { ChatRepository } from '../repositories/chat-repository'
 import { UserRepository } from '../repositories/user-repository'
-import { ChatAlreadyExistsError } from './errors/chat-already-exists-error'
 import { UserNotFoundError } from './errors/user-not-found-error'
-import { InMemoryChatRepository } from '../repositories/in-memory/in-memory-chat-repository'
 import { InMemoryUserRepository } from '../repositories/in-memory/in-memory-user-repository'
 import { faker } from '@faker-js/faker'
-import { FindUserByEmailUseCase } from './find-user-by-email-use-case'
 import { ChangeUserPasswordUseCase } from './change-user-password-use-case'
 import { randomUUID } from 'crypto'
+import { createTestUserHelper } from './helpers/create-test-user-helper'
 
 describe('change user password use case', () => {
     let sut: ChangeUserPasswordUseCase
@@ -22,22 +18,22 @@ describe('change user password use case', () => {
     })
 
     it('should be able to change a user password', async () => {
-        const emailMock = faker.internet.email()
-
-        const userMock = await userRepository.createUser({
-            email: emailMock,
-            nickname: faker.person.firstName(),
-            password: faker.internet.password(),
-            preferredLanguage: 'en'
+        const passwordMocked = faker.internet.password();
+        const emailMocked = faker.internet.email();
+        
+        const {userMocked} = await createTestUserHelper({
+            userRepository,
+            mockedEmail: emailMocked,
+            mockedPassword: passwordMocked
         })
 
         const {user} = await sut.execute({
-            user_id: userMock.id.getValue,
+            user_id: userMocked.id.getValue,
             new_password: faker.internet.password()
         })
 
         expect(user.id.getValue).toEqual(expect.any(String))
-        expect(user.email).toEqual(emailMock)
+        expect(user.email).toEqual(emailMocked)
     })
 
     it('should not be able to change a user password if doen´t exists', async () => {

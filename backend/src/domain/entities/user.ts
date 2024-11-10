@@ -9,6 +9,13 @@ export interface UserDTO {
     preferredLanguage: string
     chatsID: string[]
     contactsID: string[]
+    devices: DevicesDTO
+}
+
+export interface DevicesDTO {
+    deviceOS: string
+    deviceUniqueToken: string
+    deviceNotificationToken: string
 }
 
 export class User {
@@ -20,6 +27,7 @@ export class User {
     public preferredLanguage: string
     public chatsID: string[]
     public contactsID: string[]
+    public devices: DevicesDTO
 
     constructor(dataUser: UserDTO){
         this.id = new ID(dataUser.id)
@@ -30,6 +38,7 @@ export class User {
         this.preferredLanguage = dataUser.preferredLanguage
         this.chatsID = dataUser.chatsID
         this.contactsID = dataUser.contactsID
+        this.devices = dataUser.devices
     }
 
     public toDTO(): Omit<UserDTO, 'password'> {
@@ -40,7 +49,8 @@ export class User {
             online: this.online,
             preferredLanguage: this.preferredLanguage,
             chatsID: this.chatsID,
-            contactsID: this.contactsID
+            contactsID: this.contactsID,
+            devices: this.devices
         }
     }
 

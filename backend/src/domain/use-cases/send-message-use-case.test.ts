@@ -1,13 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { SendMessageUseCase } from './send-message-use-case';
 import { ChatRepository } from '../repositories/chat-repository';
 import { ChatNotFoundError } from './errors/chat-not-found-error';
-import { Message, MessageStatus } from '../entities/message';
+import { MessageStatus } from '../entities/message';
 import { InMemoryChatRepository } from '../repositories/in-memory/in-memory-chat-repository';
-import { faker } from '@faker-js/faker';
 import { UserRepository } from '../repositories/user-repository';
 import { InMemoryUserRepository } from '../repositories/in-memory/in-memory-user-repository';
 import { CreateNewChatUseCase } from './create-new-chat-use-case';
+import { createTestUserHelper } from './helpers/create-test-user-helper';
 
 describe('SendMessageUseCase', () => {
     let sut: SendMessageUseCase;
@@ -26,18 +26,12 @@ describe('SendMessageUseCase', () => {
 
         const content = 'Hello!'
 
-        const sender = await userRepository.createUser({
-            email: faker.internet.email(),
-            nickname: faker.person.firstName(),
-            password: faker.internet.password(),
-            preferredLanguage: 'en'
+        const {userMocked: sender} = await createTestUserHelper({
+            userRepository,
         })
 
-        const receiver = await userRepository.createUser({
-            email: faker.internet.email(),
-            nickname: faker.person.firstName(),
-            password: faker.internet.password(),
-            preferredLanguage: 'en'
+        const {userMocked: receiver} = await createTestUserHelper({
+            userRepository,
         })
 
         const {chat} = await helper.execute({ 
@@ -67,18 +61,12 @@ describe('SendMessageUseCase', () => {
     it('should add the message to the chat', async () => {
         const content = 'Hello!'
 
-        const sender = await userRepository.createUser({
-            email: faker.internet.email(),
-            nickname: faker.person.firstName(),
-            password: faker.internet.password(),
-            preferredLanguage: 'en'
+        const {userMocked: sender} = await createTestUserHelper({
+            userRepository,
         })
 
-        const receiver = await userRepository.createUser({
-            email: faker.internet.email(),
-            nickname: faker.person.firstName(),
-            password: faker.internet.password(),
-            preferredLanguage: 'en'
+        const {userMocked: receiver} = await createTestUserHelper({
+            userRepository,
         })
 
         const {chat} = await helper.execute({ 
@@ -100,18 +88,12 @@ describe('SendMessageUseCase', () => {
     it('should set the message status to sent', async () => {
         const content = 'Hello!'
 
-        const sender = await userRepository.createUser({
-            email: faker.internet.email(),
-            nickname: faker.person.firstName(),
-            password: faker.internet.password(),
-            preferredLanguage: 'en'
+        const {userMocked: sender} = await createTestUserHelper({
+            userRepository,
         })
 
-        const receiver = await userRepository.createUser({
-            email: faker.internet.email(),
-            nickname: faker.person.firstName(),
-            password: faker.internet.password(),
-            preferredLanguage: 'en'
+        const {userMocked: receiver} = await createTestUserHelper({
+            userRepository,
         })
 
         const {chat} = await helper.execute({ 
