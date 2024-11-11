@@ -8,7 +8,11 @@ export class MongoUserRepository implements UserRepository {
 
     async createUser(user: CreateUserDTO){
         const newUser = new UserModel({
-            ...user,
+            nickname: user.nickname,
+            email: user.email,
+            password: user.password,
+            preferredLanguage: user.preferredLanguage,
+            devices: user.devices,
             online: false,
             chatsID: [],
             contactsID: []
@@ -46,5 +50,20 @@ export class MongoUserRepository implements UserRepository {
     async changePassword(userId: string, newPassword: string): Promise<User> {
         const userUpdated = await UserModel.findByIdAndUpdate(userId, { password: newPassword }) as UserDocument;
         return UserMapper.toDomain(userUpdated);
+    }
+
+    async changeUserDeviceId(userId: string, deviceUniqueToken: string, newDeviceOS: string, newDeviceNotificationToken: string): Promise<void> {
+        await UserModel.findByIdAndUpdate(
+            userId,
+            { 
+                "devices.deviceUniqueToken": deviceUniqueToken,
+                "devices.deviceOS": newDeviceOS,
+                "devices.deviceNotificationToken": newDeviceNotificationToken
+            },
+            { 
+                new: true,
+                useFindAndModify: false 
+            }
+        );
     }
 }

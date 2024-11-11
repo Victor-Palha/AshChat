@@ -4,11 +4,10 @@ import { ChatRepository } from '../repositories/chat-repository'
 import { UserRepository } from '../repositories/user-repository'
 import { ChatAlreadyExistsError } from './errors/chat-already-exists-error'
 import { UserNotFoundError } from './errors/user-not-found-error'
-import { Chat } from '../entities/chat'
-import { Message } from '../entities/message'
 import { InMemoryChatRepository } from '../repositories/in-memory/in-memory-chat-repository'
 import { InMemoryUserRepository } from '../repositories/in-memory/in-memory-user-repository'
 import { faker } from '@faker-js/faker'
+import { createTestUserHelper } from './helpers/create-test-user-helper'
 
 describe('CreateNewChatUseCase', () => {
     let sut: CreateNewChatUseCase
@@ -26,18 +25,12 @@ describe('CreateNewChatUseCase', () => {
     it('should create a new chat successfully', async () => {
         const content = 'Hello!'
 
-        const sender = await userRepository.createUser({
-            email: faker.internet.email(),
-            nickname: faker.person.firstName(),
-            password: faker.internet.password(),
-            preferredLanguage: 'en'
+        const {userMocked: sender} = await createTestUserHelper({
+            userRepository,
         })
 
-        const receiver = await userRepository.createUser({
-            email: faker.internet.email(),
-            nickname: faker.person.firstName(),
-            password: faker.internet.password(),
-            preferredLanguage: 'en'
+        const {userMocked: receiver} = await createTestUserHelper({
+            userRepository,
         })
 
         const response = await sut.execute({ 
@@ -53,11 +46,8 @@ describe('CreateNewChatUseCase', () => {
         const content = 'Hello!'
         const nonExistentUserId = faker.string.uuid()
 
-        const receiver = await userRepository.createUser({
-            email: faker.internet.email(),
-            nickname: faker.person.firstName(),
-            password: faker.internet.password(),
-            preferredLanguage: 'en'
+        const {userMocked: receiver} = await createTestUserHelper({
+            userRepository,
         })
 
         await expect(sut.execute({ 
@@ -71,11 +61,8 @@ describe('CreateNewChatUseCase', () => {
         const content = 'Hello!'
         const nonExistentUserId = faker.string.uuid()
 
-        const sender = await userRepository.createUser({
-            email: faker.internet.email(),
-            nickname: faker.person.firstName(),
-            password: faker.internet.password(),
-            preferredLanguage: 'en'
+        const {userMocked: sender} = await createTestUserHelper({
+            userRepository,
         })
 
         await expect(sut.execute({ 
@@ -88,18 +75,13 @@ describe('CreateNewChatUseCase', () => {
     it.only('should throw ChatAlreadyExistsError if chat already exists', async () => {
         const content = 'Hello!'
 
-        const sender = await userRepository.createUser({
-            email: faker.internet.email(),
-            nickname: faker.person.firstName(),
-            password: faker.internet.password(),
-            preferredLanguage: 'en'
+        const {userMocked: sender} = await createTestUserHelper({
+            userRepository,
         })
 
-        const receiver = await userRepository.createUser({
-            email: faker.internet.email(),
-            nickname: faker.person.firstName(),
-            password: faker.internet.password(),
-            preferredLanguage: 'en'
+
+        const {userMocked: receiver} = await createTestUserHelper({
+            userRepository,
         })
 
         await sut.execute({ 

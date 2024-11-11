@@ -3,6 +3,11 @@ import { UserDocument } from "../models/user.model";
 
 export class UserMapper {
     static toDomain(userDocument: UserDocument): User {
+        const devices = userDocument.devices ?? {
+            deviceOS: "",
+            deviceUniqueToken: "",
+            deviceNotificationToken: ""
+        }
         return new User({
             id: userDocument.id,
             nickname: userDocument.nickname,
@@ -12,6 +17,7 @@ export class UserMapper {
             preferredLanguage: userDocument.preferredLanguage,
             chatsID: userDocument.chatsID,
             contactsID: userDocument.contactsID,
+            devices: devices
         });
     }
     
@@ -25,6 +31,11 @@ export class UserMapper {
             preferredLanguage: user.preferredLanguage,
             chatsID: user.chatsID,
             contactsID: user.contactsID,
+            devices: {
+                deviceOS: user.devices.deviceOS,
+                deviceUniqueToken: user.devices.deviceUniqueToken,
+                deviceNotificationToken: user.devices.deviceNotificationToken
+            }
         } as UserDocument;
     }
 }

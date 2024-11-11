@@ -23,10 +23,13 @@ export async function confirmEmailCodeController(req: Request, res: Response): P
 
     const confirmEmailCodeSchema = z.object({
         email: z.string().email(),
-        emailCode: z.string().min(6)
+        emailCode: z.string().min(6),
+        deviceOS: z.string(),
+        deviceUniqueToken: z.string(),
+        deviceNotificationToken: z.string()
     });
 
-    const { email, emailCode } = confirmEmailCodeSchema.parse(req.body);
+    const { email, emailCode, deviceOS, deviceUniqueToken, deviceNotificationToken } = confirmEmailCodeSchema.parse(req.body);
 
     const service = createNewUserFactory();
     try {
@@ -57,9 +60,8 @@ export async function confirmEmailCodeController(req: Request, res: Response): P
 
         if(response.success){
             const { email, nickname, password, preferredLanguage } = response.data;
-
             try {
-                const user = await service.execute({ email, nickname, password, preferredLanguage });
+                const user = await service.execute({ email, nickname, password, preferredLanguage, devices: { deviceOS, deviceUniqueToken, deviceNotificationToken } });
                 return res.status(201).json(user);
             } catch (error) {
                 if(error instanceof UserWithSameEmailError){

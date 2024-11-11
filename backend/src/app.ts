@@ -27,7 +27,6 @@ expressServer.use(express.json());
 expressServer.use("/api", userRoutes)
 //Errors
 expressServer.use((err:Error, _req:Request, res:Response, _next: NextFunction): any => {
-    console.error(err)
     if(err instanceof ZodError){
         //if are error
         return res.status(400).json({
@@ -38,10 +37,12 @@ expressServer.use((err:Error, _req:Request, res:Response, _next: NextFunction): 
 
     if(err instanceof Error){
         //if are error
+        
         return res.status(500).json({
             error: err.message
         })
     }
+
     return res.status(500).json({status: "error", message:"Internal server error"})
 })
 

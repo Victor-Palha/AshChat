@@ -1,10 +1,10 @@
 import {beforeEach, describe, expect, it} from "vitest"
-import { CreateNewUserUseCase } from "./create-new-user-use-case"
 import { UserRepository } from "../repositories/user-repository"
 import { InMemoryUserRepository } from "../repositories/in-memory/in-memory-user-repository"
 import { faker } from '@faker-js/faker';
 import { CreateTemporaryUserUseCase } from "./create-temporary-user-use-case";
 import { UserWithSameEmailError } from "./errors/user-with-same-email-error";
+import { randomUUID } from "crypto";
 
 describe("Create temporaty User Use Case", () => {
     let sut: CreateTemporaryUserUseCase
@@ -20,7 +20,12 @@ describe("Create temporaty User Use Case", () => {
             nickname: faker.person.firstName(),
             email: faker.internet.email(),
             password: faker.internet.password(),
-            preferredLanguage: 'en'
+            preferredLanguage: 'en',
+            devices: {
+                deviceOS: "IOS",
+                deviceNotificationToken: randomUUID(),
+                deviceUniqueToken: randomUUID()
+            }
         }
 
         const {temporaryUser} = await sut.execute(mockedUser)
@@ -40,14 +45,24 @@ describe("Create temporaty User Use Case", () => {
             email: mockEmail,
             nickname: faker.person.firstName(),
             password: faker.internet.password(),
-            preferredLanguage: "EN"
+            preferredLanguage: "EN",
+            devices: {
+                deviceOS: "IOS",
+                deviceNotificationToken: randomUUID(),
+                deviceUniqueToken: randomUUID()
+            }
         })
 
         expect(sut.execute({
             email: mockEmail,
             nickname: faker.person.firstName(),
             password: faker.internet.password(),
-            preferredLanguage: "EN"
+            preferredLanguage: "EN",
+            devices: {
+                deviceOS: "IOS",
+                deviceNotificationToken: randomUUID(),
+                deviceUniqueToken: randomUUID()
+            }
         })).rejects.toBeInstanceOf(UserWithSameEmailError)
     })
 })

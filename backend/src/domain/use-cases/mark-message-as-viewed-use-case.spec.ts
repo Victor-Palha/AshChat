@@ -5,11 +5,11 @@ import { ChatRepository } from '../repositories/chat-repository';
 import { InMemoryChatRepository } from '../repositories/in-memory/in-memory-chat-repository';
 import { UserRepository } from '../repositories/user-repository';
 import { SendNotificationUseCase } from './send-notification-use-case';
-import { faker } from '@faker-js/faker';
 import { MessageStatus } from '../entities/message';
 import { MarkNotificationAsViewedUseCase } from './mark-message-as-viewed-use-case';
 import { InMemoryUserRepository } from '../repositories/in-memory/in-memory-user-repository';
 import { CreateNewChatUseCase } from './create-new-chat-use-case';
+import { createTestUserHelper } from './helpers/create-test-user-helper';
 
 describe('MarkNotificationAsViewedUseCase', () => {
     let sut: MarkNotificationAsViewedUseCase;
@@ -29,19 +29,13 @@ describe('MarkNotificationAsViewedUseCase', () => {
         sut = new MarkNotificationAsViewedUseCase(notificationRepository, chatRepository);
 
         // Criação dos usuários
-        const sender = await userRepository.createUser({
-            email: faker.internet.email(),
-            nickname: faker.person.firstName(),
-            password: faker.internet.password(),
-            preferredLanguage: 'en',
-        });
+        const {userMocked: sender} = await createTestUserHelper({
+            userRepository,
+        })
 
-        const receiver = await userRepository.createUser({
-            email: faker.internet.email(),
-            nickname: faker.person.firstName(),
-            password: faker.internet.password(),
-            preferredLanguage: 'en',
-        });
+        const {userMocked: receiver} = await createTestUserHelper({
+            userRepository,
+        })
 
         senderId = sender.id.getValue;
         receiverId = receiver.id.getValue;

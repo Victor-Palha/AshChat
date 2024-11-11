@@ -1,13 +1,10 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { CreateNewChatUseCase } from './create-new-chat-use-case'
-import { ChatRepository } from '../repositories/chat-repository'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { UserRepository } from '../repositories/user-repository'
-import { ChatAlreadyExistsError } from './errors/chat-already-exists-error'
 import { UserNotFoundError } from './errors/user-not-found-error'
-import { InMemoryChatRepository } from '../repositories/in-memory/in-memory-chat-repository'
 import { InMemoryUserRepository } from '../repositories/in-memory/in-memory-user-repository'
 import { faker } from '@faker-js/faker'
 import { FindUserByEmailUseCase } from './find-user-by-email-use-case'
+import { createTestUserHelper } from './helpers/create-test-user-helper'
 
 describe('Find user by email use case', () => {
     let sut: FindUserByEmailUseCase
@@ -22,11 +19,9 @@ describe('Find user by email use case', () => {
     it('should be able to find a user by his email', async () => {
         const emailMock = faker.internet.email()
 
-        await userRepository.createUser({
-            email: emailMock,
-            nickname: faker.person.firstName(),
-            password: faker.internet.password(),
-            preferredLanguage: 'en'
+        await createTestUserHelper({
+            userRepository,
+            mockedEmail: emailMock
         })
 
         const {user} = await sut.execute(emailMock)

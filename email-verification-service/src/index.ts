@@ -5,6 +5,8 @@ import { RedisService } from "./config/redis";
 import { ChangeUserPasswordService } from "./services/change-user-password.service";
 import { ConfirmChangeUserPasswordService } from "./services/confirm-change-user-password.service";
 import { ConfirmEmailService } from "./services/confirm-email.service";
+import { ConfirmNewDeviceToLogService } from "./services/confirm-new-device-to-log.service";
+import { NewDeviceTryingLogService } from "./services/new-device-trying-log.service";
 import { CreateTemporaryUserService } from "./services/verify-email.service";
 
 const AMQP_URI = env.AMQP_URI
@@ -65,11 +67,22 @@ async function initializeService() {
             messageBroker,
             cacheService
         )
+        const newDeviceTryingToLogError = new NewDeviceTryingLogService(
+            mailerService,
+            cacheService,
+            messageBroker,
+        )
+        const confirmNewDeviceToLogService = new ConfirmNewDeviceToLogService(
+            cacheService,
+            messageBroker
+        )
 
         await confirmEmailService.execute();
         await createTemporaryUserService.execute();
         await changeUserPasswordService.execute();
         await confirmChangeUserPasswordService.execute();
+        await newDeviceTryingToLogError.execute();
+        await confirmNewDeviceToLogService.execute();
         
     } catch (error) {
         console.error("Erro ao inicializar o serviço:", error);
