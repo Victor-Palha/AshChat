@@ -5,6 +5,7 @@ import { confirmEmailCodeController } from "./controllers/confirm-email-code.con
 import { changeUserPasswordController } from "./controllers/change-user-password.controller";
 import { confirmChangeUserPasswordController } from "./controllers/confirm-change-user-password.controller";
 import { temporaryJwtMiddleware } from "./middlewares/temporaty-jwt.middleware";
+import { confirmNewDeviceController } from "./controllers/confirm-new-device.controller";
 
 export const userRoutes = Router();
 
@@ -13,5 +14,6 @@ userRoutes
 .post("/user/login", authenticateUserController)
 .post("/user/confirm-email", confirmEmailCodeController)
 .post("/user/change-password", changeUserPasswordController)
-.post("/user/confirm-change-password", temporaryJwtMiddleware, confirmChangeUserPasswordController);
+.post("/user/confirm-change-password", temporaryJwtMiddleware, confirmChangeUserPasswordController)
+.patch("/user/confirm-new-device", temporaryJwtMiddleware, confirmNewDeviceController);
 

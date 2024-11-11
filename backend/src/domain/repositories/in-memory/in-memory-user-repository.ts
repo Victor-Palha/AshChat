@@ -55,4 +55,13 @@ export class InMemoryUserRepository implements UserRepository {
         
         return user as User
     }
+
+    async changeUserDeviceId(userId: string, newDeviceId: string, newDeviceOS: string, newDeviceNotificationToken: string): Promise<void> {
+        const user = this.users.find(user => user.id.getValue === userId)
+        if(user){
+            user.devices.deviceUniqueToken = newDeviceId
+            user.devices.deviceOS = newDeviceOS
+            user.devices.deviceNotificationToken = newDeviceNotificationToken
+        }
+    }
 }

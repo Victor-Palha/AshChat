@@ -24,6 +24,7 @@ const DevicesSchema = new Schema({
 const UserSchema = new Schema<UserDocument>({
     nickname: { type: String, required: true },
     email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
     devices: DevicesSchema,
     online: { type: Boolean, default: false },
     preferredLanguage: { type: String, required: true },

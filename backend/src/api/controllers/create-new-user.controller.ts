@@ -62,6 +62,7 @@ export async function createNewUserController(req: Request, res: Response): Prom
                 message: error.message
             });
         }
+        console.error(error);
         return res.status(500).send({
             message: "Internal server error"
         });

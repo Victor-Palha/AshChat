@@ -9,4 +9,5 @@ export abstract class UserRepository {
   abstract addContactToUser(userId: string, contactId: string): Promise<void>;
   abstract changeStatus(userId: string, online: boolean): Promise<void>
   abstract changePassword(userId: string, newPassword: string): Promise<User>
+  abstract changeUserDeviceId(userId: string, newDeviceId: string, newDeviceOS: string, newDeviceNotificationToken: string): Promise<void>
 }

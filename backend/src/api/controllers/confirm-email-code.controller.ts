@@ -60,7 +60,6 @@ export async function confirmEmailCodeController(req: Request, res: Response): P
 
         if(response.success){
             const { email, nickname, password, preferredLanguage } = response.data;
-
             try {
                 const user = await service.execute({ email, nickname, password, preferredLanguage, devices: { deviceOS, deviceUniqueToken, deviceNotificationToken } });
                 return res.status(201).json(user);

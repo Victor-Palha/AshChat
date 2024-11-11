@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto";
+import { createHash, randomUUID } from "crypto";
 import { UserRepository } from "../../repositories/user-repository";
 import { faker } from "@faker-js/faker";
 import { hash } from "bcryptjs";
@@ -13,6 +13,8 @@ export async function createTestUserHelper({userRepository, mockedEmail, mockedP
     if(mockedPassword){
         passMocked = await hash(mockedPassword, 8)
     }
+    const uniqueTokenDevice = randomUUID()
+
     const user = await userRepository.createUser({
         email: mockedEmail ?? faker.internet.email(),
         nickname: faker.person.firstName(),
@@ -21,9 +23,9 @@ export async function createTestUserHelper({userRepository, mockedEmail, mockedP
         devices: {
             deviceOS: "IOS",
             deviceNotificationToken: randomUUID(),
-            deviceUniqueToken: randomUUID()
+            deviceUniqueToken: createHash("sha256").update(uniqueTokenDevice).digest("hex")
         }
     })
 
-    return {userMocked: user}
+    return {userMocked: user, uniqueTokenDevice}
 }

@@ -38,7 +38,11 @@ export class User {
         this.preferredLanguage = dataUser.preferredLanguage
         this.chatsID = dataUser.chatsID
         this.contactsID = dataUser.contactsID
-        this.devices = dataUser.devices
+        this.devices = dataUser.devices ?? {
+            deviceOS: "",
+            deviceUniqueToken: "",
+            deviceNotificationToken: ""
+        }
     }
 
     public toDTO(): Omit<UserDTO, 'password'> {

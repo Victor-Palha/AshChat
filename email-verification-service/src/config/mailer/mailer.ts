@@ -94,4 +94,33 @@ export class MailerService {
             throw new FailToSendEmailError();
         }
     }
+
+    public async sendMailToAllowNewDevice({ to, code, who }: SendMailerRequest): Promise<void> {
+        const mailOptions = {
+            from: `"AshChat Support" <${process.env.EMAIL_USER}>`,
+            to,
+            subject: "Tentativa de login de novo dispositivo - AshChat",
+            text: `Olá ${who},\n\nDetectamos uma tentativa de login na sua conta AshChat a partir de um novo dispositivo.\n\nSe essa tentativa foi feita por você, use o código de verificação abaixo para autorizar o acesso do novo dispositivo:\n\nCódigo de Verificação: ${code}\n\nEste código expira em 5 minutos.\n\nAtenciosamente,\nEquipe AshChat`,
+            html: `
+                <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                    <h2>Olá ${who},</h2>
+                    <p>Detectamos uma tentativa de login na sua conta AshChat a partir de um novo dispositivo.</p>
+                    <p>Se essa tentativa foi feita por você, use o código de verificação abaixo para autorizar o acesso do novo dispositivo:</p>
+                    <h1 style="color: #6320EE;">${code}</h1>
+                    <p><em>Este código expira em 5 minutos.</em></p>
+                    <br>
+                    <p>Atenciosamente,</p>
+                    <p><strong>Equipe AshChat</strong></p>
+                </div>
+            `
+        };        
+
+        try {
+            await this.transporter.sendMail(mailOptions);
+            console.log(`E-mail enviado para ${to} com o código de verificação.`);
+        } catch (error) {
+            console.error("Erro ao enviar o e-mail de verificação:", error);
+            throw new FailToSendEmailError();
+        }
+    }
 }
