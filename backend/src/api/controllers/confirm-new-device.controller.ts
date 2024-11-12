@@ -54,7 +54,7 @@ export async function confirmNewDeviceController(req: Request, res: Response): P
                 deviceNotificationToken
             });
 
-            return res.status(200).json({ message: "Device successfully confirmed" });
+            return res.status(204).json();
         }
         if(response.success === false){
             return res.status(403).json({ message: response.message });

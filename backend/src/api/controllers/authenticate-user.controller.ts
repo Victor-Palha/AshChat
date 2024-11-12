@@ -84,7 +84,7 @@ export async function authenticateUserController(req: Request, res: Response): P
             return res.status(403).send({
                 error: error.message,
                 message: "A new device is trying to log in. Check your email to allow it.",
-                infor: "To allow the new device, use the JWT temporary token and the code sent to your email to endpoit /api/user/confirm-new-device",
+                info: "To allow the new device, use the JWT temporary token and the code sent to your email to endpoit /api/user/confirm-new-device",
                 token: temporaryToken
             })
         }

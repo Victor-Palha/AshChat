@@ -61,11 +61,14 @@ export async function confirmEmailCodeController(req: Request, res: Response): P
         if(response.success){
             const { email, nickname, password, preferredLanguage } = response.data;
             try {
-                const user = await service.execute({ email, nickname, password, preferredLanguage, devices: { deviceOS, deviceUniqueToken, deviceNotificationToken } });
-                return res.status(201).json(user);
+                await service.execute({ email, nickname, password, preferredLanguage, devices: { deviceOS, deviceUniqueToken, deviceNotificationToken } });
+                return res.status(201).json({
+                    message: "Email confirmed successfully, user created successfully"
+                });
+
             } catch (error) {
                 if(error instanceof UserWithSameEmailError){
-                    return res.status(400).json({
+                    return res.status(409).json({
                         message: error.message
                     });
                 }

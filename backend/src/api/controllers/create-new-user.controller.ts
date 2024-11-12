@@ -58,11 +58,10 @@ export async function createNewUserController(req: Request, res: Response): Prom
         
     } catch (error) {
         if (error instanceof UserWithSameEmailError) {
-            return res.status(400).send({
+            return res.status(409).send({
                 message: error.message
             });
         }
-        console.error(error);
         return res.status(500).send({
             message: "Internal server error"
         });
