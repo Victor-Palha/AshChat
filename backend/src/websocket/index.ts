@@ -21,8 +21,8 @@ export class IOServer {
         this._io.on("connection", (socket: Socket) => {
             console.log("New client connected");
             try {
-                const token = socket.handshake.auth.token as string
-                const userId = this.verifyAuthByToken(token)
+                const jwt_token = socket.handshake.auth.token as string
+                const userId = this.verifyAuthByToken(jwt_token)
                 socket.join(`user_${userId}`)
                 changeUserStatus.execute({ userId, online: true})
 
