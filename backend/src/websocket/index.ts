@@ -45,7 +45,7 @@ export class IOServer {
         })
     }
 
-    private verifyAuthByToken(token: string): string {
+    public verifyAuthByToken(token: string): string {
         if (!token) {
             throw new Error("Authentication error: No token provided");
           }
