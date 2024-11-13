@@ -7,6 +7,21 @@ import { RabbitMQService } from "../../config/rabbitmq";
 import { Queues } from "../../config/rabbitmq/queues";
 import { createHash, randomUUID } from "crypto";
 
+/**
+ * Controller to confirm a new device for a user.
+ * 
+ * This function handles the confirmation of a new device by validating the request body,
+ * sending a message to a RabbitMQ queue, and processing the response. If the device is
+ * successfully confirmed, it updates the user's device information.
+ * 
+ * @param req - The request object containing the body with emailCode, deviceUniqueToken, deviceOS, and deviceNotificationToken.
+ * @param res - The response object used to send back the appropriate HTTP response.
+ * @returns A promise that resolves to an HTTP response.
+ * 
+ * @throws {UserNotFoundError} If the user is not found.
+ * @throws {Error} If there is a timeout waiting for the RabbitMQ response.
+ * @throws {Error} If there is an internal server error.
+ */
 export async function confirmNewDeviceController(req: Request, res: Response): Promise<any> {
     const confirmNewDeviceSchema = z.object({
         emailCode: z.coerce.string(),
