@@ -1,18 +1,17 @@
 import { Button } from "@/src/components/Button";
 import { router } from "expo-router";
 import { Image, Text, View } from "react-native";
+import { Gradient } from "@/src/components/Grandient";
 
 export default function Index(){
     function handleStart(){
-        router.push("/index");
+        router.push("/login");
     }
     return (
         <View   
-            className="flex-1 pt-[62px] items-center justify-center"
-            style={{
-                backgroundImage: 'linear-gradient(to bottom, #19181F 60%, #1E1E26 100%)',
-            }}
+            className="flex-1 pt-[62px] items-center justify-center text-white"
         >   
+        <Gradient/>
             <View className="items-center justify-center mb-[25]">
                 <Image source={require("../../assets/logo.png")}/>
                 <Text className="text-5xl text-white" style={{fontFamily: "Kenia_400Regular"}}>AshChat</Text>
