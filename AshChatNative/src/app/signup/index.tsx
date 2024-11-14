@@ -2,7 +2,7 @@ import { Button } from "@/src/components/Button";
 import { Input } from "@/src/components/Input";
 import { InputPassword } from "@/src/components/InputPassword";
 import { languages } from "@/src/constants/languages";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { useState } from "react";
 import { 
     FlatList, 
@@ -77,7 +77,7 @@ export default function Signup(){
                 )}
                 {/* End of Language Dropdown */}
             </View>
-            <Button title="Sign up"/>
+            <Button title="Sign up"  onPress={()=>router.push("/confirmsignup")}/>
             <View className="text-center items-center mt-2">
                 <Link href="/login" className="text-sm font-semibold text-purple-700 mb-4">
                 Already have a account? Sign in
