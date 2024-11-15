@@ -1,12 +1,19 @@
+import { ModalAdd } from "@/src/components/ModalAdd";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useState } from "react";
 import { Text, TouchableOpacity, View, Image } from "react-native";
 
 export default function Home(){
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    function handleOpenModal() {
+        setIsModalOpen(!isModalOpen);
+    }
     return (
         <View className="flex-1 pt-[62px] px-10" >
             {/* Header */}
             <View className="items-end py-5">
-                <TouchableOpacity className="bg-purple-700 rounded-full p-1">
+                <TouchableOpacity className="bg-purple-700 rounded-full p-1" onPress={handleOpenModal}>
                     <MaterialIcons name="add" size={24} color="white" />
                 </TouchableOpacity>
             </View>
@@ -30,6 +37,7 @@ export default function Home(){
                 />
                 <Text className="text-white font-semibold italic text-md mt-[-40] text-center">Hmm... You seen to be lost! Try to connect to someone!</Text>
             </View>
+            <ModalAdd modalIsOpen={isModalOpen} closeModal={handleOpenModal}/>
         </View>
     )
 }
