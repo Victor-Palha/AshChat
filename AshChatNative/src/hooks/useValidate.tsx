@@ -9,7 +9,8 @@ export function useValidate(){
             router.replace('/login')
         }
         if(authState.authenticated){
-            router.replace('/home')
+            console.log('Authenticated')
+            router.replace('/private/home')
         }
     }, []))
 }

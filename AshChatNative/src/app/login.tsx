@@ -34,7 +34,7 @@ export default function Login(){
         >
             <Gradient/>
             <View className="items-center justify-center mb-[25]">
-                <Image source={require("../../assets/logo.png")}/>
+                <Image source={require("../assets/logo.png")}/>
                 <Text className="text-5xl text-white" style={{fontFamily: "Kenia_400Regular"}}>AshChat</Text>
             </View>
 

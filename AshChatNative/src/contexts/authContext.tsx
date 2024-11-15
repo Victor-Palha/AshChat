@@ -36,7 +36,6 @@ export function AuthProvider({children}: {children: React.ReactNode}){
             if(token){
                 setAuthState({token, authenticated: true})
                 ApiClient.setTokenAuth(token)
-                router.replace('/home')
             } else {
                 setAuthState({token: null, authenticated: false})
             }
