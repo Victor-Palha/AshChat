@@ -1,3 +1,6 @@
+import { colors } from "@/src/styles/colors";
+import { MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   FlatList,
@@ -48,10 +51,18 @@ export default function Chat(): JSX.Element {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-gray-100"
+      className="flex-1 bg-gray-700 pt-[60px]"
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
     >
+      {/* Header */}
+      <View className="flex-row border-b-[1px] border-purple-700 p-3 items-center">
+        <TouchableOpacity onPress={()=>router.back()}>
+          <MaterialIcons name="keyboard-arrow-left" size={34} color={colors.purple[700]} />
+        </TouchableOpacity>
+        <Text className="text-white font-bold text-2xl ml-3">Jane Doe</Text>
+      </View>
+
       {/* Lista de Mensagens */}
       <FlatList
         data={messages}
@@ -62,7 +73,7 @@ export default function Chat(): JSX.Element {
       />
 
       {/* Campo de Entrada */}
-      <View className="flex-row items-center bg-white border-t border-gray-300 p-3">
+      <View className="flex-row items-center border-gray-900 p-3 pb-12">
         <TextInput
           className="flex-1 bg-gray-200 rounded-full px-4 py-2 text-gray-800"
           placeholder="Digite sua mensagem..."

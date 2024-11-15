@@ -33,7 +33,7 @@ export function ModalAdd({modalIsOpen, closeModal}: ModalAddProps) {
                 title="Add"
                 onPress={() => {
                     closeModal(false)
-                    router.navigate("/private/chat")
+                    router.push("/private/chat")
                 }}
             />
             </View>
