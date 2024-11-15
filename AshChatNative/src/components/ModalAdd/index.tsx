@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "../Button";
 import { MaterialIcons } from "@expo/vector-icons";
 import { colors } from "@/src/styles/colors";
+import { router } from "expo-router";
 
 type ModalAddProps = {
     modalIsOpen: boolean;
@@ -30,6 +31,10 @@ export function ModalAdd({modalIsOpen, closeModal}: ModalAddProps) {
             />
             <Button
                 title="Add"
+                onPress={() => {
+                    closeModal(false)
+                    router.navigate("/chat")
+                }}
             />
             </View>
         </View>

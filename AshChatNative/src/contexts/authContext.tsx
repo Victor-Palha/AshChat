@@ -36,7 +36,7 @@ export function AuthProvider({children}: {children: React.ReactNode}){
             if(token){
                 setAuthState({token, authenticated: true})
                 ApiClient.setTokenAuth(token)
-                router.push('/home')
+                router.replace('/home')
             } else {
                 setAuthState({token: null, authenticated: false})
             }
@@ -86,7 +86,7 @@ export function AuthProvider({children}: {children: React.ReactNode}){
                 safeStorage.setEmail(email)
                 safeStorage.setDeviceOS(Platform.OS)
                 safeStorage.setNotificationToken(randomUUID())
-                router.push('/confirmsignup')
+                router.navigate('/confirmsignup')
             }
             
         } catch (error) {
@@ -116,7 +116,7 @@ export function AuthProvider({children}: {children: React.ReactNode}){
 
             if(response.status === 201){
                 Alert.alert('Success', "You have successfully confirmed your account. Please login to continue.")
-                router.push('/login')
+                router.navigate('/login')
             }
         } catch (error) {
             Alert.alert('Error', "An error occurred while trying to confirm your account. Please try again.")

@@ -7,7 +7,7 @@ import { useValidate } from "@/src/hooks/useValidate";
 export default function Index(){
     useValidate()
     function handleStart(){
-        router.push("/login");
+        router.navigate("/login");
     }
     return (
         <View   

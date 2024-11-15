@@ -4,7 +4,7 @@ import { Input } from "@/src/components/Input";
 import { InputPassword } from "@/src/components/InputPassword";
 import { AuthContext } from "@/src/contexts/authContext";
 import { useValidate } from "@/src/hooks/useValidate";
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 import { useContext, useState } from "react";
 import { Alert, Image, Keyboard, KeyboardAvoidingView, Platform, Text, TouchableWithoutFeedback, View } from "react-native";
 
