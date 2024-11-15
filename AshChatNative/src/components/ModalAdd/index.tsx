@@ -1,4 +1,4 @@
-import { Modal, Text, TouchableOpacity, View } from "react-native";
+import { Modal, TouchableOpacity, View } from "react-native";
 import { Input } from "../Input";
 import { useState } from "react";
 import { Button } from "../Button";
