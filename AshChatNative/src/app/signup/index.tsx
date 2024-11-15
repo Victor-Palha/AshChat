@@ -3,6 +3,7 @@ import { Input } from "@/src/components/Input";
 import { InputPassword } from "@/src/components/InputPassword";
 import { languages } from "@/src/constants/languages";
 import { AuthContext } from "@/src/contexts/authContext";
+import { useValidate } from "@/src/hooks/useValidate";
 import { Link, router } from "expo-router";
 import { useContext, useState } from "react";
 import { 
@@ -18,16 +19,10 @@ import {
 } from "react-native";
 import CountryFlag from 'react-native-country-flag';
 
-
 type Languages = typeof languages[0];
 
-type RegisterFormProps = {
-    nickname: string,
-    email: string,
-    password: string,
-}
-
 export default function Signup(){
+    useValidate()
     const {onRegister} = useContext(AuthContext)
 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);

@@ -2,8 +2,10 @@ import { Button } from "@/src/components/Button";
 import { router } from "expo-router";
 import { Image, Text, View } from "react-native";
 import { Gradient } from "@/src/components/Grandient";
+import { useValidate } from "@/src/hooks/useValidate";
 
 export default function Index(){
+    useValidate()
     function handleStart(){
         router.push("/login");
     }

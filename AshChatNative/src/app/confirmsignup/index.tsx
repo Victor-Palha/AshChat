@@ -1,9 +1,11 @@
 import { Button } from "@/src/components/Button";
 import { AuthContext } from "@/src/contexts/authContext";
+import { useValidate } from "@/src/hooks/useValidate";
 import { useContext, useRef, useState } from "react";
 import { Keyboard, Text, TextInput, TouchableWithoutFeedback, View } from "react-native";
 
 export default function ConfirmSignUp(){
+    useValidate()
     const {onConfirmSignUp} = useContext(AuthContext)
 
     const [code, setCode] = useState(['', '', '', '', '', '']);
