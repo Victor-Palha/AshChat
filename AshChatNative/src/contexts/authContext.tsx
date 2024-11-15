@@ -13,7 +13,7 @@ interface AuthProps {
     authState: AuthState,
     isLoading: boolean,
     onRegister: (email: string, password: string, nickname: string, preferredLanguage: string) => Promise<any>,
-    onLogin: (email: string, password: string, deviceUniqueToken: string) => Promise<any>,
+    onLogin: (email: string, password: string) => Promise<any>,
     onConfirmSignUp: (emailCode: string) => Promise<any>
 }
 
@@ -36,6 +36,7 @@ export function AuthProvider({children}: {children: React.ReactNode}){
             if(token){
                 setAuthState({token, authenticated: true})
                 ApiClient.setTokenAuth(token)
+                router.push('/home')
             } else {
                 setAuthState({token: null, authenticated: false})
             }
@@ -53,7 +54,7 @@ export function AuthProvider({children}: {children: React.ReactNode}){
         try {
             const deviceUniqueToken = await safeStorage.getUniqueDeviceId()
             if(!deviceUniqueToken){
-                return 
+                return Alert.alert('Error', "No device token found. Please try again.")
             }
             // Call the login endpoint
             const response = await api.server.post('/user/login', {email, password, deviceUniqueToken})
