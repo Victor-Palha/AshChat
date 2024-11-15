@@ -14,13 +14,15 @@
       "backgroundColor": "#19181F"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ashchatnative"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#19181F"
-      }
+      },
+      "package": "com.ashchatnative"
     },
     "web": {
       "bundler": "metro",

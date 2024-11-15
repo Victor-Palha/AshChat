@@ -2,9 +2,11 @@ import { Button } from "@/src/components/Button";
 import { Input } from "@/src/components/Input";
 import { InputPassword } from "@/src/components/InputPassword";
 import { languages } from "@/src/constants/languages";
+import { AuthContext } from "@/src/contexts/authContext";
 import { Link, router } from "expo-router";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { 
+    Alert,
     FlatList, 
     Keyboard, 
     KeyboardAvoidingView, 
@@ -19,9 +21,44 @@ import CountryFlag from 'react-native-country-flag';
 
 type Languages = typeof languages[0];
 
+type RegisterFormProps = {
+    nickname: string,
+    email: string,
+    password: string,
+}
+
 export default function Signup(){
+    const {onRegister} = useContext(AuthContext)
+
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+    const [nickname, setNickname] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [selectedLanguage, setSelectedLanguage] = useState<Languages | null>(null);
+
+    async function handleRegister(){
+        if(password !== confirmPassword){
+            Alert.alert("Passwords do not match")
+            return
+        }
+        if(!selectedLanguage){
+            Alert.alert("Please select a language")
+            return
+        }
+        if(!nickname || !email || !password){
+            Alert.alert("Please fill all the fields")
+            return
+        }
+
+        try {
+            await onRegister(email, password, nickname, selectedLanguage.value)
+        } catch (error) {
+            console.log(error)
+            Alert.alert("An error occurred")
+        }
+    }
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -36,10 +73,18 @@ export default function Signup(){
             </View>
 
             <View className="gap-2 mt-5 mb-7">
-                <Input placeholder="Username" icon="person"/>
-                <Input placeholder="Email" icon="email" autoCapitalize="none"/>
-                <InputPassword placeholder="Password"/>
-                <InputPassword placeholder="Confirm Password"/>
+                <Input placeholder="Username" icon="person" 
+                    value={nickname} onChangeText={setNickname}
+                />
+                <Input placeholder="Email" icon="email" autoCapitalize="none"
+                    value={email} onChangeText={setEmail}
+                />
+                <InputPassword placeholder="Password"
+                    value={password} onChangeText={setPassword}
+                />
+                <InputPassword placeholder="Confirm Password"
+                    value={confirmPassword} onChangeText={setConfirmPassword}
+                />
                 {/* Language Dropdown */}
                 <TouchableOpacity
                     onPress={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -77,7 +122,7 @@ export default function Signup(){
                 )}
                 {/* End of Language Dropdown */}
             </View>
-            <Button title="Sign up"  onPress={()=>router.push("/confirmsignup")}/>
+            <Button title="Sign up"  onPress={handleRegister}/>
             <View className="text-center items-center mt-2">
                 <Link href="/login" className="text-sm font-semibold text-purple-700 mb-4">
                 Already have a account? Sign in

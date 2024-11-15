@@ -2,11 +2,12 @@ import * as SecureStore from 'expo-secure-store';
 
 class SecureStoragePersistence {
     private static KEYS = {
-        TOKEN: "@ashChat/jwt",
-        EMAIL: "@ashChat/email",
-        UNIQUEDEVICEID: "@ashChat/uniqueDeviceId",
-        DEVICEOS: "@ashChat/deviceOS",
-        USERID: "@ashChat/userId",
+        TOKEN: "ashChat.jwt",
+        EMAIL: "ashChat.email",
+        UNIQUEDEVICEID: "ashChat.uniqueDeviceId",
+        DEVICEOS: "ashChat.deviceOS",
+        USERID: "ashChat.userId",
+        NOTIFICATIONTOKEN: "ashChat.notificationToken"
     }
 
     static async setJWT(value: string){
@@ -39,6 +40,14 @@ class SecureStoragePersistence {
 
     static async getDeviceOS(): Promise<string | null>{
         return await SecureStore.getItemAsync(this.KEYS.DEVICEOS);
+    }
+
+    static async setNotificationToken(value: string){
+        await SecureStore.setItemAsync(this.KEYS.NOTIFICATIONTOKEN, value);
+    }
+
+    static async getNotificationToken(): Promise<string | null>{
+        return await SecureStore.getItemAsync(this.KEYS.NOTIFICATIONTOKEN);
     }
 }
 

@@ -1,8 +1,11 @@
 import { Button } from "@/src/components/Button";
-import { useRef, useState } from "react";
+import { AuthContext } from "@/src/contexts/authContext";
+import { useContext, useRef, useState } from "react";
 import { Keyboard, Text, TextInput, TouchableWithoutFeedback, View } from "react-native";
 
 export default function ConfirmSignUp(){
+    const {onConfirmSignUp} = useContext(AuthContext)
+
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const inputs = useRef<Array<TextInput | null>>([]);
 
@@ -21,7 +24,16 @@ export default function ConfirmSignUp(){
         if (!text && index > 0) {
           inputs.current[index - 1]?.focus();
         }
-      };
+    };
+
+    async function handleConfirmSignUp(){
+        const codeValue = code.join('');
+        try {
+            await onConfirmSignUp(codeValue);
+        } catch (error) {
+            return
+        }
+    }
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -44,7 +56,7 @@ export default function ConfirmSignUp(){
                     />
                 ))}
             </View>
-            <Button title="Verify and Proceed"/>
+            <Button title="Verify and Proceed" onPress={handleConfirmSignUp}/>
         </View>
         </TouchableWithoutFeedback>
     )
