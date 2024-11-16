@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test:unit": "vitest",
-    "start:dev": "ts-node-dev --env-file=.env --respawn src/server.ts --transpile-only"
+    "start:dev": "ts-node-dev --env-file=.env --respawn src/server.ts --transpile-only",
+    "start:prod": "node --env-file=.env build/server.js",
+    "build": "tsc -p ."
   },
   "keywords": [
     "websockets",

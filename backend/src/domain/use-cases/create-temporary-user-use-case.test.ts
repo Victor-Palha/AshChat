@@ -58,11 +58,6 @@ describe("Create temporaty User Use Case", () => {
             nickname: faker.person.firstName(),
             password: faker.internet.password(),
             preferredLanguage: "EN",
-            devices: {
-                deviceOS: "IOS",
-                deviceNotificationToken: randomUUID(),
-                deviceUniqueToken: randomUUID()
-            }
         })).rejects.toBeInstanceOf(UserWithSameEmailError)
     })
 })

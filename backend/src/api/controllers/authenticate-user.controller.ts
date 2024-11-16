@@ -11,19 +11,20 @@ import { findUserByEmailFactory } from "../../domain/factories/find-user-by-emai
 import { createHash } from "crypto";
 import { generateEmailCodeHelper } from "../../helper/generate-email-code-helper";
 
+
 /**
  * Controller to authenticate a user.
  * 
- * This function handles the HTTP request for user authentication. It validates the request body
- * against a predefined schema, invokes the authentication service, and returns a JWT token if 
- * authentication is successful.
+ * This function handles the authentication of a user by validating the request body,
+ * executing the authentication service, and generating a token if successful. It also
+ * handles specific errors related to user credentials and new device login attempts.
  * 
- * @param req - The HTTP request object.
- * @param res - The HTTP response object.
- * @returns A promise that resolves to the HTTP response.
+ * @param req - The request object containing the user credentials and device unique token.
+ * @param res - The response object used to send back the appropriate response.
+ * @returns A promise that resolves to the response object with the authentication token or an error message.
  * 
- * @throws {UserCredentialsError} If the provided user credentials are invalid.
- * @throws {Error} For any other internal server errors.
+ * @throws {UserCredentialsError} If the user credentials are invalid.
+ * @throws {NewDeviceTryingToLogError} If a new device is trying to log in.
  */
 export async function authenticateUserController(req: Request, res: Response): Promise<any> {
 
@@ -84,7 +85,7 @@ export async function authenticateUserController(req: Request, res: Response): P
             return res.status(403).send({
                 error: error.message,
                 message: "A new device is trying to log in. Check your email to allow it.",
-                infor: "To allow the new device, use the JWT temporary token and the code sent to your email to endpoit /api/user/confirm-new-device",
+                info: "To allow the new device, use the JWT temporary token and the code sent to your email to endpoit /api/user/confirm-new-device",
                 token: temporaryToken
             })
         }

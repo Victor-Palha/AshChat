@@ -14,6 +14,6 @@ userRoutes
 .post("/user/login", authenticateUserController)
 .post("/user/confirm-email", confirmEmailCodeController)
 .post("/user/change-password", changeUserPasswordController)
-.post("/user/confirm-change-password", temporaryJwtMiddleware, confirmChangeUserPasswordController)
+.patch("/user/confirm-change-password", temporaryJwtMiddleware, confirmChangeUserPasswordController)
 .patch("/user/confirm-new-device", temporaryJwtMiddleware, confirmNewDeviceController);
 
