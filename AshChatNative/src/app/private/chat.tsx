@@ -1,6 +1,6 @@
 import { colors } from "@/src/styles/colors";
 import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import {
   FlatList,
@@ -14,14 +14,16 @@ import {
 
 interface Message {
   id: string;
-  text: string;
+  text: any;
   sender: "user" | "bot";
 }
 
 export default function Chat(): JSX.Element {
+  const {receiverId} = useLocalSearchParams()
+
   const [messages, setMessages] = useState<Message[]>([
     { id: "1", text: "Olá! Como posso te ajudar hoje?", sender: "bot" },
-    { id: "2", text: "Oi! Gostaria de saber mais sobre o serviço.", sender: "user" },
+    { id: "2", text: receiverId, sender: "user" },
   ]);
   const [inputMessage, setInputMessage] = useState<string>("");
 

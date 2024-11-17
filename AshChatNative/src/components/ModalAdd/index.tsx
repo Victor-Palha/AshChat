@@ -1,4 +1,4 @@
-import { Modal, TouchableOpacity, View } from "react-native";
+import { Alert, Modal, TouchableOpacity, View } from "react-native";
 import { Input } from "../Input";
 import { useState } from "react";
 import { Button } from "../Button";
@@ -12,6 +12,23 @@ type ModalAddProps = {
 }
 export function ModalAdd({modalIsOpen, closeModal}: ModalAddProps) {
     const [contactId, setContactId] = useState("");
+
+    function handleCreateChat() {
+        // 673a2142655523f2b2cd4ec3 id
+        if(contactId.length == 24 ){
+            closeModal(false)
+            router.push({
+                pathname: "/private/chat",
+                params: {
+                    receiverId: contactId
+                }
+            })
+        }
+        else{
+            Alert.alert("Invalid ID", "Please enter a valid ID")
+        }
+
+    }
     return (
         <Modal transparent visible={modalIsOpen} animationType="slide">
         <View className="flex-1 justify-end">
@@ -31,10 +48,7 @@ export function ModalAdd({modalIsOpen, closeModal}: ModalAddProps) {
             />
             <Button
                 title="Add"
-                onPress={() => {
-                    closeModal(false)
-                    router.push("/private/chat")
-                }}
+                onPress={handleCreateChat}
             />
             </View>
         </View>
