@@ -19,6 +19,7 @@
     "@realm/react": "^0.11.0",
     "axios": "^1.7.7",
     "expo": "~52.0.5",
+    "expo-crypto": "~14.0.1",
     "expo-dev-client": "~5.0.1",
     "expo-font": "~13.0.1",
     "expo-linear-gradient": "~14.0.1",
@@ -39,8 +40,8 @@
     "react-native-screens": "~4.0.0",
     "react-native-web": "~0.19.13",
     "realm": "^20.0.0",
-    "tailwindcss": "^3.4.14",
-    "expo-crypto": "~14.0.1"
+    "socket.io-client": "^4.8.1",
+    "tailwindcss": "^3.4.14"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

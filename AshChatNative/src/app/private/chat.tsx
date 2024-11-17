@@ -37,13 +37,13 @@ export default function Chat(): JSX.Element {
 
   const renderMessage = ({ item }: { item: Message }) => (
     <View
-      className={`my-2 p-3 rounded-lg ${
+      className={`my-2 p-3 rounded-xl ${
         item.sender === "user"
-          ? "bg-blue-500 self-end"
-          : "bg-gray-200 self-start"
+          ? "bg-purple-700 self-end"
+          : "bg-gray-950 self-start"
       }`}
     >
-      <Text className={item.sender === "user" ? "text-white" : "text-gray-800"}>
+      <Text className="text-white">
         {item.text}
       </Text>
     </View>
@@ -73,20 +73,22 @@ export default function Chat(): JSX.Element {
       />
 
       {/* Campo de Entrada */}
-      <View className="flex-row items-center border-gray-900 p-3 pb-12">
-        <TextInput
-          className="flex-1 bg-gray-200 rounded-full px-4 py-2 text-gray-800"
-          placeholder="Digite sua mensagem..."
-          value={inputMessage}
-          onChangeText={setInputMessage}
-          keyboardType="default"
-        />
-        <TouchableOpacity
-          className="ml-2 bg-blue-500 rounded-full p-3"
-          onPress={handleSend}
-        >
-          <Text className="text-white font-bold">Enviar</Text>
-        </TouchableOpacity>
+      <View className="bg-gray-900 p-3 pb-12">
+        <View className="bg-gray-200 rounded-full flex-row items-center">
+          <TextInput
+            className="flex-1 rounded-full bg-gray-200 px-4 py-2 text-gray-800"
+            placeholder="Message..."
+            value={inputMessage}
+            onChangeText={setInputMessage}
+            keyboardType="default"
+          />
+          <TouchableOpacity
+            className="ml-2 bg-purple-700 rounded-full p-3 m-1"
+            onPress={handleSend}
+          >
+            <MaterialIcons name="send" size={16} color="white" />
+          </TouchableOpacity>
+        </View>
       </View>
     </KeyboardAvoidingView>
   );

@@ -20,7 +20,7 @@ export function InputPassword({ ...rest }: InputProps){
             <MaterialIcons name="lock" size={24} color="black" />
             <TextInput
                 className="w-[210] max-w-[210] opacity-75 p-4 placeholder:text-gray-700"
-                secureTextEntry={isPassVisible}
+                // secureTextEntry={isPassVisible}
                 {...rest}
             />
             <TouchableOpacity onPress={handleShowPassword}>

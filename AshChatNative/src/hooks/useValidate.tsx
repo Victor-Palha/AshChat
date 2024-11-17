@@ -6,7 +6,7 @@ export function useValidate(){
     const {authState} = useContext(AuthContext)
     useFocusEffect(useCallback(()=> {
         if(!authState.authenticated){
-            router.replace('/login')
+            return
         }
         if(authState.authenticated){
             console.log('Authenticated')

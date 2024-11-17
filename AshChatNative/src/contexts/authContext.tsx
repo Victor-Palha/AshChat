@@ -49,7 +49,7 @@ export function AuthProvider({children}: {children: React.ReactNode}){
     const safeStorage = SecureStoragePersistence
 
     async function onLogin(email: string, password: string){
-
+        console.log(email, password)
         try {
             const deviceUniqueToken = await safeStorage.getUniqueDeviceId()
             if(!deviceUniqueToken){
@@ -66,6 +66,7 @@ export function AuthProvider({children}: {children: React.ReactNode}){
 
             // Set the token to the state
             setAuthState({token, authenticated: true})
+            router.navigate('/private/home')
         } catch (error) {
             Alert.alert('Error', "An error occurred while trying to login. Please try again.")
         }

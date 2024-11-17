@@ -3,11 +3,14 @@ import { useContext } from 'react';
 import { AuthContext, AuthProvider } from '@/src/contexts/authContext';
 import { Loading } from '@/src/components/Loading';
 import { colors } from '@/src/styles/colors';
+import { SocketProvider } from '@/src/contexts/socketContext';
 
 export default function Layout() {
   return (
     <AuthProvider>
-      <PrivateRouter />
+      <SocketProvider>
+        <PrivateRouter />
+      </SocketProvider>
     </AuthProvider>
   )
 }

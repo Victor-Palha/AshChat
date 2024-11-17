@@ -9,6 +9,7 @@ export default function Home(){
     function handleOpenModal() {
         setIsModalOpen(!isModalOpen);
     }
+    
     return (
         <View className="flex-1 pt-[62px] px-10" >
             {/* Header */}
@@ -17,7 +18,7 @@ export default function Home(){
                     <MaterialIcons name="add" size={24} color="white" />
                 </TouchableOpacity>
             </View>
-
+            {/* Nav */}
             <Text className="font-bold text-white text-3xl">My Chats</Text>
 
             <View className="flex-row items-center justify-between mt-5">
@@ -30,6 +31,7 @@ export default function Home(){
                     <Text className="text-white font-bold">Unread</Text>
                 </TouchableOpacity>
             </View>
+            {/* Body */}
             <View className="items-center justify-center pt-[30%]">
                 <Image
                     className="rounded-full w-100 h-100"
@@ -37,6 +39,8 @@ export default function Home(){
                 />
                 <Text className="text-white font-semibold italic text-md mt-[-40] text-center">Hmm... You seen to be lost! Try to connect to someone!</Text>
             </View>
+
+            {/* Modal */}
             <ModalAdd modalIsOpen={isModalOpen} closeModal={handleOpenModal}/>
         </View>
     )
