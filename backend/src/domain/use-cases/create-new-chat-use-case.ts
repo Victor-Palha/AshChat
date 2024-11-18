@@ -8,7 +8,6 @@ import { UserNotFoundError } from "./errors/user-not-found-error"
 export interface CreateNewChatUseCaseDTO {
     senderId: string
     receiverId: string
-    content: string
 }
 
 type CreateNewChatUseCaseResponse = {
@@ -21,7 +20,7 @@ export class CreateNewChatUseCase {
         private userRepository: UserRepository
     ){}
 
-    async execute({senderId, receiverId, content}: CreateNewChatUseCaseDTO): Promise<CreateNewChatUseCaseResponse>{
+    async execute({senderId, receiverId}: CreateNewChatUseCaseDTO): Promise<CreateNewChatUseCaseResponse>{
         const senderExists = await this.userRepository.findUserById(senderId)
         const receiverExists = await this.userRepository.findUserById(receiverId)
 
@@ -35,21 +34,11 @@ export class CreateNewChatUseCase {
             throw new ChatAlreadyExistsError()
         }
 
-        const fromContentToMessage: Message = new Message({
-            content: content,
-            senderId: senderId,
-            status: MessageStatus.SENT,
-            timestamp: new Date().toISOString(),
-            translatedContent: ''
-        })
-
         const bothSpeekSameLanguage = senderExists.preferredLanguage === receiverExists.preferredLanguage
 
         const chat = await this.chatRepository.createChat({
             senderId,
             receiverId,
-            content,
-            message: fromContentToMessage,
             sameLanguage: bothSpeekSameLanguage
         })
 

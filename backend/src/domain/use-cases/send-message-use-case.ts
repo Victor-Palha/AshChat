@@ -25,7 +25,7 @@ export class SendMessageUseCase {
             content,
             status: MessageStatus.SENT,
             timestamp: new Date().toISOString(),
-            translatedContent: ''
+            translatedContent: "something"
         })
 
         return await this.chatRepository.sendMessage(chatID, message);

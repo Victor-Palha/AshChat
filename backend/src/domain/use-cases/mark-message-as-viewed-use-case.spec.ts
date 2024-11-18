@@ -5,7 +5,7 @@ import { ChatRepository } from '../repositories/chat-repository';
 import { InMemoryChatRepository } from '../repositories/in-memory/in-memory-chat-repository';
 import { UserRepository } from '../repositories/user-repository';
 import { SendNotificationUseCase } from './send-notification-use-case';
-import { MessageStatus } from '../entities/message';
+import { Message, MessageStatus } from '../entities/message';
 import { MarkNotificationAsViewedUseCase } from './mark-message-as-viewed-use-case';
 import { InMemoryUserRepository } from '../repositories/in-memory/in-memory-user-repository';
 import { CreateNewChatUseCase } from './create-new-chat-use-case';
@@ -44,18 +44,27 @@ describe('MarkNotificationAsViewedUseCase', () => {
         const { chat } = await new CreateNewChatUseCase(chatRepository, userRepository).execute({
             senderId: sender.id.getValue,
             receiverId: receiver.id.getValue,
-            content: 'Hello there!'
         });
 
+        const message = new Message({
+            senderId: sender.id.getValue,
+            content: 'Hello, world!',
+            status: MessageStatus.SENT,
+            timestamp: new Date().toDateString(),
+            translatedContent: 'Olá, mundo!',
+        })
+
+        const {id} = await chatRepository.sendMessage(chat.id.getValue, message)
+
         chatId = chat.id.getValue;
-        messageId = chat.messages[0].id.getValue;
+        messageId = id.getValue;
 
         // Envio de notificação
         const sendNotificationUseCase = new SendNotificationUseCase(notificationRepository, userRepository, chatRepository);
         const notification = await sendNotificationUseCase.execute({
             receiverId: receiverId,
             chatId: chat.id.getValue,
-            messageId: chat.messages[0].id.getValue
+            messageId
         });
 
         notificationId = notification.id.getValue; // Obtendo o ID da notificação
