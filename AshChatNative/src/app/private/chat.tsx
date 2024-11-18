@@ -1,9 +1,10 @@
 import { AuthContext } from "@/src/contexts/authContext";
 import { SocketContext } from "@/src/contexts/socketContext";
+import { MessageProps } from "@/src/persistence/MMKVStorage";
 import { colors } from "@/src/styles/colors";
 import { MaterialIcons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
-import React, { useContext, useEffect, useState } from "react";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   FlatList,
   Text,
@@ -12,47 +13,80 @@ import {
   View,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
-
-interface Message {
-  id: string;
-  text: any;
-  sender: "user" | "bot";
-}
 
 export default function Chat(): JSX.Element {
   const {chat_id, nickname} = useLocalSearchParams()
-  console.log(chat_id)
   const {ioServer} = useContext(SocketContext)
   const {mmkvStorage} = useContext(AuthContext)
   // states
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<MessageProps[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
 
   useEffect(() => {
     const chat = mmkvStorage.getChat(chat_id as string)
+    if(!chat){
+      Alert.alert('Chat not found')
+      router.back()
+      return
+    }
+
+    setMessages(chat.messages)
   }, [])
+
+  useFocusEffect(useCallback(() => {
+    ioServer.socket.emit("join-chat", {
+      chat_id
+    })
+  }, []))
+
+  useEffect(()=> {
+    ioServer.socket.on("message-sent", ({chat_id, status, message_id}) => {
+      mmkvStorage.updateMessageStatus({
+        chat_id,
+        id_message: message_id,
+        status
+      })
+    })
+  }, [])
+
+  function handleCloseChat(){
+    ioServer.socket.emit("close-chat", {
+      chat_id
+    })
+    router.back()
+  }
 
   function handleSend(): void {
     if (inputMessage.trim()) {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { id: Date.now().toString(), text: chat_id, sender: "user" },
-      ]);
+      ioServer.socket.emit("send-message", {
+        chat_id,
+        content: inputMessage,
+      });
+
+      const message = mmkvStorage.addMessage({
+        chat_id: chat_id as string,
+        content: inputMessage,
+      })
+
+      const newMessages = [...messages, message] as MessageProps[]
+      setMessages(newMessages);
+      
       setInputMessage("");
     }
   };
 
-  const renderMessage = ({ item }: { item: Message }) => (
+  const renderMessage = ({ item }: { item: MessageProps }) => (
     <View
       className={`my-2 p-3 rounded-xl ${
-        item.sender === "user"
+        item.sender_id === "user"
           ? "bg-purple-700 self-end"
           : "bg-gray-950 self-start"
       }`}
     >
       <Text className="text-white">
-        {item.text}
+        {item.content}
       </Text>
     </View>
   );
@@ -65,7 +99,7 @@ export default function Chat(): JSX.Element {
     >
       {/* Header */}
       <View className="flex-row border-b-[1px] border-purple-700 p-3 items-center">
-        <TouchableOpacity onPress={()=>router.back()}>
+        <TouchableOpacity onPress={handleCloseChat}>
           <MaterialIcons name="keyboard-arrow-left" size={34} color={colors.purple[700]} />
         </TouchableOpacity>
         <Text className="text-white font-bold text-2xl ml-3">{nickname}</Text>
@@ -74,7 +108,7 @@ export default function Chat(): JSX.Element {
       {/* Lista de Mensagens */}
       <FlatList
         data={messages}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id_message}
         renderItem={renderMessage}
         className="flex-1 px-4 py-2"
         contentContainerStyle={{ justifyContent: "flex-end" }}

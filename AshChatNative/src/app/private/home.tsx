@@ -9,7 +9,7 @@ import { useMMKVObject } from "react-native-mmkv";
 
 export default function Home(){
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [chatLabels, setChatLabels] = useMMKVObject<LabelChatProps[]>("ashchat.label.chats")
+    const [chatLabels] = useMMKVObject<LabelChatProps[]>("ashchat.label.chats")
 
     function handleOpenModal() {
         setIsModalOpen(!isModalOpen);
@@ -42,18 +42,18 @@ export default function Home(){
                     data={chatLabels}
                     keyExtractor={item => item.chat_id}
                     renderItem={({item}) => (
-                        <TouchableOpacity className="flex-row items-center gap-5 p-3 border-b border-gray-800">
-                            <Link href={{
-                                pathname: "/private/chat",
-                                params: {
-                                    chat_id: item.chat_id,
-                                    nickname: item.nickname,
-                                }
-                            }}>
-                                <Text className="text-white font-bold">{item.nickname}</Text>
-                                <Text className="text-white">{item.last_message ? item.last_message.content : ""}</Text>
-                            </Link>
-                        </TouchableOpacity>
+                        <Link className="flex-row items-center gap-5 p-3 border-b border-gray-800" asChild href={{
+                            pathname: "/private/chat",
+                            params: {
+                                chat_id: item.chat_id,
+                                nickname: item.nickname,
+                            }
+                        }}>
+                            <TouchableOpacity>
+                                    <Text className="text-white font-bold">{item.nickname}</Text>
+                                    <Text className="text-white">{item.last_message ? item.last_message.content : ""}</Text>
+                            </TouchableOpacity>
+                        </Link>
                     )}
                 />
             ) :

@@ -1,3 +1,4 @@
+import { randomUUID } from 'expo-crypto'
 import { MMKV } from 'react-native-mmkv'
 
 export type LabelChatProps = {
@@ -22,13 +23,22 @@ export type MessageProps = {
     status: string
 }
 
+type AddMessageProps = {
+    chat_id: string,
+    content: string
+}
+
+type UpdateMessageStatusProps = {
+    chat_id: string
+    id_message: string
+    status: string
+}
 export class MMKVStorage {
     private instance: MMKV
 
     private CONSTANST = {
         LABEL_CHAT: 'ashchat.label.chats',
         CHAT: 'ashchat.chat',
-        MESSAGES: 'ashchat.messages'
     }
     constructor(){
         this.instance = new MMKV()
@@ -123,11 +133,93 @@ export class MMKVStorage {
         const allChats = this.instance.getString(this.CONSTANST.CHAT)
         if(allChats){
             const chats = JSON.parse(allChats) as ChatProps[]
-            console.log(chats)
             const chat = chats.find(chat => chat.chat_id === chat_id)
             return chat
         }
         return null
     }
 
+    public addMessage({chat_id, content}: AddMessageProps){
+        const allChats = this.instance.getString(this.CONSTANST.CHAT)
+        if(allChats){
+            const chats = JSON.parse(allChats) as ChatProps[]
+            const chat = chats.find(chat => chat.chat_id === chat_id)
+            if(chat){
+                const timestamp = new Date().toISOString()
+                const newMessage: MessageProps = {
+                    id_message: randomUUID(),
+                    content,
+                    sender_id: 'user',
+                    timestamp,
+                    status: 'PENDING'
+                }
+
+                const updatedMessages = [...chat.messages, newMessage]
+                const updatedChat = {
+                    ...chat,
+                    messages: updatedMessages
+                }
+
+                const otherChats = chats.filter(chat => chat.chat_id !== chat_id)
+                const updatedChats = [...otherChats, updatedChat]
+                this.instance.set(this.CONSTANST.CHAT, JSON.stringify(updatedChats))
+                this.updateLabel({
+                    chat_id,
+                    last_message: newMessage,
+                    notification: 1,
+                    last_interaction: new Date(),
+                })
+
+                return newMessage
+            }
+        }
+    }
+
+    private updateLabel({chat_id, last_message, notification, last_interaction}: Omit<LabelChatProps, 'nickname'>){
+        const chatLabels = this.instance.getString(this.CONSTANST.LABEL_CHAT)
+        if(chatLabels){
+            const labels = JSON.parse(chatLabels) as LabelChatProps[]
+            const updatedLabels = labels.map(label => {
+                if(label.chat_id === chat_id){
+                    return {
+                        chat_id,
+                        nickname: label.nickname,
+                        last_message,
+                        notification: label.notification + notification,
+                        last_interaction
+                    }
+                }
+                return label
+            })
+            this.instance.set(this.CONSTANST.LABEL_CHAT, JSON.stringify(updatedLabels))
+        }
+    }
+
+    public updateMessageStatus({chat_id, id_message, status}: UpdateMessageStatusProps){
+        const allChats = this.instance.getString(this.CONSTANST.CHAT)
+        if(allChats){
+            const chats = JSON.parse(allChats) as ChatProps[]
+            const chat = chats.find(chat => chat.chat_id === chat_id)
+            if(chat){
+                const updatedMessages = chat.messages.map(message => {
+                    if(message.id_message === id_message){
+                        return {
+                            ...message,
+                            status
+                        }
+                    }
+                    return message
+                })
+
+                const updatedChat = {
+                    ...chat,
+                    messages: updatedMessages
+                }
+
+                const otherChats = chats.filter(chat => chat.chat_id !== chat_id)
+                const updatedChats = [...otherChats, updatedChat]
+                this.instance.set(this.CONSTANST.CHAT, JSON.stringify(updatedChats))
+            }
+        }
+    }
 }
