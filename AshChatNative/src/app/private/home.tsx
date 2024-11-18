@@ -2,6 +2,7 @@ import { ModalAdd } from "@/src/components/ModalAdd";
 import { NoContacts } from "@/src/components/NoContacts";
 import { LabelChatProps } from "@/src/persistence/MMKVStorage";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Link } from "expo-router";
 import { useState } from "react";
 import { Text, TouchableOpacity, View, Image, FlatList } from "react-native";
 import { useMMKVObject } from "react-native-mmkv";
@@ -42,10 +43,16 @@ export default function Home(){
                     keyExtractor={item => item.chat_id}
                     renderItem={({item}) => (
                         <TouchableOpacity className="flex-row items-center gap-5 p-3 border-b border-gray-800">
-                            <View>
+                            <Link href={{
+                                pathname: "/private/chat",
+                                params: {
+                                    chat_id: item.chat_id,
+                                    nickname: item.nickname,
+                                }
+                            }}>
                                 <Text className="text-white font-bold">{item.nickname}</Text>
                                 <Text className="text-white">{item.last_message ? item.last_message.content : ""}</Text>
-                            </View>
+                            </Link>
                         </TouchableOpacity>
                     )}
                 />

@@ -23,7 +23,6 @@ export const AuthContext = createContext<AuthProps>({} as AuthProps)
 
 const mmkvStorage = new MMKVStorage()
 export function AuthProvider({children}: {children: React.ReactNode}){
-
     const [authState, setAuthState] = useState<AuthState>({token: null, authenticated: null})
     const [isLoading, setIsLoading] = useState(true)
 

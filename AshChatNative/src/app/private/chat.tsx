@@ -1,8 +1,9 @@
+import { AuthContext } from "@/src/contexts/authContext";
 import { SocketContext } from "@/src/contexts/socketContext";
 import { colors } from "@/src/styles/colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   FlatList,
   Text,
@@ -20,17 +21,23 @@ interface Message {
 }
 
 export default function Chat(): JSX.Element {
-  const {receiverId} = useLocalSearchParams()
+  const {chat_id, nickname} = useLocalSearchParams()
+  console.log(chat_id)
   const {ioServer} = useContext(SocketContext)
-
+  const {mmkvStorage} = useContext(AuthContext)
+  // states
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
+
+  useEffect(() => {
+    const chat = mmkvStorage.getChat(chat_id as string)
+  }, [])
 
   function handleSend(): void {
     if (inputMessage.trim()) {
       setMessages((prevMessages) => [
         ...prevMessages,
-        { id: Date.now().toString(), text: inputMessage, sender: "user" },
+        { id: Date.now().toString(), text: chat_id, sender: "user" },
       ]);
       setInputMessage("");
     }
@@ -61,7 +68,7 @@ export default function Chat(): JSX.Element {
         <TouchableOpacity onPress={()=>router.back()}>
           <MaterialIcons name="keyboard-arrow-left" size={34} color={colors.purple[700]} />
         </TouchableOpacity>
-        <Text className="text-white font-bold text-2xl ml-3">Jane Doe</Text>
+        <Text className="text-white font-bold text-2xl ml-3">{nickname}</Text>
       </View>
 
       {/* Lista de Mensagens */}

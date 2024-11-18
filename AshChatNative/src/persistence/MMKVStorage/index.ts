@@ -51,9 +51,7 @@ export class MMKVStorage {
                 return
             }
 
-            const updatedChats = {
-                data: [...chats, newChat]
-            }
+            const updatedChats = [...chats, newChat]
 
             this.instance.set(this.CONSTANST.CHAT, JSON.stringify(updatedChats))
             this.addLabel({
@@ -67,9 +65,8 @@ export class MMKVStorage {
         }
 
         // If there is no chats yet
-        const chats = {
-            data: [newChat]
-        }
+        const chats = [newChat]
+        
         this.addLabel({
             chat_id,
             nickname,
@@ -108,9 +105,8 @@ export class MMKVStorage {
                 return
             }
 
-            const updatedChats = {
-                data: [...chats, newLabel]
-            }
+            const updatedChats = [...chats, newLabel]
+            
 
             this.instance.set(this.CONSTANST.LABEL_CHAT, JSON.stringify(updatedChats))
             return
@@ -123,5 +119,15 @@ export class MMKVStorage {
         this.instance.set(this.CONSTANST.LABEL_CHAT, JSON.stringify(chats))
     }
 
+    public getChat(chat_id: string){
+        const allChats = this.instance.getString(this.CONSTANST.CHAT)
+        if(allChats){
+            const chats = JSON.parse(allChats) as ChatProps[]
+            console.log(chats)
+            const chat = chats.find(chat => chat.chat_id === chat_id)
+            return chat
+        }
+        return null
+    }
 
 }
