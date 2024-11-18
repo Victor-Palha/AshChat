@@ -11,7 +11,6 @@ type AuthState = {
     authenticated: boolean | null
 }
 interface AuthProps {
-    mmkvStorage: MMKVStorage,
     authState: AuthState,
     isLoading: boolean,
     onRegister: (email: string, password: string, nickname: string, preferredLanguage: string) => Promise<any>,
@@ -21,7 +20,6 @@ interface AuthProps {
 
 export const AuthContext = createContext<AuthProps>({} as AuthProps)
 
-const mmkvStorage = new MMKVStorage()
 export function AuthProvider({children}: {children: React.ReactNode}){
     const [authState, setAuthState] = useState<AuthState>({token: null, authenticated: null})
     const [isLoading, setIsLoading] = useState(true)
@@ -125,7 +123,7 @@ export function AuthProvider({children}: {children: React.ReactNode}){
         }
     }
 
-    const values = {authState, onRegister, onLogin, isLoading, onConfirmSignUp, mmkvStorage}
+    const values = {authState, onRegister, onLogin, isLoading, onConfirmSignUp}
 
     return (
         <AuthContext.Provider value={values}>
