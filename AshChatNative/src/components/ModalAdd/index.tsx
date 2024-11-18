@@ -1,27 +1,58 @@
 import { Alert, Modal, TouchableOpacity, View } from "react-native";
 import { Input } from "../Input";
-import { useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Button } from "../Button";
 import { MaterialIcons } from "@expo/vector-icons";
 import { colors } from "@/src/styles/colors";
 import { router } from "expo-router";
+import { SocketContext } from "@/src/contexts/socketContext";
+import { AuthContext } from "@/src/contexts/authContext";
 
 type ModalAddProps = {
     modalIsOpen: boolean;
     closeModal: (isOpen: boolean) => void;
 }
+
+type ChatCreatedEventProps = {
+    chat_id: string
+    messages: []
+    nickname: string
+}
+
 export function ModalAdd({modalIsOpen, closeModal}: ModalAddProps) {
+    const {ioServer} = useContext(SocketContext)
+    const {mmkvStorage} = useContext(AuthContext)
+    // Constants
+
+    // Listeners
     const [contactId, setContactId] = useState("");
+    // Listeners
+    useEffect(() => {
+        ioServer.socket.on("chat-created", ({chat_id, messages, nickname}: ChatCreatedEventProps) => {
+            mmkvStorage.addChat({
+                chat_id,
+                messages,
+                nickname
+            })
+            Alert.alert("Success", "Chat created successfully")
+            closeModal(false)
+        })
+
+        ioServer.socket.on("create-chat-error", ({message}) => {
+            Alert.alert("Error", message)
+        })
+
+        return () => {
+            ioServer.socket.off("chat-created")
+            ioServer.socket.off("create-chat-error")
+        }
+    }, [ioServer.socket, mmkvStorage, closeModal])
 
     function handleCreateChat() {
         // 673a2142655523f2b2cd4ec3 id
         if(contactId.length == 24 ){
-            closeModal(false)
-            router.push({
-                pathname: "/private/chat",
-                params: {
-                    receiverId: contactId
-                }
+            ioServer.socket.emit("create-chat", {
+                receiverId: contactId
             })
         }
         else{
@@ -46,6 +77,7 @@ export function ModalAdd({modalIsOpen, closeModal}: ModalAddProps) {
                 value={contactId}
                 onChangeText={setContactId}
             />
+
             <Button
                 title="Add"
                 onPress={handleCreateChat}

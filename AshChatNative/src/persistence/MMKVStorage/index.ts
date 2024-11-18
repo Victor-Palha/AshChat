@@ -1,10 +1,6 @@
 import { MMKV } from 'react-native-mmkv'
 
-type ChatsStorage = {
-    data: ChatProps[]
-}
-
-type LabelChatProps = {
+export type LabelChatProps = {
     chat_id: string
     nickname: string
     last_message: MessageProps
@@ -12,13 +8,13 @@ type LabelChatProps = {
     last_interaction: Date
 }
 
-type ChatProps = {
+export type ChatProps = {
     chat_id: string
     nickname: string
     messages: MessageProps[]
 }
 
-type MessageProps = {
+export type MessageProps = {
     id_message: string
     content: string
     sender_id: string
@@ -46,16 +42,17 @@ export class MMKVStorage {
         }
 
         const allChats = this.instance.getString(this.CONSTANST.CHAT)
+
         if(allChats){
-            const chats = JSON.parse(allChats) as ChatsStorage
-            const chatExists = chats.data.find(chat => chat.chat_id === chat_id)
+            const chats = JSON.parse(allChats) as ChatProps[]
+            const chatExists = chats.find(chat => chat.chat_id === chat_id)
 
             if(chatExists){
                 return
             }
 
             const updatedChats = {
-                data: [...chats.data, newChat]
+                data: [...chats, newChat]
             }
 
             this.instance.set(this.CONSTANST.CHAT, JSON.stringify(updatedChats))
@@ -87,7 +84,7 @@ export class MMKVStorage {
     public getLabels(){
         const allChats = this.instance.getString(this.CONSTANST.LABEL_CHAT)
         if(allChats){
-            const chats = JSON.parse(allChats) as ChatsStorage
+            const chats = JSON.parse(allChats) as LabelChatProps[]
             return chats
         }
         return null
@@ -104,15 +101,15 @@ export class MMKVStorage {
 
         const allChats = this.instance.getString(this.CONSTANST.LABEL_CHAT)
         if(allChats){
-            const chats = JSON.parse(allChats) as ChatsStorage
-            const chatExists = chats.data.find(chat => chat.chat_id === chat_id)
+            const chats = JSON.parse(allChats) as LabelChatProps[]
+            const chatExists = chats.find(chat => chat.chat_id === chat_id)
 
             if(chatExists){
                 return
             }
 
             const updatedChats = {
-                data: [...chats.data, newLabel]
+                data: [...chats, newLabel]
             }
 
             this.instance.set(this.CONSTANST.LABEL_CHAT, JSON.stringify(updatedChats))
@@ -120,9 +117,8 @@ export class MMKVStorage {
         }
 
         // If there is no chats yet
-        const chats = {
-            data: [newLabel]
-        }
+        const chats = [newLabel]
+        
 
         this.instance.set(this.CONSTANST.LABEL_CHAT, JSON.stringify(chats))
     }

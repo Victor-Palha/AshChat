@@ -4,12 +4,14 @@ import SecureStoragePersistence from "../persistence/SecureStorage"
 import { randomUUID } from 'expo-crypto';
 import { Alert, Platform } from "react-native";
 import { router } from "expo-router";
+import { MMKVStorage } from "../persistence/MMKVStorage";
 
 type AuthState = {
     token: string | null,
     authenticated: boolean | null
 }
 interface AuthProps {
+    mmkvStorage: MMKVStorage,
     authState: AuthState,
     isLoading: boolean,
     onRegister: (email: string, password: string, nickname: string, preferredLanguage: string) => Promise<any>,
@@ -19,6 +21,7 @@ interface AuthProps {
 
 export const AuthContext = createContext<AuthProps>({} as AuthProps)
 
+const mmkvStorage = new MMKVStorage()
 export function AuthProvider({children}: {children: React.ReactNode}){
 
     const [authState, setAuthState] = useState<AuthState>({token: null, authenticated: null})
@@ -123,7 +126,7 @@ export function AuthProvider({children}: {children: React.ReactNode}){
         }
     }
 
-    const values = {authState, onRegister, onLogin, isLoading, onConfirmSignUp}
+    const values = {authState, onRegister, onLogin, isLoading, onConfirmSignUp, mmkvStorage}
 
     return (
         <AuthContext.Provider value={values}>

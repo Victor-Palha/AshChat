@@ -1,7 +1,8 @@
+import { SocketContext } from "@/src/contexts/socketContext";
 import { colors } from "@/src/styles/colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   FlatList,
   Text,
@@ -20,14 +21,12 @@ interface Message {
 
 export default function Chat(): JSX.Element {
   const {receiverId} = useLocalSearchParams()
+  const {ioServer} = useContext(SocketContext)
 
-  const [messages, setMessages] = useState<Message[]>([
-    { id: "1", text: "Olá! Como posso te ajudar hoje?", sender: "bot" },
-    { id: "2", text: receiverId, sender: "user" },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
 
-  const handleSend = (): void => {
+  function handleSend(): void {
     if (inputMessage.trim()) {
       setMessages((prevMessages) => [
         ...prevMessages,

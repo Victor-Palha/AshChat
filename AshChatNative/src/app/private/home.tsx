@@ -1,10 +1,14 @@
 import { ModalAdd } from "@/src/components/ModalAdd";
+import { NoContacts } from "@/src/components/NoContacts";
+import { LabelChatProps } from "@/src/persistence/MMKVStorage";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
-import { Text, TouchableOpacity, View, Image } from "react-native";
+import { Text, TouchableOpacity, View, Image, FlatList } from "react-native";
+import { useMMKVObject } from "react-native-mmkv";
 
 export default function Home(){
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [chatLabels, setChatLabels] = useMMKVObject<LabelChatProps[]>("ashchat.label.chats")
 
     function handleOpenModal() {
         setIsModalOpen(!isModalOpen);
@@ -32,13 +36,22 @@ export default function Home(){
                 </TouchableOpacity>
             </View>
             {/* Body */}
-            <View className="items-center justify-center pt-[30%]">
-                <Image
-                    className="rounded-full w-100 h-100"
-                    source={require('../../assets/nowhere.png')}
+            {chatLabels ? (
+                <FlatList
+                    data={chatLabels}
+                    keyExtractor={item => item.chat_id}
+                    renderItem={({item}) => (
+                        <TouchableOpacity className="flex-row items-center gap-5 p-3 border-b border-gray-800">
+                            <View>
+                                <Text className="text-white font-bold">{item.nickname}</Text>
+                                <Text className="text-white">{item.last_message ? item.last_message.content : ""}</Text>
+                            </View>
+                        </TouchableOpacity>
+                    )}
                 />
-                <Text className="text-white font-semibold italic text-md mt-[-40] text-center">Hmm... You seen to be lost! Try to connect to someone!</Text>
-            </View>
+            ) :
+                <NoContacts/>
+            }
 
             {/* Modal */}
             <ModalAdd modalIsOpen={isModalOpen} closeModal={handleOpenModal}/>
