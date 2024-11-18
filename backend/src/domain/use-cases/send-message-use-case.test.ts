@@ -24,8 +24,6 @@ describe('SendMessageUseCase', () => {
 
     it('should send a message successfully', async () => {
 
-        const content = 'Hello!'
-
         const {userMocked: sender} = await createTestUserHelper({
             userRepository,
         })
@@ -37,7 +35,6 @@ describe('SendMessageUseCase', () => {
         const {chat} = await helper.execute({ 
             senderId: sender.id.getValue, 
             receiverId: receiver.id.getValue, 
-            content 
         })
 
         expect(sut.execute({
@@ -47,7 +44,7 @@ describe('SendMessageUseCase', () => {
         })).resolves.ok
         
         const chatUpdated = await chatRepository.findById(chat.id.getValue)
-        expect(chatUpdated?.messages.length).toEqual(2)
+        expect(chatUpdated?.messages.length).toEqual(1)
     });
 
     it('should throw ChatNotFoundError if chat does not exist', async () => {
@@ -59,8 +56,6 @@ describe('SendMessageUseCase', () => {
     });
 
     it('should add the message to the chat', async () => {
-        const content = 'Hello!'
-
         const {userMocked: sender} = await createTestUserHelper({
             userRepository,
         })
@@ -72,7 +67,6 @@ describe('SendMessageUseCase', () => {
         const {chat} = await helper.execute({ 
             senderId: sender.id.getValue, 
             receiverId: receiver.id.getValue, 
-            content 
         })
 
         await sut.execute({
@@ -82,12 +76,10 @@ describe('SendMessageUseCase', () => {
         });
 
         const chatUpdated = await chatRepository.findById(chat.id.getValue)
-        expect(chatUpdated?.messages[1].content).toEqual('hi!')
+        expect(chatUpdated?.messages[0].content).toEqual('hi!')
     });
 
     it('should set the message status to sent', async () => {
-        const content = 'Hello!'
-
         const {userMocked: sender} = await createTestUserHelper({
             userRepository,
         })
@@ -99,7 +91,6 @@ describe('SendMessageUseCase', () => {
         const {chat} = await helper.execute({ 
             senderId: sender.id.getValue, 
             receiverId: receiver.id.getValue, 
-            content 
         })
 
         await sut.execute({
@@ -109,6 +100,6 @@ describe('SendMessageUseCase', () => {
         });
 
         const chatUpdated = await chatRepository.findById(chat.id.getValue)
-        expect(chatUpdated?.messages[1].status).toEqual(MessageStatus.SENT)
+        expect(chatUpdated?.messages[0].status).toEqual(MessageStatus.SENT)
     });
 });

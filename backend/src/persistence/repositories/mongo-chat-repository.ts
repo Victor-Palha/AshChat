@@ -8,20 +8,12 @@ import { MessageMapper } from "../mappers/message-mapper";
 export class MongoChatRepository implements ChatRepository {
 
     async createChat(data: CreateChatDTO){
-        const createMessage = {
-            senderId: data.senderId,
-            content: data.message.content,
-            translatedContent: data.message.content,
-            timestamp: data.message.timestamp,
-            status: "SENT"
-        }
-
         const chatDocument = await ChatModel.create({
             usersID: [
                 data.senderId,
                 data.receiverId
             ],
-            messages: createMessage,
+            messages: [],
             sameLanguage: data.sameLanguage
 
         }); 

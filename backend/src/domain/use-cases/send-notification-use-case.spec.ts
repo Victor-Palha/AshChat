@@ -12,6 +12,7 @@ import { User } from '../entities/user';
 import { CreateNewChatUseCase } from './create-new-chat-use-case';
 import { UserNotFoundError } from './errors/user-not-found-error';
 import { createTestUserHelper } from './helpers/create-test-user-helper';
+import { Message, MessageStatus } from '../entities/message';
 
 describe('SendNotificationUseCase', () => {
     let sut: SendNotificationUseCase;
@@ -42,11 +43,20 @@ describe('SendNotificationUseCase', () => {
         const { chat } = await new CreateNewChatUseCase(chatRepository, userRepository).execute({
             senderId: sender.id.getValue,
             receiverId: receiver.id.getValue,
-            content: 'Hello!'
         });
 
+        const message = new Message({
+            senderId: sender.id.getValue,
+            content: 'Hello, world!',
+            status: MessageStatus.SENT,
+            timestamp: new Date().toDateString(),
+            translatedContent: 'Olá, mundo!',
+        })
+
+        const {id} = await chatRepository.sendMessage(chat.id.getValue, message)
+
         chatId = chat.id.getValue;
-        messageId = chat.messages[0].id.getValue;
+        messageId = id.getValue
     });
 
     it('should send a notification successfully', async () => {

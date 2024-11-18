@@ -2,6 +2,7 @@ import { Socket } from "socket.io";
 import { IOServer } from "..";
 import { createNewChatFactory } from "../../domain/factories/create-new-chat.factory";
 import { sendNotificationFactory } from "../../domain/factories/send-notification.factory";
+import { findUserByIdFactory } from "../../domain/factories/find-user-by-id.factory";
 
 type CreateChatEventDTO = {
     receiverId: string;
@@ -11,38 +12,32 @@ type CreateChatEventDTO = {
 export function createChatEvent(socket: Socket, ioServer: IOServer) {
     socket.on("create-chat", async (data: CreateChatEventDTO) => {
         const senderId = ioServer.verifyAuthByToken(socket.handshake.auth.token);
-        const { receiverId, content } = data;
+        const { receiverId } = data;
 
-        if(!receiverId || !content){
+        if(!receiverId){
             socket.emit("error", { message: "Dados insuficientes para criar o chat." });
             return;
         }
         
         try {
             const createNewChatUseCase = createNewChatFactory();
-
-            // Criar um novo chat
-            const { chat } = await createNewChatUseCase.execute({
+            const findUserByIdUseCase = findUserByIdFactory();
+            const {nickname} = await findUserByIdUseCase.execute(receiverId);
+            
+            const {chat} = await createNewChatUseCase.execute({
                 senderId,
                 receiverId,
-                content,
             });
 
-            const messageId = chat.messages[0]
+            socket.emit("chat-created", { 
+                chat_id: chat.id.getValue,
+                messages: [],
+                nickname
 
-            // Entrar na sala do chat
-            socket.join(`chat_${chat.id.getValue}`);
-
-            const sendNotificationUseCase = sendNotificationFactory();
-            await sendNotificationUseCase.execute({
-                receiverId,
-                chatId: chat.id.getValue,
-                messageId: messageId.id.getValue
-            });
-
+             });
         } catch (error) {
             console.error("Erro ao criar o chat:", error);
-            socket.emit("error", { message: "Não foi possível criar o chat." });
+            socket.emit("create-chat-error", { message: "Não foi possível criar o chat." });
         }
     });
 }

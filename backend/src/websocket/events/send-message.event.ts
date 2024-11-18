@@ -13,7 +13,8 @@ type SendMessageEventDTO = {
 
 export function sendMessageEvent(socket: Socket, ioServer: IOServer) {
     socket.on("send-message", async (data: SendMessageEventDTO) => {
-        const { senderId, chatID, content } = data;
+        const senderId = ioServer.verifyAuthByToken(socket.handshake.auth.token);
+        const { chatID, content } = data;
 
         try {
             const sendMessageUseCase = sendNewMessageFactory();
