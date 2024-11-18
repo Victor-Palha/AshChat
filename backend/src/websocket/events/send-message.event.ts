@@ -23,17 +23,14 @@ export function sendMessageEvent(socket: Socket, ioServer: IOServer) {
             const message = await sendMessageUseCase.execute({ senderId, chatID: chat_id, content });
 
             const usersInRoom = await ioServer._io.in(`chat_${chat_id}`).fetchSockets();
-            console.log(usersInRoom)
             const receiverAreInRoom = usersInRoom.length > 1;
 
             if (receiverAreInRoom) {
                 ioServer._io.to(`chat_${chat_id}`).emit("receive-message", {
                     chat_id,
-                    senderId,
+                    sender_id: senderId,
                     content,
-                    timestamp: new Date().toISOString(),
                 });
-                console.log(`Mensagem enviada no chat ${chat_id} pelo usuário ${senderId}`);
 
                 socket.emit("message-sent", {
                     chat_id,
@@ -61,7 +58,6 @@ export function sendMessageEvent(socket: Socket, ioServer: IOServer) {
                 });
 
                 console.log(`Notificação enviada para o usuário ${receiverId} sobre a mensagem no chat ${chat_id}.`);
-
             }
             
         } catch (error) {

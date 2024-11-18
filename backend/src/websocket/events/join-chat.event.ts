@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { IOServer } from "..";
+import { IOServer as ioServer } from "..";
 import { MongoChatRepository } from "../../persistence/repositories/mongo-chat-repository";
 
 type JoinChatEventDTO = {
@@ -7,10 +7,9 @@ type JoinChatEventDTO = {
     chat_id: string;
 };
 
-export function joinChatEvent(socket: Socket, _ioServer: IOServer) {
+export function joinChatEvent(socket: Socket, ioServer: ioServer) {
     socket.on("join-chat", async (data: JoinChatEventDTO) => {
         const { chat_id } = data;
-
         try {
             const chatRepository = new MongoChatRepository();
 
@@ -21,7 +20,6 @@ export function joinChatEvent(socket: Socket, _ioServer: IOServer) {
             }
 
             socket.join(`chat_${chat_id}`);
-            console.log(`Usuário entrou no chat ${chat_id}`);
         } catch (error) {
             console.error("Erro ao entrar no chat:", error);
             socket.emit("error", { message: "Não foi possível entrar no chat." });
