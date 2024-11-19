@@ -4,7 +4,7 @@ import { MMKV } from 'react-native-mmkv';
 export type LabelChatProps = {
   chat_id: string;
   nickname: string;
-  last_message: MessageProps;
+  last_message: MessageProps | null;
   notification: number;
   last_interaction: Date;
 };
@@ -51,37 +51,40 @@ export class MMKVStorage {
   public addChat({ chat_id, messages, nickname }: ChatProps): void {
     const allChatsString = this.instance.getString(this.CONSTANTS.CHAT);
 
+    // Cria o novo chat
     const newChat: ChatProps = {
-      chat_id,
-      nickname,
-      messages,
-    };
-
-    if (allChatsString) {
-      const allChats = JSON.parse(allChatsString) as ChatProps[];
-      const chatExists = allChats.some(chat => chat.chat_id === chat_id);
-
-      if (!chatExists) {
-        const updatedChats = [...allChats, newChat];
-        this.instance.set(this.CONSTANTS.CHAT, JSON.stringify(updatedChats));
-        this.addLabel({
-          chat_id,
-          nickname,
-          last_message: messages[messages.length - 1],
-          notification: 0,
-          last_interaction: new Date(),
-        });
-      }
-    } else {
-      this.instance.set(this.CONSTANTS.CHAT, JSON.stringify([newChat]));
-      this.addLabel({
         chat_id,
         nickname,
-        last_message: messages[messages.length - 1],
-        notification: 0,
-        last_interaction: new Date(),
-      });
+        messages: messages || [], // Garante que seja sempre um array
+    };
+
+    // Última mensagem (se existir)
+    const lastMessage = messages && messages.length > 0 ? messages[messages.length - 1] : null;
+    const currentDate = new Date();
+
+    let allChats: ChatProps[] = [];
+
+    if (allChatsString) {
+        allChats = JSON.parse(allChatsString) as ChatProps[];
+        const chatExists = allChats.some(chat => chat.chat_id === chat_id);
+
+        if (chatExists) {
+            return; // Não faz nada se o chat já existe
+        }
     }
+
+    // Adiciona o novo chat à lista
+    allChats.push(newChat);
+    this.instance.set(this.CONSTANTS.CHAT, JSON.stringify(allChats));
+
+    // Adiciona o rótulo para o chat
+    this.addLabel({
+        chat_id,
+        nickname,
+        last_message: lastMessage,
+        notification: 0,
+        last_interaction: currentDate,
+    });
   }
 
   public getLabels(): LabelChatProps[] | null {
@@ -182,5 +185,45 @@ export class MMKVStorage {
         this.instance.set(this.CONSTANTS.CHAT, JSON.stringify(chats));
       }
     }
+  }
+
+  public updatingAllMessagesFromAChat(chat_id: string): void {
+    // Recupera a lista de chats armazenados
+    const chatsString = this.instance.getString(this.CONSTANTS.CHAT);
+    if (!chatsString) return;
+
+    const chats = JSON.parse(chatsString) as ChatProps[];
+    const chatIndex = chats.findIndex(c => c.chat_id === chat_id);
+
+    if (chatIndex !== -1) {
+        // Atualiza o status de todas as mensagens para "READ"
+        chats[chatIndex].messages = chats[chatIndex].messages.map(message => ({
+            ...message,
+            status: "READ"
+        }));
+
+        // Atualiza a lista de chats no armazenamento
+        this.instance.set(this.CONSTANTS.CHAT, JSON.stringify(chats));
+
+        // Atualiza as notificações relacionadas no LABEL_CHAT
+        const chatLabelString = this.instance.getString(this.CONSTANTS.LABEL_CHAT);
+        if (chatLabelString) {
+            const allChatsLabel = JSON.parse(chatLabelString) as LabelChatProps[];
+
+            const updatedLabels = allChatsLabel.map(label => 
+                label.chat_id === chat_id 
+                    ? { ...label, notification: 0 } 
+                    : label
+            );
+
+            // Atualiza as notificações no armazenamento
+            this.instance.set(this.CONSTANTS.LABEL_CHAT, JSON.stringify(updatedLabels));
+        }
+    }
+  }
+
+
+  public cleanAll(){
+    this.instance.clearAll()
   }
 }

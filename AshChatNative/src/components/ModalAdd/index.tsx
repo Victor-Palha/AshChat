@@ -20,8 +20,7 @@ type ChatCreatedEventProps = {
 }
 
 export function ModalAdd({modalIsOpen, closeModal}: ModalAddProps) {
-    const {ioServer} = useContext(SocketContext)
-    const {mmkvStorage} = useContext(AuthContext)
+    const {ioServer, mmkvStorage} = useContext(SocketContext)
     // Constants
 
     // Listeners

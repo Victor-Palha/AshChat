@@ -1,7 +1,6 @@
 import { Socket } from "socket.io";
 import { IOServer } from "..";
 import { createNewChatFactory } from "../../domain/factories/create-new-chat.factory";
-import { sendNotificationFactory } from "../../domain/factories/send-notification.factory";
 import { findUserByIdFactory } from "../../domain/factories/find-user-by-id.factory";
 
 type CreateChatEventDTO = {

@@ -2,9 +2,10 @@ import { Socket } from "socket.io";
 import { IOServer } from "..";
 import { ChatNotFoundError } from "../../domain/use-cases/errors/chat-not-found-error";
 import { sendNewMessageFactory } from "../../domain/factories/send-new-message.factory";
-import { sendNotificationFactory } from "../../domain/factories/send-notification.factory";
 import { findReceiverIdFactory } from "../../domain/factories/find-receiver-id.factory";
 import { MessageStatus } from "../../domain/entities/message";
+import { Notification } from "../../domain/entities/notification";
+import { randomUUID } from "crypto";
 
 type SendMessageEventDTO = {
     chat_id: string;
@@ -39,7 +40,6 @@ export function sendMessageEvent(socket: Socket, ioServer: IOServer) {
                 })
 
             } else {
-                const sendNotificationUseCase = sendNotificationFactory();
                 const findReceiverIdUseCase = findReceiverIdFactory()
 
                 const receiverId = await findReceiverIdUseCase.execute({
@@ -50,13 +50,22 @@ export function sendMessageEvent(socket: Socket, ioServer: IOServer) {
                 if(!receiverId){
                     return
                 }
+                console.log(receiverId)
+                const notification = new Notification({
+                    notification_id: null,
+                    chat_id,
+                    message: message.toNotification()
+                })
+                
 
-                await sendNotificationUseCase.execute({
-                    receiverId: receiverId,
-                    chatId: chat_id, 
-                    messageId: message.id.getValue
-                });
+                console.log(notification)
 
+                ioServer.pubSubNotification.addNotification({
+                    receiver_id: receiverId,
+                    notification
+                })
+
+                ioServer.sendNotifications(receiverId)
                 console.log(`Notificação enviada para o usuário ${receiverId} sobre a mensagem no chat ${chat_id}.`);
             }
             

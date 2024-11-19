@@ -9,13 +9,16 @@ export class Pubsub {
     private content: NotificationSub[] = []
 
     public addNotification({receiver_id, notification}: {receiver_id: string, notification: Notification}){
-        const receiver = this.findReceiver(receiver_id)
+        const receiveID = "user_"+receiver_id
+        const receiver = this.findReceiver(receiveID)
         if(receiver){
             receiver.notifications.push(notification)
         }
         else{
-            this.content.push({receiver: receiver_id, notifications: [notification]})
+            this.content.push({receiver: receiveID, notifications: [notification]})
         }
+
+        console.log(this.content)
     }
 
     public getNotifications(receiver_id: string){
@@ -32,3 +35,6 @@ export class Pubsub {
         return receiver
     }
 }
+
+const pubSubNotification = new Pubsub()
+export default pubSubNotification

@@ -37,7 +37,7 @@ export default function Chat(): JSX.Element {
   useFocusEffect(
     useCallback(() => {
       ioServer.socket.emit("join-chat", { chat_id });
-
+      mmkvStorage.updatingAllMessagesFromAChat(chat_id as string)
       return () => {
         ioServer.socket.emit("leave-chat", { chat_id });
       };

@@ -41,4 +41,15 @@ export class Message {
             translatedContent: this.translatedContent
         };
     }
+
+    public toNotification(): MessageDTO{
+        return {
+            id: this.id.getValue,
+            content: this.content,
+            translatedContent: this.translatedContent,
+            senderId: this.senderId.getValue,
+            status: this.status,
+            timestamp: this.timestamp
+        }
+    }
 }

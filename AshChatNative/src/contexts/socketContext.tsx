@@ -9,6 +9,20 @@ type SocketProps = {
     user_id: string | undefined
 }
 
+type Notifications = {
+    notifications: {
+        chat_id: string,
+        message: {
+            id: string,
+            senderId: string,
+            content: string,
+            translatedContent: string,
+            timestamp: string,
+            status: string
+        },
+    }[]
+}
+
 export const SocketContext = createContext<SocketProps>({} as SocketProps)
 
 const mmkvStorage = new MMKVStorage()
@@ -22,7 +36,23 @@ export function SocketProvider({children}: {children: React.ReactNode}){
         ioServer.socket.on("user-connected", ({user_id})=>{
             mmkvStorage.setUserId(user_id)
         })
+
+        return () => {
+            ioServer.socket.off("user-connected")
+        }
     }, [])
+
+    useEffect(()=> {
+        ioServer.socket.on("notifications", ({notifications}: Notifications)=>{
+            notifications.forEach(({chat_id, message})=>{
+                mmkvStorage.addMessage({
+                    chat_id,
+                    content: message.content,
+                    sender_id: message.senderId
+                })
+            })
+        })
+    })
 
     const values = {
         ioServer,

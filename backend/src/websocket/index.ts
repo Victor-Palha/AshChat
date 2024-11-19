@@ -4,6 +4,7 @@ import { changeUserStatusFactory } from "../domain/factories/change-user-status.
 import { verify } from "jsonwebtoken";
 import { env } from "../config/env";
 import { verifyUniqueTokenDeviceFactory } from "../domain/factories/verify-user-unique-token-device.factory";
+import { Pubsub } from "../config/pubsub";
 
 interface PayloadJWT{
     sub: string
@@ -11,9 +12,11 @@ interface PayloadJWT{
 
 export class IOServer {
     public _io: Server
+    public pubSubNotification: Pubsub
 
-    constructor(io: Server) {
+    constructor(io: Server, pubSub: Pubsub) {
         this._io = io
+        this.pubSubNotification = pubSub
     }
 
     public initialize() {
@@ -38,6 +41,9 @@ export class IOServer {
                     await changeUserStatus.execute({ userId, online: false });
                 });
                 this._io.to(`user_${userId}`).emit("user-connected", { user_id: userId.trim() });
+
+                this.sendNotifications(userId)
+
             } catch (error) {
                 console.log(error)
                 socket.disconnect()
@@ -68,4 +74,11 @@ export class IOServer {
         }
     }
     
+    public sendNotifications(userId: string){
+        const userNotifications = this.pubSubNotification.getNotifications(`user_${userId}`)
+        console.log(userNotifications)
+        this._io.to(`user_${userId}`).emit("notifications", {
+            notifications: userNotifications
+        })
+    }
 }
