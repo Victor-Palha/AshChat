@@ -39,7 +39,9 @@ defmodule ChatService.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.2"}
+      {:bandit, "~> 1.2"},
+      {:mongodb_driver, "~> 1.5.0"},
+      {:joken, "~> 2.6.2"}
     ]
   end
 
