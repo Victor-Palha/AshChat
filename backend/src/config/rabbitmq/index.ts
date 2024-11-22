@@ -59,7 +59,7 @@ export class RabbitMQService implements MessageBroker {
      */
     async sendToQueue(queue: Queues, message: string, options?: Options.Publish): Promise<void> {
         if (!this.channel) throw new Error("RabbitMQ channel is not initialized");
-        await this.channel.assertQueue(queue, { durable: true, autoDelete: true });
+        await this.channel.assertQueue(queue, { durable: true, autoDelete: false });
 
         this.channel.sendToQueue(
             queue, 
