@@ -26,6 +26,12 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
+config :chat_service, :rabbitmq,
+  host: "localhost",
+  username: "root",
+  password: "randompassword",
+  port: 5672
+
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 

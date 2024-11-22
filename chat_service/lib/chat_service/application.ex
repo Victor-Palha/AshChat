@@ -12,6 +12,8 @@ defmodule ChatService.Application do
       {DNSCluster, query: Application.get_env(:chat_service, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: ChatService.PubSub},
       {Mongo, ChatService.Repo.config()},
+      ChatService.Rabbitmq.Connection,
+      ChatService.Rabbitmq.Consumer,
       # Start a worker by calling: ChatService.Worker.start_link(arg)
       # {ChatService.Worker, arg},
       # Start to serve requests, typically the last entry

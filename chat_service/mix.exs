@@ -41,7 +41,8 @@ defmodule ChatService.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.2"},
       {:mongodb_driver, "~> 1.5.0"},
-      {:joken, "~> 2.6.2"}
+      {:joken, "~> 2.6.2"},
+      {:amqp, "~> 4.0"}
     ]
   end
 
