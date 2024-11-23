@@ -17,15 +17,19 @@ defmodule ChatService.Rabbitmq.GenericConsumer do
 
   @impl true
   def handle_info({:basic_deliver, payload, meta}, %{channel: channel, handler: handler} = state) do
-    Logger.info("Message received from #{state.queue}: #{payload}")
+    Logger.info("Message received from #{state.queue}: #{inspect(payload)}")
 
     # Processa a mensagem usando o handler fornecido
-    apply(handler, :handle_message, [payload, meta])
+    case Jason.decode(payload) do
+      {:ok, msg} ->
+        apply(handler, :handle_message, [msg, meta])
+        AMQP.Basic.ack(channel, meta.delivery_tag)
+        {:noreply, state}
 
-    # Confirma a mensagem
-    AMQP.Basic.ack(channel, meta.delivery_tag)
-
-    {:noreply, state}
+      {:error, reason} ->
+        Logger.error("Failed to decode message: #{inspect(payload)}, reason: #{inspect(reason)}")
+        {:noreply, state}
+    end
   end
 
   def handle_info({:basic_consume_ok, _info}, state) do

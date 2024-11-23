@@ -9,16 +9,29 @@ defmodule ChatService.Rabbitmq.ConsumerStarter do
 
   @impl true
   def init(_) do
-    # Espera até o canal estar disponível
+    # Obtém o canal
     channel = ChatService.Rabbitmq.Connection.channel()
 
-    # Quando o canal estiver disponível, inicia o consumidor
+    # Garante que a fila existe antes de iniciar o consumidor
+    ensure_queue_exists(channel, "confirm_new_account_queue")
+
+    # Inicia o consumidor
     start_consumer(channel)
+
     {:ok, %{}}
   end
 
+  defp ensure_queue_exists(channel, queue) do
+    case AMQP.Queue.declare(channel, queue, durable: true) do
+      {:ok, _} ->
+        Logger.info("Queue #{queue} is ready.")
+      {:error, reason} ->
+        Logger.error("Failed to declare queue #{queue}: #{inspect(reason)}")
+        raise "Failed to declare queue"
+    end
+  end
+
   defp start_consumer(channel) do
-    # Inicializa o consumidor com o canal e a fila
     queue = "confirm_new_account_queue"
     handler = ChatService.Handlers.QueueConfirmNewAccount
 

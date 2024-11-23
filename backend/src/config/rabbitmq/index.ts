@@ -59,7 +59,10 @@ export class RabbitMQService implements MessageBroker {
      */
     async sendToQueue(queue: Queues, message: string, options?: Options.Publish): Promise<void> {
         if (!this.channel) throw new Error("RabbitMQ channel is not initialized");
-        await this.channel.assertQueue(queue, { durable: true, autoDelete: false });
+        await this.channel.assertQueue(queue, {
+            durable: true, 
+            autoDelete: false 
+        });
 
         this.channel.sendToQueue(
             queue, 
@@ -81,7 +84,7 @@ export class RabbitMQService implements MessageBroker {
         
         await this.channel.assertQueue(queue, {
             durable: true,
-            autoDelete: true
+            autoDelete: false
         });
         
         this.channel.consume(queue, (msg) => {
@@ -102,7 +105,7 @@ export class RabbitMQService implements MessageBroker {
         if (!this.channel) throw new Error("RabbitMQ channel is not initialized");
         const { queue } = await this.channel.assertQueue(queueName || "", {
             durable: true,
-            autoDelete: true,
+            autoDelete: false,
         });
         return queue;
     }

@@ -21,7 +21,7 @@ import { IOServer } from "./websocket";
 async function main() {
     const PORT = env.PORT;
     const MONGODB_URI = env.MONGODB_URI;
-    
+    console.log(MONGODB_URI)
     try {
         console.log("Connecting to the database...");
         await connectToDatabase(MONGODB_URI);

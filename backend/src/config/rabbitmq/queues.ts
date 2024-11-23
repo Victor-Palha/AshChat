@@ -8,5 +8,6 @@ export enum Queues {
     CONFIRM_NEW_DEVICE_QUEUE = "confirm_new_device_queue",
     CONFIRM_NEW_DEVICE_REPLY_QUEUE = "confirm_new_device_reply_queue",
     TRANSLATION_INPUT = "translation_input",
-    TRANSLATION_OUTPUT = "translation_output"
+    TRANSLATION_OUTPUT = "translation_output",
+    CONFIRM_NEW_ACCOUNT_QUEUE = "confirm_new_account_queue",
 }

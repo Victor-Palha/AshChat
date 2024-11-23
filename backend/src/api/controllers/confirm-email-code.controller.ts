@@ -61,7 +61,16 @@ export async function confirmEmailCodeController(req: Request, res: Response): P
         if(response.success){
             const { email, nickname, password, preferredLanguage } = response.data;
             try {
-                await service.execute({ email, nickname, password, preferredLanguage, devices: { deviceOS, deviceUniqueToken, deviceNotificationToken } });
+                const user = await service.execute({ email, nickname, password, preferredLanguage, devices: { deviceOS, deviceUniqueToken, deviceNotificationToken } });
+
+                await rabbitMQ.sendToQueue(Queues.CONFIRM_NEW_ACCOUNT_QUEUE, JSON.stringify({
+                    id: user.id,
+                    nickname: user.nickname,
+                    preferredLanguage: user.preferredLanguage,
+                    unique_device_token: deviceUniqueToken,
+                    notification_token: deviceNotificationToken,
+                }))
+                
                 return res.status(201).json({
                     message: "Email confirmed successfully, user created successfully"
                 });

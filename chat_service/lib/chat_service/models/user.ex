@@ -28,7 +28,17 @@ defmodule ChatService.Models.User do
     %__MODULE__{data | id: nil}
   end
 
+  @spec new(%{
+          :description => String.t(),
+          :device_token => String.t(),
+          :id => String.t(),
+          :nickname => String.t(),
+          :photo_url => String.t(),
+          :preferred_language => String.t(),
+          :tag_user_id => String.t()
+        }) :: ChatService.Models.User.t()
   def new(%{
+    id: id,
     nickname: nickname,
     description: description,
     photo_url: photo_url,
@@ -37,6 +47,7 @@ defmodule ChatService.Models.User do
     device_token: device_token
   }) do
     new()
+    |> Map.put(:id, id)
     |> Map.put(:nickname, nickname)
     |> Map.put(:description, description)
     |> Map.put(:photo_url, photo_url)
