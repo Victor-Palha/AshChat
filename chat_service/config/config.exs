@@ -33,6 +33,12 @@ config :chat_service, :rabbitmq,
   port: 5672,
   virtual_host: "/"
 
+config :joken,
+  rs256: [
+    signer_alg: "RS256",
+    key_pem: File.read!("priv/keys/public_key.pem")
+  ]
+
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
