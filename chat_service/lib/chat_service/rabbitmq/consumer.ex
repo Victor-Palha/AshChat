@@ -1,63 +1,45 @@
-defmodule ChatService.Rabbitmq.Consumer do
+defmodule ChatService.Rabbitmq.GenericConsumer do
   use GenServer
 
-  alias AMQP.{Basic, Queue}
-  alias ChatService.Rabbitmq.Connection
+  require Logger
 
-  @queue "chat_queue"
-
-  def start_link(_) do
-    GenServer.start_link(__MODULE__, nil, name: __MODULE__)
+  def start_link(%{channel: channel, queue: queue, handler: handler}) do
+    GenServer.start_link(__MODULE__, %{channel: channel, queue: queue, handler: handler})
   end
 
   @impl true
-  def init(_) do
-    # Obtendo o canal do RabbitMQ
-    case Connection.channel() do
-      %AMQP.Channel{} = channel ->
-        # Declarando a fila e iniciando o consumo de mensagens
-        Queue.declare(channel, @queue, durable: true)
-        Basic.consume(channel, @queue)
-        {:ok, %{channel: channel}}
+  def init(%{channel: channel, queue: queue, handler: handler}) do
+    # Inscrição na fila
+    AMQP.Basic.consume(channel, queue)
 
-      other ->
-        {:stop, {:invalid_channel, other}}
-    end
+    {:ok, %{channel: channel, queue: queue, handler: handler}}
   end
 
-  # Lida com mensagens consumidas
   @impl true
-  def handle_info({:basic_deliver, payload, _meta}, state) do
-    process_message(payload)
+  def handle_info({:basic_deliver, payload, meta}, %{channel: channel, handler: handler} = state) do
+    Logger.info("Message received from #{state.queue}: #{payload}")
+
+    # Processa a mensagem usando o handler fornecido
+    apply(handler, :handle_message, [payload, meta])
+
+    # Confirma a mensagem
+    AMQP.Basic.ack(channel, meta.delivery_tag)
+
     {:noreply, state}
   end
 
-  # Confirmação de que o consumidor foi configurado com sucesso
   def handle_info({:basic_consume_ok, _info}, state) do
-    IO.puts("Consumer successfully registered.")
+    Logger.info("Consumer registered for queue #{state.queue}")
     {:noreply, state}
   end
 
-  # Notificação de cancelamento do consumidor
   def handle_info({:basic_cancel, _info}, state) do
-    IO.puts("Consumer was canceled.")
+    Logger.info("Consumer cancelled for queue #{state.queue}")
     {:stop, :normal, state}
   end
 
-  # Confirmação de cancelamento do consumidor
   def handle_info({:basic_cancel_ok, _info}, state) do
-    IO.puts("Consumer cancellation confirmed.")
+    Logger.info("Consumer cancellation acknowledged for queue #{state.queue}")
     {:noreply, state}
-  end
-
-  # Tratamento genérico para mensagens inesperadas
-  def handle_info(message, state) do
-    IO.puts("Unhandled message: #{inspect(message)}")
-    {:noreply, state}
-  end
-
-  defp process_message(message) do
-    IO.puts("Received message: #{message}")
-    # Adicione aqui a lógica de processamento da mensagem
   end
 end

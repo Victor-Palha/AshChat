@@ -13,7 +13,7 @@ defmodule ChatService.Application do
       {Phoenix.PubSub, name: ChatService.PubSub},
       {Mongo, ChatService.Repo.config()},
       ChatService.Rabbitmq.Connection,
-      ChatService.Rabbitmq.Consumer,
+      {GenericConsumer, %{channel: ChatService.Rabbitmq.Connection.channel(), queue: "queue_a", handler: QueueAHandler}},
       # Start a worker by calling: ChatService.Worker.start_link(arg)
       # {ChatService.Worker, arg},
       # Start to serve requests, typically the last entry
