@@ -30,7 +30,8 @@ config :chat_service, :rabbitmq,
   host: "localhost",
   username: "root",
   password: "randompassword",
-  port: 5672
+  port: 5672,
+  virtual_host: "/"
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason

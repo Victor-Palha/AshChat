@@ -53,7 +53,7 @@ config :phoenix, :stacktrace_depth, 20
 config :phoenix, :plug_init_mode, :runtime
 
 config :chat_service, ChatService.Repo,
-  url: "mongodb://localhost:27017/chat_service_dev",
+  url: "mongodb://root:example@localhost:27017/chats?authSource=admin",
   timeout: 60_000,
   idle_interval: 10_000,
   queue_target: 5_000,

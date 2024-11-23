@@ -1,4 +1,4 @@
-defmodule ChatService.Handlers.QueueAHandler do
+defmodule ChatService.Handlers.QueueConfirmNewAccount do
   require Logger
 
   def handle_message(payload, _meta) do

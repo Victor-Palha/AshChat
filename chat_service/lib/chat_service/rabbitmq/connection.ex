@@ -3,8 +3,6 @@ defmodule ChatService.Rabbitmq.Connection do
 
   require Logger
 
-  alias AMQP.{Channel, Connection}
-
   @config Application.compile_env(:chat_service, :rabbitmq)
 
   def start_link(_) do
@@ -14,7 +12,10 @@ defmodule ChatService.Rabbitmq.Connection do
   @impl true
   def init(_) do
     case connect() do
-      {:ok, conn, chan} -> {:ok, %{connection: conn, channel: chan}}
+      {:ok, conn, chan} ->
+        Logger.info("RabbitMQ connection established successfully")
+        {:ok, %{connection: conn, channel: chan}}
+
       {:error, reason} ->
         Logger.error("Failed to connect to RabbitMQ: #{inspect(reason)}")
         {:stop, reason}
@@ -22,12 +23,13 @@ defmodule ChatService.Rabbitmq.Connection do
   end
 
   defp connect() do
-    case Connection.open(@config) do
+    case AMQP.Connection.open(@config) do
       {:ok, conn} ->
-        case Channel.open(conn) do
+        case AMQP.Channel.open(conn) do
           {:ok, chan} ->
             Logger.info("Connected to RabbitMQ")
-            IO.inspect(chan)
+            IO.inspect(conn, label: "Connection")
+            IO.inspect(chan, label: "Channel")
             {:ok, conn, chan}
           error ->
             Logger.error("Failed to open channel: #{inspect(error)}")
@@ -41,13 +43,13 @@ defmodule ChatService.Rabbitmq.Connection do
 
   @impl true
   def terminate(_reason, %{connection: conn, channel: chan}) do
-    Channel.close(chan)
-    Connection.close(conn)
+    AMQP.Channel.close(chan)
+    AMQP.Connection.close(conn)
     Logger.info("Disconnected from RabbitMQ")
   end
 
   def channel() do
-    GenServer.call(__MODULE__, :get_channel)
+    GenServer.call(__MODULE__, :get_channel, 10_000)
   end
 
   @impl true
