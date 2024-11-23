@@ -57,7 +57,7 @@ export class IOServer {
           }
     
           try {
-            const payload = verify(token, env.JWT_SECRET)as PayloadJWT;
+            const payload = verify(token, env.JWT_TEMPORARY_TOKEN)as PayloadJWT;
             const user_id = payload.sub;
             return user_id
 

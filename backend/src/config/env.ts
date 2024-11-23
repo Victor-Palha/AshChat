@@ -1,16 +1,19 @@
+import { readFileSync } from 'node:fs';
 import {z} from 'zod';
 
 const applicationEnvSchema = z.object({
     PORT: z.coerce.number().default(3003),
     NODE_ENV: z.string().default('development'),
-    JWT_SECRET: z.string(),
     MONGODB_URI: z.string().url(),
     AMQP_URI: z.string().url(),
     JWT_TEMPORARY_TOKEN: z.string(),
     FIREBASE_PROJECT_ID: z.string(),
     FIREBASE_CLIENT_EMAIL: z.string(),
     FIREBASE_PRIVATE_KEY: z.string(),
+    JWT_SECRET: z.string().default(readFileSync(`${__dirname}/../../private_key.pem`, 'utf8')),
 })
+
+process.env.JWT_SECRET = readFileSync(`${__dirname}/../../private_key.pem`, 'utf8');
 
 const applicationEnvConfig = applicationEnvSchema.safeParse(process.env);
 

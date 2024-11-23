@@ -55,6 +55,7 @@ export async function authenticateUserController(req: Request, res: Response): P
         })
     }
     catch(error){
+        console.log(error)
         if(error instanceof UserCredentialsError){
             return res.status(401).send({
                 message: error.message

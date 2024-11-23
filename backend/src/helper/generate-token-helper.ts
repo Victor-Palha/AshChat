@@ -1,5 +1,6 @@
 import { sign } from "jsonwebtoken";
 import { env } from "../config/env";
+import { readFileSync } from "node:fs";
 
 type GenerateToken = {
     subject: string,
@@ -15,13 +16,18 @@ type GenerateToken = {
  * @param {string} params.type - The type of the token, either "MAIN" or another type.
  * @returns {string} The generated JWT.
  */
+
 export function generateToken({subject, expiresIn, type}: GenerateToken): string {
     const payload = {
         type: type
     };
 
     if(type === "MAIN"){
-        return sign(payload, env.JWT_SECRET, {subject: subject, expiresIn: expiresIn})
+        return sign(payload, env.JWT_SECRET, {
+            subject: subject, 
+            expiresIn: expiresIn,
+            algorithm: "RS256"
+        })
     }
     return sign(payload, env.JWT_TEMPORARY_TOKEN, {subject: subject, expiresIn: expiresIn})
 }
