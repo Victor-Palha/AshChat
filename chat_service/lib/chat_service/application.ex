@@ -17,6 +17,7 @@ defmodule ChatService.Application do
       {ChatService.Rabbitmq.ConsumerStarter, []},
       # Start a worker by calling: ChatService.Worker.start_link(arg)
       # {ChatService.Worker, arg},
+      ChatServiceWeb.Presence,
       # Start to serve requests, typically the last entry
       ChatServiceWeb.Endpoint
     ]

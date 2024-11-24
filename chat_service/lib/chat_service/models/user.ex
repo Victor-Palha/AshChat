@@ -15,28 +15,20 @@ defmodule ChatService.Models.User do
     attribute :blocked_id, [String.t()], default: []
     attribute :tag_user_id, [String.t()]
     attribute :device_token, String.t()
+    attribute :notification_token, String.t()
 
-    after_load(&User.afeter_load/1)
-    before_dump(&User.before_dump/1)
+    after_load &User.after_load/1
+    before_dump &User.before_dump/1
   end
 
-  def afeter_load(%__MODULE__{_id: id} = data) do
-    %__MODULE__{data | id: BSON.ObjectId.encode(id)}
+  def after_load(%User{_id: id} = data) do
+    %User{data | id: BSON.ObjectId.encode!(id)}
   end
 
-  def before_dump(data) do
-    %__MODULE__{data | id: nil}
+  def before_dump(%User{id: id} = data) when is_binary(id) do
+    %User{data | _id: BSON.ObjectId.decode!(id)}
   end
 
-  @spec new(%{
-          :description => String.t(),
-          :device_token => String.t(),
-          :id => String.t(),
-          :nickname => String.t(),
-          :photo_url => String.t(),
-          :preferred_language => String.t(),
-          :tag_user_id => String.t()
-        }) :: ChatService.Models.User.t()
   def new(%{
     id: id,
     nickname: nickname,
@@ -44,16 +36,19 @@ defmodule ChatService.Models.User do
     photo_url: photo_url,
     preferred_language: preferred_language,
     tag_user_id: tag_user_id,
-    device_token: device_token
+    device_token: device_token,
+    notification_token: notification_token
   }) do
     new()
     |> Map.put(:id, id)
+    |> Map.put(:_id, BSON.ObjectId.decode!(id))
     |> Map.put(:nickname, nickname)
     |> Map.put(:description, description)
     |> Map.put(:photo_url, photo_url)
     |> Map.put(:preferred_language, preferred_language)
     |> Map.put(:tag_user_id, tag_user_id)
     |> Map.put(:device_token, device_token)
-    |> afeter_load()
+    |> Map.put(:notification_token, notification_token)
+    |> after_load()
   end
 end

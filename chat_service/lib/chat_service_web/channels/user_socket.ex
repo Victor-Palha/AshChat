@@ -1,15 +1,18 @@
 defmodule ChatServiceWeb.UserSocket do
   use Phoenix.Socket
 
-  channel "chats:*", ChatServiceWeb.ChatChannel
+  channel "chat:*", ChatServiceWeb.ChatChannel
 
-  def connect(%{"token" => token, "device_unique_id" => device_unique_id}, socket, _connect_info) do
-    IO.inspect(socket, label: "Connected socket")
-    IO.inspect(token, label: "Token")
-    IO.inspect(device_unique_id, label: "Device unique id")
-    {:ok, socket}
+  def connect(%{"token" => token, "device_unique_id" => _device_unique_id}, socket, _connect_info) do
+    case ChatService.Auth.verify_token(token) do
+      {:ok, claims} ->
+        {:ok, assign(socket, :user_id, claims["sub"])}
+      {:error, _reason} ->
+        :error
+    end
   end
 
-  def id(_socket), do: nil
-
+  def id(socket) do
+    "user_socket:#{socket.assigns[:user_id]}"
+  end
 end

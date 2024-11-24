@@ -3,11 +3,16 @@ defmodule ChatServiceWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug ChatServiceWeb.AuthPlug
   end
 
   scope "/api", ChatServiceWeb do
     pipe_through :api
+
+    post "/chat", ChatController, :create
   end
+
+
 
   # Enable LiveDashboard in development
   if Application.compile_env(:chat_service, :dev_routes) do
