@@ -2,6 +2,7 @@ defmodule ChatServiceWeb.ChatController do
   use ChatServiceWeb, :controller
 
   alias ChatService.Services.Chat
+  alias ChatService.Services.User
   alias ChatService.Errors.{UserNotFoundError, ChatAlreadyExistsError}
 
   def create(conn, %{"receiver_tag" => receiver_tag}) do
@@ -10,7 +11,14 @@ defmodule ChatServiceWeb.ChatController do
       "sender_id" => user_id,
       "receiver_tag" => receiver_tag
     }) do
-    {:ok, chat} -> json(conn, %{message: "Chat created successfully", chat: chat})
+    {:ok, chat, sender, receiver} ->
+      User.add_chat_to_user(sender.id, chat.id)
+      User.add_chat_to_user(receiver.id, chat.id)
+
+      User.add_contact_to_user(sender.id, receiver.id)
+      User.add_contact_to_user(receiver.id, sender.id)
+
+      json(conn, %{message: "Chat created successfully"})
     {:error, %UserNotFoundError{}} ->
       conn
       |> put_status(:not_found)

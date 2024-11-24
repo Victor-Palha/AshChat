@@ -1,17 +1,19 @@
 defmodule ChatService.Services.Chat do
   alias ChatService.Models.Chat, as: Chat
-  alias ChatService.Models.User, as: User
+  alias ChatService.Services.User, as: User
   alias ChatService.Repo, as: Repo
 
+  @spec create_chat(map()) ::
+          {:error, map()}
+          | {:ok, %{:_id => nil | BSON.ObjectId.t(), optional(any()) => any()}, any(), any()}
   def create_chat(%{
     "sender_id" => sender_id,
     "receiver_tag" => receiver_tag,
   }) do
-    IO.puts(sender_id)
-    sender = Repo.get_by(User, id: sender_id)
-    receiver = Repo.get_by(User, tag_user_id: receiver_tag)
-    IO.inspect(sender, label: "sender")
-    IO.inspect(receiver, label: "receiver")
+
+    sender = User.get_user_by_id(sender_id)
+    receiver = User.get_user_by_tag(receiver_tag)
+
     unless sender && receiver do
       raise ChatService.Errors.UserNotFoundError
     end
@@ -25,11 +27,12 @@ defmodule ChatService.Services.Chat do
     end
 
 
-    Chat.new(%{
+    {:ok, chat} = Chat.new(%{
       users_id: [sender.id, receiver.id],
-      same_language: sender.language == receiver.language
-    })
-    |> Repo.insert()
+      same_language: sender.preferred_language == receiver.preferred_language
+    }) |> Repo.insert()
+
+    {:ok, chat, sender, receiver}
 
     rescue
       e in [ChatService.Errors.UserNotFoundError, ChatService.Errors.ChatAlreadyExistsError] ->
