@@ -1,11 +1,11 @@
-from rabbitmq.consumer import RabbitMQConsumer
+from rabbitmq.consumer import RabbitMQRPCServer
 from translation.translator import Translator
 
 
 def main():
     translator = Translator()
 
-    consumer = RabbitMQConsumer(translator)
+    consumer = RabbitMQRPCServer(translator)
     consumer.start()
 
 
