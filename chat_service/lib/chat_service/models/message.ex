@@ -5,8 +5,8 @@ defmodule ChatService.Models.Message do
             content: "",
             translated_content: "",
             timestamp: "",
-            status: "",
-            mobile_ref_id: ""
+            status: ""
+            # mobile_ref_id: ""
 
   @type t :: %__MODULE__{
           id: String.t(),
@@ -15,7 +15,7 @@ defmodule ChatService.Models.Message do
           translated_content: String.t(),
           timestamp: String.t(),
           status: String.t(),
-          mobile_ref_id: String.t()
+          # mobile_ref_id: String.t()
         }
 
   def to_map(%__MODULE__{} = message) do
