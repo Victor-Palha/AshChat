@@ -3,7 +3,7 @@ defmodule ChatServiceWeb.ChatController do
 
   alias ChatService.Services.Chat
   alias ChatService.Services.User
-  alias ChatService.Errors.{UserNotFoundError, ChatAlreadyExistsError}
+  alias ChatService.Errors.{UserNotFoundError, ChatAlreadyExistsError, ContactAlreadyExistsError}
 
   # chat_id: chat.id.getValue,
   # messages: [],
@@ -37,6 +37,10 @@ defmodule ChatServiceWeb.ChatController do
       conn
       |> put_status(:conflict)
       |> json(%{error: "Chat already exists"})
+    {:error, %ContactAlreadyExistsError{}} ->
+      conn
+      |> put_status(:conflict)
+      |> json(%{error: "Contact already exists in user's contacts"})
     _ ->
       conn
       |> put_status(:internal_server_error)

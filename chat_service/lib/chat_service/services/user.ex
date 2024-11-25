@@ -13,25 +13,50 @@ defmodule ChatService.Services.User do
 
   def add_chat_to_user(user_id, chat_id) do
     user_id = BSON.ObjectId.decode!(user_id)
-    user = Repo.get(User, user_id)
-    chat_already_exists = Enum.any?(user.chats_id, fn chat_id -> chat_id == chat_id end)
+    user = Mongo.find_one(:mongo, "users", %{"_id" => user_id})
+    if user == nil do
+      {:error, :user_not_found}
+    else
+      chat_already_exists = Enum.any?(user["chats_id"], fn existing_chat_id -> existing_chat_id == chat_id end)
 
-    if chat_already_exists do
-      raise ChatService.Errors.ChatAlreadyExistsError
+      if chat_already_exists do
+        raise ChatService.Errors.ChatAlreadyExistsError
+      end
+
+      updated_chats = user["chats_id"] ++ [chat_id]
+
+      case Mongo.update_one(:mongo, "users", %{"_id" => user_id}, %{"$set" => %{"chats_id" => updated_chats}}) do
+        {:ok, result} -> {:ok, result}
+        {:error, reason} -> {:error, reason}
+      end
     end
-
-    Map.put(user, :chats_id, user.chats_id ++ [chat_id]) |> Repo.update()
+  rescue
+    e in [ChatService.Errors.ChatAlreadyExistsError] ->
+      {:error, e}
+    e in Mongo.Error ->
+      {:error, e}
   end
 
   def add_contact_to_user(user_id, contact_id) do
     user_id = BSON.ObjectId.decode!(user_id)
-    user = Repo.get(User, user_id)
-    contact_already_exists = Enum.any?(user.contacts_id, fn contact_id -> contact_id == contact_id end)
-
-    if contact_already_exists do
-      raise ChatService.Errors.ContactAlreadyExistsError
+    user = Mongo.find_one(:mongo, "users", %{"_id" => user_id})
+    if user == nil do
+      {:error, :user_not_found}
+    else
+      contact_already_exists = Enum.any?(user["contacts_id"], fn existing_contact_id -> existing_contact_id == contact_id end)
+      if contact_already_exists do
+        raise ChatService.Errors.ContactAlreadyExistsError
+      end
+      updated_contacts = user["contacts_id"] ++ [contact_id]
+      case Mongo.update_one(:mongo, "users", %{"_id" => user_id}, %{"$set" => %{"contacts_id" => updated_contacts}}) do
+        {:ok, result} -> {:ok, result}
+        {:error, reason} -> {:error, reason}
+      end
     end
-
-    Map.put(user, :contacts_id, user.contacts_id ++ [contact_id]) |> Repo.update()
+  rescue
+    e in [ChatService.Errors.ContactAlreadyExistsError] ->
+      {:error, e}
+    e in Mongo.Error ->
+      {:error, e}
   end
 end
