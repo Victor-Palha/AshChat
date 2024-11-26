@@ -17,6 +17,7 @@ defmodule ChatServiceWeb.ChatChannel do
 
         socket
         |> assign(:chat_id, chat_id)
+        |> assign(:participants, chat.users_id)
         |> assign(:same_language, chat.same_language)
         |> then(&{:ok, &1})
     end
@@ -37,16 +38,22 @@ defmodule ChatServiceWeb.ChatChannel do
     {:noreply, socket}
   end
 
-  # Recebe a mensagem, realiza a tradução e transmite para os outros participantes
+  def handle_info({:basic_cancel, _info}, socket) do
+    {:stop, :normal, socket}
+  end
+
+  def handle_info({:basic_cancel_ok, _info}, socket) do
+    {:noreply, socket}
+  end
+
   def handle_in("send_message", %{"content" => content, "mobile_ref_id" => mobile_ref_id}, socket) do
     sender_id = socket.assigns.user_id
     chat_id = socket.assigns.chat_id
+    participants = socket.assigns.participants
+    recipient_id = Enum.find(participants, fn user_id -> user_id != sender_id end)
 
-    # Traduz o conteúdo
     translated_content = translated_content(content)
-    IO.inspect(translated_content, label: "translated_content")
 
-    # Cria o modelo de mensagem
     message = %MessageModel{
       id: mobile_ref_id,
       sender_id: sender_id,
@@ -56,24 +63,38 @@ defmodule ChatServiceWeb.ChatChannel do
       status: "SENT"
     }
 
-    IO.inspect(message, label: "message")
+    user_ids_in_room = Presence.list(socket) |> Map.keys()
 
-    # Aqui você pode salvar a mensagem no banco de dados, se necessário
-    ChatS.add_message_to_chat(chat_id, message)
+    if recipient_id in user_ids_in_room do
+      updated_message = Map.put(message, :status, "READED")
+      ChatS.add_message_to_chat(chat_id, message)
 
-    # Transmite a mensagem para todos no chat
-    broadcast_from(socket, "receive_message", %{
-      chat_id: chat_id,
-      content: content,
-      sender_id: sender_id
-    })
+      broadcast_from(socket, "receive_message", %{
+        chat_id: chat_id,
+        content: translated_content,
+        sender_id: sender_id
+      })
 
-    # Envia um status de envio para o remetente
-    push(socket, "message_sent", %{
-      mobile_ref_id: mobile_ref_id,
-      status: "SENT",
-      chat_id: chat_id
-    })
+      push(socket, "message_sent", %{
+        mobile_ref_id: mobile_ref_id,
+        status: updated_message.status,
+        chat_id: chat_id
+      })
+    else
+      ChatS.add_message_to_chat(chat_id, message)
+      ChatService.PubsubNotification.add_notification(recipient_id, %{
+        chat_id: chat_id,
+        sender_id: sender_id,
+        content: translated_content,
+        timestamp: message.timestamp
+      })
+
+      push(socket, "message_sent", %{
+        mobile_ref_id: mobile_ref_id,
+        status: message.status,
+        chat_id: chat_id
+      })
+    end
 
     {:noreply, socket}
   end

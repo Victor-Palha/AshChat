@@ -11,6 +11,7 @@ defmodule ChatService.Application do
       ChatServiceWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:chat_service, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: ChatService.PubSub},
+      {ChatService.PubsubNotification, []},
       {Mongo, ChatService.Repo.config()},
       {ChatService.Rabbitmq.Connection, []},
       # Adiciona o GenServer para conectar-se ao RabbitMQ e obter o canal
