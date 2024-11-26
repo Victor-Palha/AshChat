@@ -38,7 +38,7 @@ defmodule ChatService.Handlers.QueueConfirmNewAccount do
               :description => "Hey! I'm using AshChat! :)",
               :photo_url => @default_photo_url,
               :tag_user_id => user_tag,
-              :device_token => to_string(unique_device_token),
+              :device_token => :crypto.hash(:sha256, to_string(unique_device_token)) |> Base.encode16() |> String.downcase(),
               :notification_token => to_string(notification_token),
               :preferred_language => preferredLanguage
             })
