@@ -16,6 +16,10 @@ WORKDIR /usr/src/app
 COPY --from=build /usr/src/app/build ./build
 COPY --from=build /usr/src/app/node_modules ./node_modules
 
-EXPOSE 3005
+ENV NODE_ENV=production \
+    AMQP_URI=amqp://root:randompassword@rabbitmq_container_dev:5672 \
+    REDIS_URI=redis://yourpassword@redis_container_dev:6379 \
+    SMTP_EMAIL= \
+    SMTP_PASSWORD=
 
 CMD ["npm", "run", "start:prod"]

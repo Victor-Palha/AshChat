@@ -1,0 +1,25 @@
+# Ignore pastas de dependências e compilação
+deps/
+_build/
+*.beam
+*.ez
+
+# Ignore arquivos e pastas de IDEs e editores
+.vscode/
+.idea/
+*.swp
+
+# Ignore pastas de logs, testes e artefatos temporários
+logs/
+*.log
+.cover/
+.coverage/
+test/tmp/
+
+# Ignore arquivos de controle de versionamento
+.git/
+.gitignore
+
+# Ignore Docker-related files
+Dockerfile*
+docker-compose*
