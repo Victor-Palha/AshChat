@@ -3,6 +3,7 @@ import { AddMessageProps, MessageProps } from "@/src/persistence/MMKVStorage";
 import { colors } from "@/src/styles/colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { Channel } from "phoenix";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
   FlatList,
@@ -17,80 +18,88 @@ import {
 
 export default function Chat(): JSX.Element {
   const { chat_id, nickname } = useLocalSearchParams();
-  const { ioServer, mmkvStorage, user_id } = useContext(SocketContext);
+  const { socket, mmkvStorage, user_id } = useContext(SocketContext);
 
   // States
   const [messages, setMessages] = useState<MessageProps[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
+  const [channel, setChannel] = useState<Channel | null>(null);
 
+  // Load initial messages
   useEffect(() => {
-    const chat = mmkvStorage.getChat(chat_id as string);
-    if (!chat) {
+    const response = mmkvStorage.getChat(chat_id as string);
+    if (!response) return;
+    if (!response.searched_chats) {
       Alert.alert("Chat not found");
       router.back();
       return;
     }
     console.log("Chat found");
-    setMessages(chat.messages);
+    setMessages(response.searched_chats.messages);
   }, [chat_id, mmkvStorage]);
 
+  // Join the chat channel when the screen is focused
   useFocusEffect(
     useCallback(() => {
-      ioServer.socket.emit("join-chat", { chat_id });
-      mmkvStorage.updatingAllMessagesFromAChat(chat_id as string)
+      if (!socket) return;
+
+      const chatChannel = socket.channel(`chat:${chat_id}`, {});
+      chatChannel
+        .join()
+        .receive("ok", () => {
+          console.log("Channel joined");
+        })
+        .receive("error", () => {
+          console.log("Failed to join channel");
+        });
+
+      setChannel(chatChannel);
+
+      mmkvStorage.updatingAllMessagesFromAChat(chat_id as string);
+
       return () => {
-        ioServer.socket.emit("leave-chat", { chat_id });
+        chatChannel.leave();
+        console.log("Channel left");
       };
-    }, [chat_id, ioServer.socket])
+    }, [chat_id, socket])
   );
 
-  useEffect(() => {
-    const handleReceiveMessage = ({ chat_id, content, sender_id }: AddMessageProps) => {
-      const who = sender_id === user_id ? "user" : "contact";
+  function handleReceiveMessage({ chat_id, content, sender_id }: AddMessageProps) {
+    const who = sender_id === user_id ? "user" : "contact";
 
-      if (who === "contact") {
-        console.log("Received message from contact");
-        const newMessage = mmkvStorage.addMessage({
-          chat_id,
-          content,
-          sender_id: who,
-        }) as MessageProps;
+    const newMessage = mmkvStorage.addMessage({
+      chat_id,
+      content,
+      sender_id: who,
+      timestamp: new Date().toISOString(),
+    }) as MessageProps;
 
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
-      }
-    };
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+  };
 
-    const handleMessageSent = ({ chat_id, status, message_id }: any) => {
-      mmkvStorage.updateMessageStatus({
-        chat_id,
-        id_message: message_id,
-        status,
-      });
-    };
+  function handleMessageSent({ chat_id, status, message_id }: any){
+    mmkvStorage.updateMessageStatus({
+      chat_id,
+      id_message: message_id,
+      status,
+    });
+  };
 
-    ioServer.socket.on("receive-message", handleReceiveMessage);
-    ioServer.socket.on("message-sent", handleMessageSent);
-
-    return () => {
-      ioServer.socket.off("receive-message", handleReceiveMessage);
-      ioServer.socket.off("message-sent", handleMessageSent);
-    };
-  }, [ioServer.socket, mmkvStorage, user_id]);
-
-  const handleCloseChat = () => {
-    ioServer.socket.emit("close-chat", { chat_id });
+  function handleCloseChat(){
+    channel?.leave();
     router.back();
   };
 
-  const handleSend = () => {
+  function handleSend(){
     if (inputMessage.trim()) {
-      ioServer.socket.emit("send-message", { chat_id, content: inputMessage });
-
       const newMessage = mmkvStorage.addMessage({
         chat_id: chat_id as string,
         content: inputMessage,
         sender_id: "user",
+        timestamp: new Date().toISOString(),
       }) as MessageProps;
+
+      channel?.push("send_message", { mobile_ref_id: newMessage.id_message, content: inputMessage });
 
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       setInputMessage("");
@@ -100,8 +109,11 @@ export default function Chat(): JSX.Element {
   const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
-    if(flatListRef.current) flatListRef.current.scrollToEnd({ animated: true });
+    if (flatListRef.current) flatListRef.current.scrollToEnd({ animated: true });
   }, [messages]);
+
+  channel?.on("receive_message", handleReceiveMessage);
+  channel?.on("message_sent", handleMessageSent);
 
   const renderMessage = ({ item }: { item: MessageProps }) => (
     <View

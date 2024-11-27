@@ -27,6 +27,7 @@ export type AddMessageProps = {
   chat_id: string;
   content: string;
   sender_id: string;
+  timestamp: string;
 };
 
 type UpdateMessageStatusProps = {
@@ -100,11 +101,15 @@ export class MMKVStorage {
     this.instance.set(this.CONSTANTS.LABEL_CHAT, JSON.stringify(newLabels));
   }
 
-  public getChat(chat_id: string): ChatProps | null {
+  public getChat(chat_id: string): { chats: ChatProps[], searched_chats: ChatProps | null } | null {
     const chatsString = this.instance.getString(this.CONSTANTS.CHAT);
     if (chatsString) {
       const chats = JSON.parse(chatsString) as ChatProps[];
-      return chats.find(chat => chat.chat_id === chat_id) || null;
+      const searched_chats = chats.find(chat => chat.chat_id === chat_id) || null;
+      return {
+        chats,
+        searched_chats, 
+      }
     }
     return null;
   }
@@ -117,22 +122,22 @@ export class MMKVStorage {
     return this.instance.getString(this.CONSTANTS.USER_ID);
   }
 
-  public addMessage({ chat_id, content, sender_id }: AddMessageProps): MessageProps | undefined {
-    const chatsString = this.instance.getString(this.CONSTANTS.CHAT);
-    if (chatsString) {
-      const chats = JSON.parse(chatsString) as ChatProps[];
-      const chat = chats.find(c => c.chat_id === chat_id);
+  public addMessage({ chat_id, content, sender_id, timestamp }: AddMessageProps): MessageProps | undefined {
+      const result = this.getChat(chat_id);
+      if (!result) return;
 
-      if (chat) {
+      const { chats, searched_chats } = result;
+
+      if (searched_chats) {
         const newMessage: MessageProps = {
           id_message: randomUUID(),
           content,
           sender_id,
-          timestamp: new Date().toISOString(),
+          timestamp,
           status: 'PENDING',
         };
 
-        chat.messages.push(newMessage);
+        searched_chats.messages.push(newMessage);
         this.instance.set(this.CONSTANTS.CHAT, JSON.stringify(chats));
         this.updateLabel({
           chat_id,
@@ -143,7 +148,6 @@ export class MMKVStorage {
 
         return newMessage;
       }
-    }
   }
 
   private updateLabel({

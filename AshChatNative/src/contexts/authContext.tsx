@@ -1,13 +1,18 @@
 import { createContext, useEffect, useState } from "react"
-import ApiClient from "../api"
 import SecureStoragePersistence from "../persistence/SecureStorage"
 import { randomUUID } from 'expo-crypto';
 import { Alert, Platform } from "react-native";
 import { router } from "expo-router";
 import { MMKVStorage } from "../persistence/MMKVStorage";
+import { AuthAPIClient } from "../api/auth-api-client";
+
+const MMKV = new MMKVStorage()
+const api = AuthAPIClient
+const safeStorage = SecureStoragePersistence
 
 type AuthState = {
     token: string | null,
+    user_id: string | null,
     authenticated: boolean | null
 }
 interface AuthProps {
@@ -21,7 +26,7 @@ interface AuthProps {
 export const AuthContext = createContext<AuthProps>({} as AuthProps)
 
 export function AuthProvider({children}: {children: React.ReactNode}){
-    const [authState, setAuthState] = useState<AuthState>({token: null, authenticated: null})
+    const [authState, setAuthState] = useState<AuthState>({token: null, authenticated: null, user_id: null})
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(()=> {
@@ -29,24 +34,22 @@ export function AuthProvider({children}: {children: React.ReactNode}){
         async function checkToken(){
             const token = await safeStorage.getJWT()
             const deviceUniqueToken = await safeStorage.getUniqueDeviceId()
+            const user_id = await safeStorage.getUserId()
             if(!deviceUniqueToken){
                 const deviceUniqueToken = randomUUID()
                 await safeStorage.setUniqueDeviceId(deviceUniqueToken)
             }
             if(token){
-                setAuthState({token, authenticated: true})
-                ApiClient.setTokenAuth(token)
+                setAuthState({token, authenticated: true, user_id})
+                AuthAPIClient.setTokenAuth(token)
             } else {
-                setAuthState({token: null, authenticated: false})
+                setAuthState({token: null, authenticated: false, user_id})
             }
         }
         checkToken().finally(()=>{
             setIsLoading(false)
         })
     }, [])
-    
-    const api = ApiClient
-    const safeStorage = SecureStoragePersistence
 
     async function onLogin(email: string, password: string){
         console.log(email, password)
@@ -58,14 +61,16 @@ export function AuthProvider({children}: {children: React.ReactNode}){
             // Call the login endpoint
             const response = await api.server.post('/user/login', {email, password, deviceUniqueToken})
             const token = response.data.token
+            const user_id = response.data.user_id
 
             // Save the token to the secure storage
             await safeStorage.setJWT(token)
+            MMKV.setUserId(user_id)
             // Set the token to the axios instance
             api.setTokenAuth(token)
 
             // Set the token to the state
-            setAuthState({token, authenticated: true})
+            setAuthState({token, authenticated: true, user_id})
             router.navigate('/private/home')
         } catch (error) {
             Alert.alert('Error', "An error occurred while trying to login. Please try again.")

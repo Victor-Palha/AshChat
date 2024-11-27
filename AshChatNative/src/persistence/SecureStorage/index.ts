@@ -50,6 +50,14 @@ class SecureStoragePersistence {
         return await SecureStore.getItemAsync(this.KEYS.NOTIFICATIONTOKEN);
     }
 
+    static async setUserId(value: string){
+        await SecureStore.setItemAsync(this.KEYS.USERID, value);
+    }
+
+    static async getUserId(): Promise<string | null>{
+        return await SecureStore.getItemAsync(this.KEYS.USERID);
+    }
+
     static async clearAll(){
         await SecureStore.deleteItemAsync(this.KEYS.TOKEN);
         await SecureStore.deleteItemAsync(this.KEYS.EMAIL);
