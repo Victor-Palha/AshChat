@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Define the directory and file paths
-PRIVATE_KEY_DIR="backend/"
-PUBLIC_KEY_DIR="chat_service/priv/keys"
+PRIVATE_KEY_DIR="../backend/"
+PUBLIC_KEY_DIR="../chat_service/priv/keys"
 
 PRIVATE_KEY_FILE="$PRIVATE_KEY_DIR/private_key.pem"
 PUBLIC_KEY_FILE="$PUBLIC_KEY_DIR/public_key.pem"

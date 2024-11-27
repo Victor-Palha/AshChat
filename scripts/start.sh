@@ -10,7 +10,7 @@ if ! command -v docker compose &> /dev/null; then
     exit 1
 fi
 
-DOCKER_COMPOSE_DIR="./docker"
+DOCKER_COMPOSE_DIR="../docker"
 
 # Navega até o diretório do docker-compose
 cd "$DOCKER_COMPOSE_DIR" || { echo "Directory not found: $DOCKER_COMPOSE_DIR"; exit 1; }
