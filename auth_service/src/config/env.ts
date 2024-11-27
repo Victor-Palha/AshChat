@@ -7,9 +7,6 @@ const applicationEnvSchema = z.object({
     MONGODB_URI: z.string().url(),
     AMQP_URI: z.string().url(),
     JWT_TEMPORARY_TOKEN: z.string(),
-    FIREBASE_PROJECT_ID: z.string(),
-    FIREBASE_CLIENT_EMAIL: z.string(),
-    FIREBASE_PRIVATE_KEY: z.string(),
     JWT_SECRET: z.string().default(readFileSync(`${__dirname}/../../private_key.pem`, 'utf8')),
 })
 

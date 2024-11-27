@@ -1,8 +1,6 @@
-import { app, IO } from "./app";
+import { app } from "./app";
 import { env } from "./config/env";
 import { connectToDatabase } from "./config/mongo";
-import pubSubNotification from "./config/pubsub";
-import { IOServer } from "./websocket";
 
 /**
  * The main function initializes the server and its dependencies.
@@ -33,9 +31,6 @@ async function main() {
 
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
-        const WS = new IOServer(IO, pubSubNotification);
-        WS.initialize();
-        console.log("WebSocket server initialized.");
     });
 }
 
