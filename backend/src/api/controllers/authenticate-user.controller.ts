@@ -51,7 +51,8 @@ export async function authenticateUserController(req: Request, res: Response): P
         })
 
         return res.status(200).send({
-            token
+            token,
+            user_id
         })
     }
     catch(error){
