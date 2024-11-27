@@ -51,10 +51,3 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
-
-config :chat_service, ChatService.Repo,
-  url: "mongodb://root:example@localhost:27017/chats?authSource=admin",
-  timeout: 60_000,
-  idle_interval: 10_000,
-  queue_target: 5_000,
-  pool_size: 10

@@ -21,6 +21,19 @@ if System.get_env("PHX_SERVER") do
 end
 
 if config_env() == :prod do
+  config :chat_service, ChatService.Repo,
+    url: System.fetch_env!("PHX_DATABASE_URI"),
+    timeout: 60_000,
+    idle_interval: 10_000,
+    queue_target: 5_000,
+    pool_size: 10
+
+  config :chat_service, :rabbitmq,
+    host: System.fetch_env!("RABBITMQ_HOST"),
+    username: System.fetch_env!("RABBITMQ_USER"),
+    password: System.fetch_env!("RABBITMQ_PASSWORD"),
+    port: 5672,
+    virtual_host: "/"
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
   # want to use a different value for prod and you most likely don't want

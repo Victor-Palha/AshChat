@@ -28,8 +28,6 @@ defmodule ChatService.Rabbitmq.Connection do
         case AMQP.Channel.open(conn) do
           {:ok, chan} ->
             Logger.info("Connected to RabbitMQ")
-            IO.inspect(conn, label: "Connection")
-            IO.inspect(chan, label: "Channel")
             {:ok, conn, chan}
           error ->
             Logger.error("Failed to open channel: #{inspect(error)}")

@@ -19,7 +19,7 @@ defmodule ChatService.MixProject do
   def application do
     [
       mod: {ChatService.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :dotenv, :runtime_tools]
     ]
   end
 
@@ -42,7 +42,8 @@ defmodule ChatService.MixProject do
       {:bandit, "~> 1.2"},
       {:mongodb_driver, "~> 1.5.0"},
       {:joken, "~> 2.6.2"},
-      {:amqp, "~> 4.0"}
+      {:amqp, "~> 4.0"},
+      {:dotenv, "~> 3.1.0"}
     ]
   end
 

@@ -26,18 +26,25 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-config :chat_service, :rabbitmq,
-  host: "localhost",
-  username: "root",
-  password: "randompassword",
-  port: 5672,
-  virtual_host: "/"
-
 config :joken,
   rs256: [
     signer_alg: "RS256",
     key_pem: File.read!("priv/keys/public_key.pem")
   ]
+
+config :chat_service, ChatService.Repo,
+  url: System.get_env("PHX_MONGODB_URI"),
+  timeout: 60_000,
+  idle_interval: 10_000,
+  queue_target: 5_000,
+  pool_size: 10
+
+config :chat_service, :rabbitmq,
+  host: System.get_env("PHX_RABBITMQ_HOST"),
+  username: System.get_env("PHX_RABBITMQ_USER"),
+  password: System.get_env("PHX_RABBITMQ_PASSWORD"),
+  port: 5672,
+  virtual_host: "/"
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
