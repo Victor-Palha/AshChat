@@ -122,6 +122,35 @@ Up docker-compose services:
 ```
 
 ## Docker Installation
+If you want to run the project using Docker, you can use the Dockerfile and docker-compose.yml files provided in the project. To run the project using Docker, follow these steps:
+
+1. Create the `.env` file in the root directory and add the necessary environment variables. Refer to `.env.example` for the required variables for the _auth service_, _email service_ and _chat service_.
+
+2. Create the key files for the JWT:
+```bash
+    cd scripts
+    chmod +x gen_keys.sh
+    source gen_keys.sh
+```
+
+3. Start the dependencies using Docker:
+```bash
+    cd scripts
+    chmod +x start.sh
+    source start.sh
+```
+
+4. Create a `.env` file in the root directory of the project and add these environment variables:
+- **SMTP_EMAIL**
+- **SMTP_PASSWORD**
+These variables are used to send emails using the email service, if you don't provide them, the email service will not work!
+If you do not have an SMTP email, you can create a new one following this [Article](https://dev.to/documatic/send-email-in-nodejs-with-nodemailer-using-gmail-account-2gd1)!
+
+5. Run the project using Docker:
+```bash
+    cd AshChat
+    docker-compose up --build
+```
 
 ## Troubleshooting
 
