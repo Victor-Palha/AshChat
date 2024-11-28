@@ -15,6 +15,10 @@ start_service() {
     echo "Starting $service_name..."
     osascript -e "tell application \"Terminal\" to do script \"cd '$service_path' && $command\""
 }
+# Criar chave JWT
+echo "Creating JWT key..."
+chmod +x gen_key.sh
+source gen_key.sh
 
 # Inicia Auth Service
 start_service "Auth Service" "$AUTH_SERVICE" "npm install && npm run start:dev"

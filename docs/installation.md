@@ -47,7 +47,7 @@ Install the required dependencies using pip:
 ```bash
     cd ./AshChat/translate_service
     source venv/bin/activate
-    pip install -r requirements.txt
+    pip3 install -r requirements.txt
 ```
 
 6. **Install Dependencies - Chat Service**
@@ -124,7 +124,7 @@ Up docker-compose services:
 ## Docker Installation
 If you want to run the project using Docker, you can use the Dockerfile and docker-compose.yml files provided in the project. To run the project using Docker, follow these steps:
 
-1. Create the `.env` file in the root directory and add the necessary environment variables. Refer to `.env.example` for the required variables for the _auth service_, _email service_ and _chat service_.
+1. Create the `.env` file in the root directory of each service and add the necessary environment variables. Refer to `.env.example` for the required variables for the _auth service_, _email service_ and _chat service_.
 
 2. Create the key files for the JWT:
 ```bash
