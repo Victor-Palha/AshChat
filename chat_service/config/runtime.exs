@@ -22,16 +22,16 @@ end
 
 if config_env() == :prod do
   config :chat_service, ChatService.Repo,
-    url: System.fetch_env!("PHX_DATABASE_URI"),
+    url: System.get_env("PHX_MONGODB_URI"),
     timeout: 60_000,
     idle_interval: 10_000,
     queue_target: 5_000,
     pool_size: 10
 
   config :chat_service, :rabbitmq,
-    host: System.fetch_env!("RABBITMQ_HOST"),
-    username: System.fetch_env!("RABBITMQ_USER"),
-    password: System.fetch_env!("RABBITMQ_PASSWORD"),
+    host: System.get_env("PHX_RABBITMQ_HOST"),
+    username: System.get_env("PHX_RABBITMQ_USER"),
+    password: System.get_env("PHX_RABBITMQ_PASSWORD"),
     port: 5672,
     virtual_host: "/"
   # The secret key base is used to sign/encrypt cookies and other secrets.
@@ -52,7 +52,7 @@ if config_env() == :prod do
   config :chat_service, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   config :chat_service, ChatServiceWeb.Endpoint,
-    url: [host: host, port: 443, scheme: "https"],
+    url: [host: host, port: port, scheme: "http"],
     http: [
       # Enable IPv6 and bind on all interfaces.
       # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.

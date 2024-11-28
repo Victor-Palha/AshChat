@@ -12,7 +12,7 @@ config :chat_service,
 
 # Configures the endpoint
 config :chat_service, ChatServiceWeb.Endpoint,
-  url: [host: "localhost"],
+  url: [host: {0,0,0,0}],
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
     formats: [json: ChatServiceWeb.ErrorJSON],
