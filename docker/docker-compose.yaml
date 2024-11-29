@@ -7,6 +7,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+      - ashchat_network
     volumes:
       - mongo-data:/data/db
 
@@ -19,6 +21,8 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: root
       RABBITMQ_DEFAULT_PASS: randompassword
+    networks:
+      - ashchat_network
 
   redis:
     image: redis:latest
@@ -27,7 +31,9 @@ services:
       - "6379:6379"
     environment:
       - REDIS_PASSWORD=yourpassword 
-    command: ["redis-server", "--requirepass", "yourpassword"] 
+    command: ["redis-server", "--requirepass", "yourpassword"]
+    networks:
+      - ashchat_network
     volumes:
       - redis_data:/data
 
@@ -36,3 +42,7 @@ volumes:
     driver: local
   redis_data:
     driver: local
+
+networks:
+  ashchat_network:
+    external: true

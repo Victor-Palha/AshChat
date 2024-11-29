@@ -5,9 +5,10 @@ This document provides detailed information about the API endpoints available in
 ## Table of Contents
 1. [User Registration](#user-registration)
 2. [User Login](#user-login)
-3. [Confirm Email Code](#confirm-email-code)
-4. [Change User Password](#change-user-password)
-5. [Confirm Change User Password](#confirm-change-user-password)
+3. [Confirm New Device](#confirm-new-device)
+4. [Confirm Email Code](#confirm-email-code)
+5. [Change User Password](#change-user-password)
+6. [Confirm Change User Password](#confirm-change-user-password)
 
 ## User Registration
 
@@ -94,7 +95,8 @@ This document provides detailed information about the API endpoints available in
 #### Success (200 OK)
 ```json
 {
-    "token": "jwt_token"
+    "token": "jwt_token",
+    "user_id": "user_id",
 }
 ```
 
@@ -214,4 +216,41 @@ This document provides detailed information about the API endpoints available in
 - `400 Bad Request`: Invalid input data
 - `401 Unauthorized`: Invalid token
 - `404 Not Found`: User not found
+- `500 Internal Server Error`: Server error
+
+# Chat Service Endpoints - http://localhost:4000/
+
+## Create Chat
+`POST /api/chat`
+```json
+{
+  "receiver_tag": "user_tag"
+}
+// Add JWT token in the Authorization header Bearer token
+```
+
+### Response
+#### Success (201 Created)
+```json
+{
+    "message": "Chat created successfully",
+    "chat_id": "chat.id",
+    "messages": [],
+    "nickname": "receiver.nickname" // Name of the receiver to use for cache
+}
+```
+
+#### Errors
+- `400 Bad Request`: Invalid input data
+- `401 Unauthorized`: Invalid token
+- `404 Not Found`: User not found
+- `409 Conflict`: Chat already exists
+- `500 Internal Server Error`: Server error
+
+### Status Codes
+- `201 Created`: Chat created successfully
+- `400 Bad Request`: Invalid input data
+- `401 Unauthorized`: Invalid token
+- `404 Not Found`: User not found
+- `409 Conflict`: Chat already exists
 - `500 Internal Server Error`: Server error

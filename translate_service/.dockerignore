@@ -1,0 +1,34 @@
+# Ignore dependências locais
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore cache do pip
+pip-wheel-metadata/
+*.egg-info/
+.eggs/
+*.whl
+
+# Ignore pastas comuns de IDEs e editores
+.vscode/
+.idea/
+*.swp
+
+# Ignore pastas de logs, testes e artefatos temporários
+logs/
+*.log
+*.out
+*.tmp
+coverage/
+.tox/
+dist/
+build/
+
+# Ignore arquivos de controle de versionamento
+.git/
+.gitignore
+
+# Ignore Docker-related files
+Dockerfile*
+docker-compose*
