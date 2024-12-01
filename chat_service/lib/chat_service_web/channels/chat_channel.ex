@@ -3,6 +3,7 @@ defmodule ChatServiceWeb.ChatChannel do
   alias ChatServiceWeb.Presence
   alias ChatService.Models.Message, as: MessageModel
   alias ChatService.Services.Chat, as: ChatS
+  alias ChatService.Services.User, as: UserS
 
   # Entrando no canal de chat
   def join("chat:" <> chat_id, _payload, socket) do
@@ -50,15 +51,23 @@ defmodule ChatServiceWeb.ChatChannel do
     sender_id = socket.assigns.user_id
     chat_id = socket.assigns.chat_id
     participants = socket.assigns.participants
+    preferred_language_sender = socket.assigns.preferred_language
+    same_language = socket.assigns.same_language
+
     recipient_id = Enum.find(participants, fn user_id -> user_id != sender_id end)
 
-    translated_content = translated_content(content)
+    %{preferred_language} = UserS.get_user_by_id(recipient_id)
+
+    transformed_content = content
+    if same_language == false do
+      transformed_content = translated_content(content, preferred_language_sender, preferred_language)
+    end
 
     message = %MessageModel{
       id: mobile_ref_id,
       sender_id: sender_id,
       content: content,
-      translated_content: translated_content,
+      translated_content: transformed_content,
       timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
       status: "SENT"
     }
@@ -100,9 +109,9 @@ defmodule ChatServiceWeb.ChatChannel do
   end
 
   # Função de tradução que chama o RabbitMQ
-  def translated_content(content) do
-    source_language = "en"
-    target_language = "es"
+  def translated_content(content, source_language, target_language) do
+    source_language = source_language || "en"
+    target_language = target_language || "en"
 
     case ChatService.Rabbitmq.Translator.rpc_translate(content, source_language, target_language) do
       {:ok, %{"translated_text" => translated_text}} ->
