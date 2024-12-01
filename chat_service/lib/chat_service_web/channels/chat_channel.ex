@@ -56,7 +56,7 @@ defmodule ChatServiceWeb.ChatChannel do
 
     recipient_id = Enum.find(participants, fn user_id -> user_id != sender_id end)
 
-    %{preferred_language} = UserS.get_user_by_id(recipient_id)
+    %{preferred_language: preferred_language} = UserS.get_user_by_id(recipient_id)
 
     transformed_content = content
     if same_language == false do
@@ -80,7 +80,7 @@ defmodule ChatServiceWeb.ChatChannel do
 
       broadcast_from(socket, "receive_message", %{
         chat_id: chat_id,
-        content: translated_content,
+        content: transformed_content,
         sender_id: sender_id
       })
 
@@ -94,7 +94,7 @@ defmodule ChatServiceWeb.ChatChannel do
       ChatService.PubsubNotification.add_notification(recipient_id, %{
         chat_id: chat_id,
         sender_id: sender_id,
-        content: translated_content,
+        content: transformed_content,
         timestamp: message.timestamp
       })
 
@@ -110,8 +110,8 @@ defmodule ChatServiceWeb.ChatChannel do
 
   # Função de tradução que chama o RabbitMQ
   def translated_content(content, source_language, target_language) do
-    source_language = source_language || "en"
-    target_language = target_language || "en"
+    source_language = String.downcase(source_language) || "en"
+    target_language = String.downcase(target_language) || "en"
 
     case ChatService.Rabbitmq.Translator.rpc_translate(content, source_language, target_language) do
       {:ok, %{"translated_text" => translated_text}} ->
