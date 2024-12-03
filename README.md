@@ -22,3 +22,4 @@ The documentation for the application is available in the `docs` folder. The doc
 - [Dependencies](./docs/dependencies.md)
 - [Architecture](./docs/architecture.md)
 - [Endpoints](./docs/endpoints.md)
+- [Chat Connection](./docs/chat_connection.md)

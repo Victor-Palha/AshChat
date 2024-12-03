@@ -5,12 +5,14 @@ defmodule ChatServiceWeb.UserSocket do
   channel "chat:*", ChatServiceWeb.ChatChannel
   channel "notifications:*", ChatServiceWeb.NotificationChannel
 
-  def connect(%{"token" => token, "device_unique_id" => device_unique_id}, socket, _connect_info) do
+  def connect(%{"token" => token, "device_unique_id" => device_unique_id, "preferred_language" => preferred_language}, socket, _connect_info) do
     with {:ok, claims} <- ChatService.Auth.verify_token(token),
          user_id <- claims["sub"],
          {:ok, _} <- ChatService.Auth.verify_device_token(user_id, device_unique_id) do
       Logger.info("Connected socket for user #{user_id}")
-      {:ok, assign(socket, :user_id, user_id)}
+
+      socket = assign(socket, :user_id, user_id) |> assign(:preferred_language, preferred_language)
+      {:ok, socket}
     else
       _ -> {:error, :unauthorized}
     end
