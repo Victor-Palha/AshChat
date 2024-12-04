@@ -59,4 +59,12 @@ defmodule ChatService.Services.User do
     e in Mongo.Error ->
       {:error, e}
   end
+
+  def update_user_name(user_id, new_name) do
+    user_id = BSON.ObjectId.decode!(user_id)
+    case Mongo.update_one(:mongo, "users", %{"_id" => user_id}, %{"$set" => %{"nickname" => new_name}}) do
+      {:ok, result} -> {:ok, result}
+      {:error, reason} -> {:error, reason}
+    end
+  end
 end

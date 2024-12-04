@@ -58,9 +58,10 @@ defmodule ChatServiceWeb.ChatChannel do
 
     %{preferred_language: preferred_language} = UserS.get_user_by_id(recipient_id)
 
-    transformed_content = content
-    if same_language == false do
-      transformed_content = translated_content(content, preferred_language_sender, preferred_language)
+    transformed_content = if !same_language do
+      translated_content(content, preferred_language_sender, preferred_language)
+    else
+      content
     end
 
     message = %MessageModel{
@@ -108,10 +109,10 @@ defmodule ChatServiceWeb.ChatChannel do
     {:noreply, socket}
   end
 
-  # Função de tradução que chama o RabbitMQ
+  @spec translated_content(String.t(), String.t(), String.t()) :: any()
   def translated_content(content, source_language, target_language) do
-    source_language = String.downcase(source_language) || "en"
-    target_language = String.downcase(target_language) || "en"
+    source_language = if is_binary(source_language), do: String.downcase(source_language), else: "en"
+    target_language = if is_binary(target_language), do: String.downcase(target_language), else: "en"
 
     case ChatService.Rabbitmq.Translator.rpc_translate(content, source_language, target_language) do
       {:ok, %{"translated_text" => translated_text}} ->
