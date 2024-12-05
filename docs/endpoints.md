@@ -254,3 +254,34 @@ This document provides detailed information about the API endpoints available in
 - `404 Not Found`: User not found
 - `409 Conflict`: Chat already exists
 - `500 Internal Server Error`: Server error
+
+# Chat Service Endpoints - http://localhost:4000/
+## Change User Nickname
+`PATCH - /api/user/nickname`
+```json
+{
+    "nickname": "new_nickname"
+}
+// Add JWT token in the Authorization header Bearer token
+```
+
+### Response
+#### Success (200 Ok)
+```json
+{
+    "message": "User updated successfully"
+}
+```
+
+#### Errors
+- `400 Bad Request`: Invalid input data
+- `401 Unauthorized`: Invalid token
+- `404 Not Found`: User not found
+- `500 Internal Server Error`: Server error
+
+### Status Codes
+- `204 No Content`: Nickname changed successfully
+- `400 Bad Request`: Invalid input data
+- `401 Unauthorized`: Invalid token
+- `404 Not Found`: User not found
+- `500 Internal Server Error`: Server error

@@ -10,6 +10,7 @@ defmodule ChatServiceWeb.Router do
     pipe_through :api
 
     post "/chat", ChatController, :create
+    patch "/user/nickname", UserController, :update_name
   end
 
 
