@@ -4,6 +4,7 @@ defmodule ChatServiceWeb.Router do
   pipeline :api do
     plug :accepts, ["json"]
     plug ChatServiceWeb.AuthPlug
+    plug ChatServiceWeb.DeviceTokenPlug
   end
 
   scope "/api", ChatServiceWeb do
