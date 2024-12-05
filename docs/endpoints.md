@@ -219,7 +219,7 @@ This document provides detailed information about the API endpoints available in
 - `500 Internal Server Error`: Server error
 
 # Chat Service Endpoints - http://localhost:4000/
-
+(IMPORTANT: add JWT token in the Authorization header Bearer token and device_token to the http header)
 ## Create Chat
 `POST /api/chat`
 ```json
@@ -256,6 +256,7 @@ This document provides detailed information about the API endpoints available in
 - `500 Internal Server Error`: Server error
 
 # Chat Service Endpoints - http://localhost:4000/
+(IMPORTANT: add JWT token in the Authorization header Bearer token and device_token to the http header)
 ## Change User Nickname
 `PATCH - /api/user/nickname`
 ```json
