@@ -26,6 +26,18 @@ services:
     networks:
       - ashchat_network
 
+  static_service:
+    build: ./static_service
+    ports:
+      - "3006:3006"
+    volumes:
+      - ashchat_static_volume:/app/uploads
+    networks:
+      - ashchat_network
+
 networks:
   ashchat_network:
     external: true
+
+volumes:
+  ashchat_static_volume:
