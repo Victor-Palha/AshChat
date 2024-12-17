@@ -40,7 +40,6 @@ ENV PORT=4000 \
     PHX_MONGODB_URI=mongodb://root:example@mongodb_container_dev:27017/chats?authSource=admin \
     SECRET_KEY_BASE=xBqBuYe1ksjA9BkkAcVzhgsAFdWqm4fxagKNO8YWyI5Q6erOIU4ox/S/imLOGaYb
 
-
 # install mix dependencies
 COPY mix.exs mix.lock ./
 RUN mix deps.get --only $MIX_ENV
@@ -53,6 +52,8 @@ COPY config/config.exs config/${MIX_ENV}.exs config/
 COPY priv /app/priv
 
 RUN mix deps.compile
+
+COPY priv priv
 
 COPY lib lib
 
@@ -94,6 +95,7 @@ ENV PORT=4000 \
 
 # Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/chat_service ./
+
 USER nobody
 
 # If using an environment that doesn't automatically reap zombie processes, it is
