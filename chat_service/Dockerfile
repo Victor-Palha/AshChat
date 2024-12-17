@@ -94,7 +94,6 @@ ENV PORT=4000 \
 
 # Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/chat_service ./
-
 USER nobody
 
 # If using an environment that doesn't automatically reap zombie processes, it is

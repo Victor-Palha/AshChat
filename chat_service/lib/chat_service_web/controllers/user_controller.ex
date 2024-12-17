@@ -25,6 +25,7 @@ defmodule ChatServiceWeb.UserController do
       :ok ->
         url = ChatServiceWeb.Endpoint.static_url() <> "/uploads/#{filename}"
 
+        User.update_user_photo_profile(conn.assigns.user_id, url)
         conn
         |> put_status(:ok)
         |> json(%{message: "Upload successful", url: url})
