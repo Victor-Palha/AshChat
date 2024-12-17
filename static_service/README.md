@@ -1,15 +1,3 @@
-# static_service
+# Static Service
 
-To install dependencies:
-
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.0.27. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+Until i decided to use S3 from AWS or any other service, i will use this service to serve static files.
