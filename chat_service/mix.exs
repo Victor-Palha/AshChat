@@ -43,7 +43,8 @@ defmodule ChatService.MixProject do
       {:mongodb_driver, "~> 1.5.0"},
       {:joken, "~> 2.6.2"},
       {:amqp, "~> 4.0"},
-      {:dotenv, "~> 3.1.0"}
+      {:dotenv, "~> 3.1.0"},
+      {:httpoison, "~> 2.0"}
     ]
   end
 

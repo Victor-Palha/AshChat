@@ -19,7 +19,8 @@ config :chat_service, ChatServiceWeb.Endpoint,
     layout: false
   ],
   pubsub_server: ChatService.PubSub,
-  live_view: [signing_salt: "oorrvuVO"]
+  live_view: [signing_salt: "oorrvuVO"],
+  static_server_url: System.get_env("STATIC_SERVER_URL") || "http://localhost:3000"
 
 # Configures Elixir's Logger
 config :logger, :console,
