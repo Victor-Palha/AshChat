@@ -35,6 +35,11 @@ The Translate Service is responsible for translating messages between users in d
 - **Google Translate API:** An API provided by Google for translating text between languages.
 - **RabbitMQ:** A message broker used for communication between services.
 
+### 5. Static Files Service
+
+The Static Files Service is responsible for serving static files, such as images and other assets, to the frontend application. It is built using Bun.
+- **Bun:** A runtime for JS/TS applications
+
 
 ## Communication Between Services
 

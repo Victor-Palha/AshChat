@@ -67,4 +67,12 @@ defmodule ChatService.Services.User do
       {:error, reason} -> {:error, reason}
     end
   end
+
+  def update_user_photo_profile(user_id, new_photo_url) do
+    user_id = BSON.ObjectId.decode!(user_id)
+    case Mongo.update_one(:mongo, "users", %{"_id" => user_id}, %{"$set" => %{"photo_url" => new_photo_url}}) do
+      {:ok, result} -> {:ok, result}
+      {:error, reason} -> {:error, reason}
+    end
+  end
 end

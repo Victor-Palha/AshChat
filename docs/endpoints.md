@@ -286,3 +286,34 @@ This document provides detailed information about the API endpoints available in
 - `401 Unauthorized`: Invalid token
 - `404 Not Found`: User not found
 - `500 Internal Server Error`: Server error
+
+## Change User Profile Picture - Multipart Form Data
+`PATCH - /api/user/photo`
+```json
+{
+    "photo": "photo.img" // Image file with field name photo
+}
+```
+
+### Response
+#### Success (200 Ok)
+```json
+{
+	"message": "Upload successful",
+	"url": "http://localhost:3000/files/uuid.img"
+}
+
+```
+
+#### Errors
+- `400 Bad Request`: Invalid input data
+- `401 Unauthorized`: Invalid token
+- `404 Not Found`: User not found
+- `500 Internal Server Error`: Server error
+
+### Status Codes
+- `200 Ok`: Profile picture changed successfully
+- `400 Bad Request`: Invalid input data
+- `401 Unauthorized`: Invalid token
+- `404 Not Found`: User not found
+- `500 Internal Server Error`: Server error
