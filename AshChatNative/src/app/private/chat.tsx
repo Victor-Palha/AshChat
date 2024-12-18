@@ -14,20 +14,23 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Image,
 } from "react-native";
 
 export default function Chat(): JSX.Element {
-  const { chat_id, nickname } = useLocalSearchParams();
+  const { chat_id, nickname, profile_picture } = useLocalSearchParams();
   const { socket, mmkvStorage, user_id } = useContext(SocketContext);
 
   // States
   const [messages, setMessages] = useState<MessageProps[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
   const [channel, setChannel] = useState<Channel | null>(null);
+  const [profilePicture, setProfilePicture] = useState<string | null>(null);
 
   // Load initial messages
   useEffect(() => {
     const response = mmkvStorage.getChat(chat_id as string);
+
     if (!response) return;
     if (!response.searched_chats) {
       Alert.alert("Chat not found");
@@ -35,6 +38,7 @@ export default function Chat(): JSX.Element {
       return;
     }
     console.log("Chat found");
+    setProfilePicture(response.searched_chats.profile_picture);
     setMessages(response.searched_chats.messages);
   }, [chat_id, mmkvStorage]);
 
@@ -136,7 +140,10 @@ export default function Chat(): JSX.Element {
         <TouchableOpacity onPress={handleCloseChat}>
           <MaterialIcons name="keyboard-arrow-left" size={34} color={colors.purple[700]} />
         </TouchableOpacity>
-        <Text className="text-white font-bold text-2xl ml-3">{nickname}</Text>
+        <View className="flex-row items-center ml-3">
+          {profilePicture && <Image source={{ uri: profilePicture }} className="w-12 h-12 rounded-full" />}
+          <Text className="text-white font-bold text-2xl ml-3">{nickname}</Text>
+        </View>
       </View>
 
       {/* Lista de Mensagens */}

@@ -7,12 +7,14 @@ export type LabelChatProps = {
   last_message: MessageProps | null;
   notification: number;
   last_interaction: Date;
+  profile_picture: string;
 };
 
 export type ChatProps = {
   chat_id: string;
   nickname: string;
   messages: MessageProps[];
+  profile_picture: string;
 };
 
 export type MessageProps = {
@@ -49,14 +51,15 @@ export class MMKVStorage {
     this.instance = new MMKV();
   }
 
-  public addChat({ chat_id, messages, nickname }: ChatProps): void {
+  public addChat({ chat_id, messages, nickname, profile_picture }: ChatProps): void {
     const allChatsString = this.instance.getString(this.CONSTANTS.CHAT);
 
     // Cria o novo chat
     const newChat: ChatProps = {
         chat_id,
         nickname,
-        messages: messages || [], // Garante que seja sempre um array
+        messages: messages || [],
+        profile_picture // Garante que seja sempre um array
     };
 
     // Última mensagem (se existir)
@@ -85,6 +88,7 @@ export class MMKVStorage {
         last_message: lastMessage,
         notification: 0,
         last_interaction: currentDate,
+        profile_picture
     });
   }
 
@@ -143,7 +147,7 @@ export class MMKVStorage {
           chat_id,
           last_message: newMessage,
           notification: sender_id === 'user' ? 0 : 1,
-          last_interaction: new Date(),
+          last_interaction: new Date()
         });
 
         return newMessage;
@@ -155,7 +159,7 @@ export class MMKVStorage {
     last_message,
     notification,
     last_interaction,
-  }: Omit<LabelChatProps, 'nickname'>): void {
+  }: Omit<LabelChatProps, 'nickname' | 'profile_picture'>): void {
     const labelsString = this.instance.getString(this.CONSTANTS.LABEL_CHAT);
     if (labelsString) {
       const labels = JSON.parse(labelsString) as LabelChatProps[];

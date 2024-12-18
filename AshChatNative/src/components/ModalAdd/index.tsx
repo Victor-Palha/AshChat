@@ -19,19 +19,25 @@ export function ModalAdd({modalIsOpen, closeModal}: ModalAddProps) {
     async function handleCreateChat() {
         const api = PhoenixAPIClient
         const token = await SecureStoragePersistence.getJWT()
+        const device_token = await SecureStoragePersistence.getUniqueDeviceId()
         if(!token) return
         api.setTokenAuth(token)
         if(userTag.length > 0){
             const response = await api.server.post("/chat", {
                 receiver_tag: userTag
+            }, {
+                headers: {
+                    "device_token": device_token,
+                }
             })
 
             if(response.status == 201){
-                const {chat_id, messages, nickname} = response.data
+                const {chat_id, messages, nickname, profile_picture} = response.data
                 mmkvStorage.addChat({
                     chat_id,
                     messages,
-                    nickname
+                    nickname,
+                    profile_picture
                 })
                 Alert.alert("Success", "Chat created successfully")
                 closeModal(false)
@@ -39,7 +45,7 @@ export function ModalAdd({modalIsOpen, closeModal}: ModalAddProps) {
                 Alert.alert("Error", "An error occurred while creating the chat")
             }
         }else{
-            Alert.alert("Invalid ID", "Please enter a valid ID")
+            Alert.alert("Invalid Tag", "Please enter a valid Tag")
         }
     }
 
@@ -55,7 +61,7 @@ export function ModalAdd({modalIsOpen, closeModal}: ModalAddProps) {
             </View>
             <Input
                 icon="person-pin-circle"
-                placeholder="Add contact using ID"
+                placeholder="Add contact using TAG"
                 autoCapitalize="none"
                 value={userTag}
                 onChangeText={setUserTag}
