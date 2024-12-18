@@ -5,6 +5,7 @@ AUTH_SERVICE="$PWD/../auth_service"
 EMAIL_SERVICE="$PWD/../email_service"
 TRANSLATE_SERVICE="$PWD/../translate_service"
 CHAT_SERVICE="$PWD/../chat_service"
+STATIC_SERVICE="$PWD/../static_service"
 
 # Função para abrir um novo terminal e executar um comando
 start_service() {
@@ -40,6 +41,12 @@ sleep 2
 
 # Inicia Chat Service
 start_service "Chat Service" "$CHAT_SERVICE" "chmod +x ./start.sh && source ./start.sh"
+
+# Espera 2 segundos para evitar conflitos
+sleep 2
+
+# Inicia Static Service
+start_service "Static Service" "$STATIC_SERVICE" "bun install && bun run src/index.ts"
 
 # Mensagem final de sucesso
 echo "All services are running in separate Terminal windows."

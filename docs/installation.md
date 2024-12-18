@@ -7,6 +7,7 @@ Follow these steps to install the AshChat project on your local machine.
 Before you begin, ensure you have the following installed:
 - [Node.js](https://nodejs.org/) (version 18 or higher)
 - [npm](https://www.npmjs.com/) (version 10 or higher)
+- [Bun](https://bun.sh/) (version 1.0.27 or higher)
 - [Git](https://git-scm.com/)
 - [Python](https://www.python.org/)
 - [Elixir](https://elixir-lang.org/)
@@ -57,10 +58,17 @@ Install the required dependencies using npm:
     mix deps.get
 ```
 
-7. **Configure Environment Variables**
+7. **Install Dependencies - Static Files Service**
+Install the required dependencies using bun:
+```bash
+    cd ./AshChat/static_files_service
+    bun install
+```
+
+8. **Configure Environment Variables**
 Create a `.env` file in the root directory and add the necessary environment variables. Refer to `.env.example` for the required variables for the _auth service_, _email service_ and _chat service_.
 
-8. **Create key files for the JWT**
+9. **Create key files for the JWT**
 On the root directory, run the following command to create the key files for the JWT:
 ```bash
     cd scripts
@@ -69,7 +77,7 @@ On the root directory, run the following command to create the key files for the
 ```
 This will create the `private_key.pem` and `public_ket.pem` files in __AshChat/auth_service/priv/keys__ and __AshChat/auth_service__.
 
-9. **Run Docker for Dependencies**
+10. **Run Docker for Dependencies**
 The dependencies for the project are run using Docker and they are defined in the __AshChat/docker/docker-compose.yml__ file. To run the dependencies, run the following command:
 ```bash
     cd scripts
@@ -105,6 +113,11 @@ To run the services, open a new terminal and run the following commands:
     cd AshChat/chat_service
     chmod +x start.sh
     source start.sh
+```
+- **Static Files Service**
+```bash
+    cd AshChat/static_files_service
+    bun run src/index.ts
 ```
 
 ## Automated Installation
