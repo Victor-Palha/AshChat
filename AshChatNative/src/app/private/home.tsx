@@ -1,4 +1,5 @@
 import { ChatList } from "@/src/components/ChatList";
+import { Footer } from "@/src/components/Footer";
 import { ModalAdd } from "@/src/components/ModalAdd";
 import { NoContacts } from "@/src/components/NoContacts";
 import { LabelChatProps } from "@/src/persistence/MMKVStorage";
@@ -48,6 +49,8 @@ export default function Home(){
 
             {/* Modal */}
             <ModalAdd modalIsOpen={isModalOpen} closeModal={handleOpenModal}/>
+            {/* Footer */}
+            <Footer activeTab="home"/>
         </View>
     )
 }
