@@ -60,7 +60,7 @@ export class MMKVStorage {
   constructor() {
     this.instance = new MMKV();
   }
-
+  
   public addChat({ chat_id, messages, nickname, profile_picture }: ChatProps): void {
     const allChatsString = this.instance.getString(this.CONSTANTS.CHAT);
 

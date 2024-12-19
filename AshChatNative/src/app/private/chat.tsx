@@ -1,6 +1,7 @@
 import { SocketContext } from "@/src/contexts/socketContext";
 import { AddMessageProps, MessageProps } from "@/src/persistence/MMKVStorage";
 import { colors } from "@/src/styles/colors";
+import { getHoursFromDate } from "@/src/utils/getHoursFromDate";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { Channel } from "phoenix";
@@ -18,7 +19,7 @@ import {
 } from "react-native";
 
 export default function Chat(): JSX.Element {
-  const { chat_id, nickname, profile_picture } = useLocalSearchParams();
+  const { chat_id, nickname } = useLocalSearchParams();
   const { socket, mmkvStorage, user_id } = useContext(SocketContext);
 
   // States
@@ -46,19 +47,19 @@ export default function Chat(): JSX.Element {
   useFocusEffect(
     useCallback(() => {
       if (!socket) return;
-  
+
       const chatChannel = socket.channel(`chat:${chat_id}`, {});
-  
+
       chatChannel
         .join()
         .receive("ok", () => {})
         .receive("error", () => {});
-  
+
       setChannel(chatChannel);
-      chatChannel.on("receiver_online", ({status}: {status:boolean}) => {
+      chatChannel.on("receiver_online", ({ status }: { status: boolean }) => {
         setIsReceiverOnline(status);
-      })
-  
+      });
+
       const handleReceiveMessage = (message: AddMessageProps) => {
         const who = message.sender_id === user_id ? "user" : "contact";
         const newMessage = mmkvStorage.addMessage({
@@ -68,7 +69,7 @@ export default function Chat(): JSX.Element {
         }) as MessageProps;
         setMessages((prevMessages) => [...prevMessages, newMessage]);
       };
-  
+
       const handleMessageSent = ({ chat_id, status, message_id }: any) => {
         mmkvStorage.updateMessageStatus({
           chat_id,
@@ -76,10 +77,10 @@ export default function Chat(): JSX.Element {
           status: status,
         });
       };
-  
+
       chatChannel.on("receive_message", handleReceiveMessage);
       chatChannel.on("message_sent", handleMessageSent);
-  
+
       return () => {
         chatChannel.leave();
         chatChannel.off("receive_message");
@@ -88,12 +89,12 @@ export default function Chat(): JSX.Element {
     }, [chat_id, socket, user_id])
   );
 
-  function handleCloseChat(){
+  function handleCloseChat() {
     channel?.leave();
     router.back();
-  };
+  }
 
-  function handleSend(){
+  function handleSend() {
     if (inputMessage.trim()) {
       const newMessage = mmkvStorage.addMessage({
         chat_id: chat_id as string,
@@ -107,23 +108,43 @@ export default function Chat(): JSX.Element {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       setInputMessage("");
     }
-  };
+  }
 
   const flatListRef = useRef<FlatList>(null);
 
-  useEffect(() => {
-    if (flatListRef.current) flatListRef.current.scrollToEnd({ animated: true });
-  }, [messages]);
+  const renderMessage = ({ item }: { item: MessageProps }) => {
+    const isCurrentUser = item.sender_id === "user";
 
-  const renderMessage = ({ item }: { item: MessageProps }) => (
-    <View
-      className={`my-2 p-3 rounded-xl ${
-        item.sender_id === "user" ? "bg-purple-700 self-end" : "bg-gray-950 self-start"
-      }`}
-    >
-      <Text className="text-white">{item.content}</Text>
-    </View>
-  );
+    return (
+      <View>
+        {/* Message Bubble */}
+        <View
+          className={`my-2 p-3 rounded-xl ${
+            isCurrentUser ? "bg-purple-700 self-end" : "bg-gray-950 self-start"
+          }`}
+        >
+          <Text className="text-white">{item.content}</Text>
+        </View>
+
+        {/* Time and Status */}
+        <View
+          className={`flex-row items-center ${
+            isCurrentUser ? "justify-end" : "justify-start"
+          }`}
+        >
+          <Text className="text-gray-400 text-sm">
+            {getHoursFromDate(item.timestamp)}
+          </Text>
+
+          {isCurrentUser && (
+            <Text className="text-gray-400 text-sm ml-2">
+              {item.status === "sent" ? "Sent" : "Delivered"}
+            </Text>
+          )}
+        </View>
+      </View>
+    );
+  };
 
   return (
     <KeyboardAvoidingView
@@ -153,6 +174,13 @@ export default function Chat(): JSX.Element {
         renderItem={renderMessage}
         className="flex-1 px-4 py-2"
         contentContainerStyle={{ flexGrow: 1 }}
+        initialNumToRender={20}
+        maxToRenderPerBatch={10}
+        windowSize={5}
+        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
+        onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
+        removeClippedSubviews={true}
+        onEndReachedThreshold={0.1} // Define a proximidade para carregar mais mensagens
       />
 
       {/* Campo de Entrada */}
