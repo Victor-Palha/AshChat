@@ -26,8 +26,8 @@ export default function Chat(): JSX.Element {
   const [inputMessage, setInputMessage] = useState<string>("");
   const [channel, setChannel] = useState<Channel | null>(null);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
+  const [isReceiverOnline, setIsReceiverOnline] = useState<boolean>(false);
 
-  // Load initial messages
   useEffect(() => {
     const response = mmkvStorage.getChat(chat_id as string);
 
@@ -37,7 +37,7 @@ export default function Chat(): JSX.Element {
       router.back();
       return;
     }
-    console.log("Chat found");
+    mmkvStorage.clearNotifications(chat_id as string);
     setProfilePicture(response.searched_chats.profile_picture);
     setMessages(response.searched_chats.messages);
   }, [chat_id, mmkvStorage]);
@@ -46,48 +46,47 @@ export default function Chat(): JSX.Element {
   useFocusEffect(
     useCallback(() => {
       if (!socket) return;
-
+  
       const chatChannel = socket.channel(`chat:${chat_id}`, {});
+  
       chatChannel
         .join()
-        .receive("ok", () => {
-          console.log("Channel joined");
-        })
-        .receive("error", () => {
-          console.log("Failed to join channel");
-        });
-
+        .receive("ok", () => {})
+        .receive("error", () => {});
+  
       setChannel(chatChannel);
-
-      mmkvStorage.updatingAllMessagesFromAChat(chat_id as string);
-
+      chatChannel.on("receiver_online", ({status}: {status:boolean}) => {
+        setIsReceiverOnline(status);
+      })
+  
+      const handleReceiveMessage = (message: AddMessageProps) => {
+        const who = message.sender_id === user_id ? "user" : "contact";
+        const newMessage = mmkvStorage.addMessage({
+          ...message,
+          sender_id: who,
+          timestamp: new Date().toISOString(),
+        }) as MessageProps;
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+      };
+  
+      const handleMessageSent = ({ chat_id, status, message_id }: any) => {
+        mmkvStorage.updateMessageStatus({
+          chat_id,
+          id_message: message_id,
+          status: status,
+        });
+      };
+  
+      chatChannel.on("receive_message", handleReceiveMessage);
+      chatChannel.on("message_sent", handleMessageSent);
+  
       return () => {
         chatChannel.leave();
-        console.log("Channel left");
+        chatChannel.off("receive_message");
+        chatChannel.off("message_sent");
       };
-    }, [chat_id, socket])
+    }, [chat_id, socket, user_id])
   );
-
-  function handleReceiveMessage({ chat_id, content, sender_id }: AddMessageProps) {
-    const who = sender_id === user_id ? "user" : "contact";
-
-    const newMessage = mmkvStorage.addMessage({
-      chat_id,
-      content,
-      sender_id: who,
-      timestamp: new Date().toISOString(),
-    }) as MessageProps;
-
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-  };
-
-  function handleMessageSent({ chat_id, status, message_id }: any){
-    mmkvStorage.updateMessageStatus({
-      chat_id,
-      id_message: message_id,
-      status,
-    });
-  };
 
   function handleCloseChat(){
     channel?.leave();
@@ -116,9 +115,6 @@ export default function Chat(): JSX.Element {
     if (flatListRef.current) flatListRef.current.scrollToEnd({ animated: true });
   }, [messages]);
 
-  channel?.on("receive_message", handleReceiveMessage);
-  channel?.on("message_sent", handleMessageSent);
-
   const renderMessage = ({ item }: { item: MessageProps }) => (
     <View
       className={`my-2 p-3 rounded-xl ${
@@ -143,6 +139,9 @@ export default function Chat(): JSX.Element {
         <View className="flex-row items-center ml-3">
           {profilePicture && <Image source={{ uri: profilePicture }} className="w-12 h-12 rounded-full" />}
           <Text className="text-white font-bold text-2xl ml-3">{nickname}</Text>
+          {/* Online? */}
+          {isReceiverOnline && <View className="w-3 h-3 bg-green-500 rounded-full ml-2" />}
+          {!isReceiverOnline && <View className="w-3 h-3 bg-red-500 rounded-full ml-2" />}
         </View>
       </View>
 
