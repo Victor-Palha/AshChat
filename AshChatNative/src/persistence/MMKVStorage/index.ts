@@ -38,6 +38,14 @@ type UpdateMessageStatusProps = {
   status: string;
 };
 
+export type UserProfileProps = {
+  nickname: string;
+  description: string;
+  photo_url: string;
+  preferred_language: string;
+  tag_user_id: string;
+}
+
 export class MMKVStorage {
   private instance: MMKV;
 
@@ -45,6 +53,7 @@ export class MMKVStorage {
     LABEL_CHAT: 'ashchat.label.chats',
     CHAT: 'ashchat.chat',
     USER_ID: 'ashchat.user_id',
+    USER_PROFILE: 'ashchat.user_profile'
   };
 
   constructor() {
@@ -228,6 +237,15 @@ export class MMKVStorage {
             this.instance.set(this.CONSTANTS.LABEL_CHAT, JSON.stringify(updatedLabels));
         }
     }
+  }
+
+  public setUserProfile(userProfile: UserProfileProps): void {
+    this.instance.set(this.CONSTANTS.USER_PROFILE, JSON.stringify(userProfile));
+  }
+
+  public getUserProfile(): UserProfileProps | null {
+    const userProfileString = this.instance.getString(this.CONSTANTS.USER_PROFILE);
+    return userProfileString ? JSON.parse(userProfileString) as UserProfileProps : null;
   }
 
 

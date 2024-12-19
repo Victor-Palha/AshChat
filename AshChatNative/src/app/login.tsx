@@ -48,6 +48,7 @@ export default function Login(){
                 />
                 <InputPassword 
                     placeholder="Password"
+                    autoCapitalize="none"
                     value={password}
                     onChangeText={setPassword}
                 />

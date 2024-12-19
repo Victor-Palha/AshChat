@@ -1,7 +1,7 @@
 import { Channel, Socket } from "phoenix";
 import WS from "ws";
 import SecureStoragePersistence from "../persistence/SecureStorage";
-
+import { MMKVStorage } from "../persistence/MMKVStorage";
 export class IOClient {
     private socket?: Socket;
 
@@ -10,8 +10,8 @@ export class IOClient {
     public async connect() {
         const jwtToken = await SecureStoragePersistence.getJWT();
         const deviceToken = await SecureStoragePersistence.getUniqueDeviceId();
-
-        if (!jwtToken || !deviceToken) {
+        const userProfile = new MMKVStorage().getUserProfile()
+        if (!jwtToken || !deviceToken || !userProfile) {
             throw new Error("JWT or Device token not found");
         }
 
@@ -19,6 +19,7 @@ export class IOClient {
             params: {
                 token: jwtToken,
                 device_unique_id: deviceToken,
+                preferred_language: userProfile.preferred_language
             },
             transport: WS,
         });

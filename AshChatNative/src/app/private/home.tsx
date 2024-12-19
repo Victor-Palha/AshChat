@@ -1,8 +1,10 @@
+import { PhoenixAPIClient } from "@/src/api/phoenix-api-client";
 import { ChatList } from "@/src/components/ChatList";
 import { Footer } from "@/src/components/Footer";
 import { ModalAdd } from "@/src/components/ModalAdd";
 import { NoContacts } from "@/src/components/NoContacts";
-import { LabelChatProps } from "@/src/persistence/MMKVStorage";
+import { LabelChatProps, MMKVStorage } from "@/src/persistence/MMKVStorage";
+import SecureStoragePersistence from "@/src/persistence/SecureStorage";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import { Text, TouchableOpacity, View} from "react-native";
@@ -15,6 +17,33 @@ export default function Home(){
     function handleOpenModal() {
         setIsModalOpen(!isModalOpen);
     }
+
+    async function setUserProfile() {
+        const api = PhoenixAPIClient
+        const mmkvStorage = new MMKVStorage()
+        const token = await SecureStoragePersistence.getJWT()
+        const device_token = await SecureStoragePersistence.getUniqueDeviceId()
+        if(!token || !device_token) return
+        api.setTokenAuth(token)
+        api.setHeader("device_token", device_token)
+        try {
+            const response = await api.server.get("/user")
+            if(response.status == 200){
+                const {nickname, description, photo_url, preferred_language, tag_user_id} = response.data.user
+                mmkvStorage.setUserProfile({
+                    nickname,
+                    description,
+                    photo_url,
+                    preferred_language,
+                    tag_user_id
+                })
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    setUserProfile()
     
     return (
         <View className="flex-1 pt-[62px] px-10" >

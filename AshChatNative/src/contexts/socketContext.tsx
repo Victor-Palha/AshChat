@@ -41,15 +41,16 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     async function connectSocket() {
         const jwtToken = await SecureStoragePersistence.getJWT();
         const deviceToken = await SecureStoragePersistence.getUniqueDeviceId();
-
-        if (!jwtToken || !deviceToken) {
+        const userProfile = new MMKVStorage().getUserProfile()
+        if (!jwtToken || !deviceToken || !userProfile) {
             throw new Error("JWT or Device token not found");
         }
-
+        console.log(userProfile.preferred_language)
         const newSocket = new Socket("ws://localhost:4000/socket", {
             params: {
                 token: jwtToken,
                 device_unique_id: deviceToken,
+                preferred_language: userProfile.preferred_language
             },
             transport: global.WebSocket,
         });

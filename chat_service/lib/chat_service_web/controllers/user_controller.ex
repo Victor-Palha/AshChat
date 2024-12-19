@@ -30,7 +30,7 @@ defmodule ChatServiceWeb.UserController do
       api_url = Application.get_env(:chat_service, ChatServiceWeb.Endpoint)[:static_server_url]
       case HTTPoison.post("#{api_url}/upload", multipart, []) do
         {:ok, %HTTPoison.Response{status_code: 201, body: body}} ->
-          photo_url = "#{api_url}/files/#{body}"
+          photo_url = "/files/#{body}"
           User.update_user_photo_profile(conn.assigns.user_id, photo_url)
           conn
           |> put_status(:ok)
@@ -53,5 +53,19 @@ defmodule ChatServiceWeb.UserController do
     conn
     |> put_status(400)
     |> json(%{error: "No photo uploaded"})
+  end
+
+  def get_user_by_id(conn, __params) do
+    user_id = conn.assigns.user_id
+    case User.get_user_profile(user_id) do
+      {:error, reason} ->
+        conn
+        |> put_status(404)
+        |> json(%{error: reason})
+      {:ok, user} ->
+        conn
+        |> put_status(:ok)
+        |> json(%{user: user})
+    end
   end
 end

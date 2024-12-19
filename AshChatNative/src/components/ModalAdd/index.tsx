@@ -20,15 +20,12 @@ export function ModalAdd({modalIsOpen, closeModal}: ModalAddProps) {
         const api = PhoenixAPIClient
         const token = await SecureStoragePersistence.getJWT()
         const device_token = await SecureStoragePersistence.getUniqueDeviceId()
-        if(!token) return
+        if(!token || !device_token) return
         api.setTokenAuth(token)
+        api.setHeader("device_token", device_token)
         if(userTag.length > 0){
             const response = await api.server.post("/chat", {
                 receiver_tag: userTag
-            }, {
-                headers: {
-                    "device_token": device_token,
-                }
             })
 
             if(response.status == 201){
