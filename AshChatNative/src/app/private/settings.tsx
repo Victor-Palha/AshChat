@@ -63,7 +63,7 @@ export default function Settings(){
             <Text className="font-bold text-white text-3xl">Settings</Text>
             <View className="items-center mt-10 gap-2">
                 <TouchableOpacity onPress={handleSelectNewProfilePhoto}>
-                    <Image source={{uri: "http://localhost:3006" + userProfile?.photo_url}} style={{width: 100, height: 100, borderRadius: 50}}/>
+                    <Image source={{uri: "http://localhost:3000" + userProfile?.photo_url}} style={{width: 100, height: 100, borderRadius: 50}}/>
                 </TouchableOpacity>
 
                 <TouchableOpacity className="flex-row items-center gap-2" onPress={handleOpenModal}>
