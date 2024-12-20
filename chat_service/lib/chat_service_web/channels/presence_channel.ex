@@ -5,11 +5,10 @@ defmodule ChatServiceWeb.PresenceChannel do
   def join("presence:lobby", _params, socket) do
     user_id = socket.assigns[:user_id]
 
-    # Rastrear o usuário no Phoenix Presence
     Presence.track(
-      self(),                # Processo do usuário
-      "presence:lobby",      # Tópico do canal
-      user_id,               # ID único do usuário
+      self(),
+      "presence:lobby",
+      user_id,
       %{
         online_at: :os.system_time(:millisecond)
       }

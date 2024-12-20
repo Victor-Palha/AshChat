@@ -9,13 +9,10 @@ defmodule ChatService.Rabbitmq.ConsumerStarter do
 
   @impl true
   def init(_) do
-    # Obtém o canal
     channel = ChatService.Rabbitmq.Connection.channel()
 
-    # Garante que a fila existe antes de iniciar o consumidor
     ensure_queue_exists(channel, "confirm_new_account_queue")
 
-    # Inicia o consumidor
     start_consumer(channel)
 
     {:ok, %{}}
@@ -35,7 +32,6 @@ defmodule ChatService.Rabbitmq.ConsumerStarter do
     queue = "confirm_new_account_queue"
     handler = ChatService.Handlers.QueueConfirmNewAccount
 
-    # Inicia o GenericConsumer com as configurações corretas
     {:ok, _pid} = ChatService.Rabbitmq.GenericConsumer.start_link(%{channel: channel, queue: queue, handler: handler})
     Logger.info("Consumer started for queue #{queue}")
   end

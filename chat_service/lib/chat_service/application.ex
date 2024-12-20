@@ -14,7 +14,6 @@ defmodule ChatService.Application do
       {ChatService.PubsubNotification, []},
       {Mongo, ChatService.Repo.config()},
       {ChatService.Rabbitmq.Connection, []},
-      # Adiciona o GenServer para conectar-se ao RabbitMQ e obter o canal
       {ChatService.Rabbitmq.ConsumerStarter, []},
       # Start a worker by calling: ChatService.Worker.start_link(arg)
       # {ChatService.Worker, arg},

@@ -9,10 +9,8 @@ defmodule ChatServiceWeb.NotificationChannel do
 
   def handle_info(:after_join, socket) do
     user_id = socket.assigns.user_id
-    # Pega as notificações pendentes
     notifications = PubsubNotification.get_notifications(user_id)
 
-    # Envia todas as notificações pendentes para o cliente
     Enum.each(notifications, fn notification ->
       push(socket, "pending_notification", notification)
     end)
@@ -21,7 +19,6 @@ defmodule ChatServiceWeb.NotificationChannel do
   end
 
   def handle_info(notification, socket) do
-    # Assumindo que notification já é um mapa contendo os dados da notificação
     push(socket, "new_notification", notification)
     {:noreply, socket}
   end

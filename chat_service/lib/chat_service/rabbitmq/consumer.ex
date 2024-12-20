@@ -9,7 +9,6 @@ defmodule ChatService.Rabbitmq.GenericConsumer do
 
   @impl true
   def init(%{channel: channel, queue: queue, handler: handler}) do
-    # Inscrição na fila
     AMQP.Basic.consume(channel, queue)
 
     {:ok, %{channel: channel, queue: queue, handler: handler}}
@@ -19,7 +18,6 @@ defmodule ChatService.Rabbitmq.GenericConsumer do
   def handle_info({:basic_deliver, payload, meta}, %{channel: channel, handler: handler} = state) do
     Logger.info("Message received from #{state.queue}: #{inspect(payload)}")
 
-    # Processa a mensagem usando o handler fornecido
     case Jason.decode(payload) do
       {:ok, msg} ->
         apply(handler, :handle_message, [msg, meta])
