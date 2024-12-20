@@ -7,12 +7,10 @@ defmodule ChatService.Rabbitmq.Translator do
   def rpc_translate(text, source_language, target_language) do
     channel = Connection.channel()
 
-    # Cria uma fila de resposta exclusiva para identificar o retorno
     correlation_id = :rand.uniform() |> Float.to_string() |> String.replace(".", "")
     reply_queue = "reply_#{correlation_id}"
     AMQP.Queue.declare(channel, reply_queue, exclusive: true)
 
-    # Publica a mensagem na fila de entrada
     message = %{
       "text" => text,
       "source_language" => source_language,
@@ -28,12 +26,10 @@ defmodule ChatService.Rabbitmq.Translator do
       correlation_id: correlation_id
     )
 
-    # Aguarda a resposta na fila de saída
     receive_response(channel, reply_queue, correlation_id)
   end
 
   defp receive_response(channel, queue, correlation_id) do
-    # Inicia o consumo da fila de resposta
     AMQP.Basic.consume(channel, queue)
 
     receive do

@@ -7,12 +7,14 @@ export type LabelChatProps = {
   last_message: MessageProps | null;
   notification: number;
   last_interaction: Date;
+  profile_picture: string;
 };
 
 export type ChatProps = {
   chat_id: string;
   nickname: string;
   messages: MessageProps[];
+  profile_picture: string;
 };
 
 export type MessageProps = {
@@ -28,6 +30,7 @@ export type AddMessageProps = {
   content: string;
   sender_id: string;
   timestamp: string;
+  isNotification?: boolean;
 };
 
 type UpdateMessageStatusProps = {
@@ -36,6 +39,14 @@ type UpdateMessageStatusProps = {
   status: string;
 };
 
+export type UserProfileProps = {
+  nickname: string;
+  description: string;
+  photo_url: string;
+  preferred_language: string;
+  tag_user_id: string;
+}
+
 export class MMKVStorage {
   private instance: MMKV;
 
@@ -43,20 +54,22 @@ export class MMKVStorage {
     LABEL_CHAT: 'ashchat.label.chats',
     CHAT: 'ashchat.chat',
     USER_ID: 'ashchat.user_id',
+    USER_PROFILE: 'ashchat.user_profile'
   };
 
   constructor() {
     this.instance = new MMKV();
   }
-
-  public addChat({ chat_id, messages, nickname }: ChatProps): void {
+  
+  public addChat({ chat_id, messages, nickname, profile_picture }: ChatProps): void {
     const allChatsString = this.instance.getString(this.CONSTANTS.CHAT);
 
     // Cria o novo chat
     const newChat: ChatProps = {
         chat_id,
         nickname,
-        messages: messages || [], // Garante que seja sempre um array
+        messages: messages || [],
+        profile_picture
     };
 
     // Última mensagem (se existir)
@@ -85,6 +98,7 @@ export class MMKVStorage {
         last_message: lastMessage,
         notification: 0,
         last_interaction: currentDate,
+        profile_picture
     });
   }
 
@@ -122,7 +136,7 @@ export class MMKVStorage {
     return this.instance.getString(this.CONSTANTS.USER_ID);
   }
 
-  public addMessage({ chat_id, content, sender_id, timestamp }: AddMessageProps): MessageProps | undefined {
+  public addMessage({ chat_id, content, sender_id, timestamp, isNotification = false }: AddMessageProps): MessageProps | undefined {
       const result = this.getChat(chat_id);
       if (!result) return;
 
@@ -139,23 +153,33 @@ export class MMKVStorage {
 
         searched_chats.messages.push(newMessage);
         this.instance.set(this.CONSTANTS.CHAT, JSON.stringify(chats));
+
         this.updateLabel({
           chat_id,
           last_message: newMessage,
           notification: sender_id === 'user' ? 0 : 1,
           last_interaction: new Date(),
-        });
+        }, isNotification);
 
         return newMessage;
       }
   }
 
+  public getMessagesFromChat(chat_id: string){
+    const result = this.getChat(chat_id);
+    if (!result) return;
+    const { searched_chats } = result;
+    if (!searched_chats) return;
+  
+    return searched_chats.messages;
+  }
+  
   private updateLabel({
     chat_id,
     last_message,
     notification,
     last_interaction,
-  }: Omit<LabelChatProps, 'nickname'>): void {
+  }: Omit<LabelChatProps, 'nickname' | 'profile_picture'>, isNotification: boolean): void {
     const labelsString = this.instance.getString(this.CONSTANTS.LABEL_CHAT);
     if (labelsString) {
       const labels = JSON.parse(labelsString) as LabelChatProps[];
@@ -164,7 +188,7 @@ export class MMKVStorage {
           ? {
               ...label,
               last_message,
-              notification: label.notification + notification,
+              notification: isNotification ? label.notification + notification : 0,
               last_interaction,
             }
           : label
@@ -191,41 +215,29 @@ export class MMKVStorage {
     }
   }
 
-  public updatingAllMessagesFromAChat(chat_id: string): void {
-    // Recupera a lista de chats armazenados
-    const chatsString = this.instance.getString(this.CONSTANTS.CHAT);
-    if (!chatsString) return;
+  public clearNotifications(chat_id: string): void {
+    const chatLabelString = this.instance.getString(this.CONSTANTS.LABEL_CHAT);
+    if (chatLabelString) {
+      const allChatsLabel = JSON.parse(chatLabelString) as LabelChatProps[];
 
-    const chats = JSON.parse(chatsString) as ChatProps[];
-    const chatIndex = chats.findIndex(c => c.chat_id === chat_id);
-
-    if (chatIndex !== -1) {
-        // Atualiza o status de todas as mensagens para "READ"
-        chats[chatIndex].messages = chats[chatIndex].messages.map(message => ({
-            ...message,
-            status: "READ"
-        }));
-
-        // Atualiza a lista de chats no armazenamento
-        this.instance.set(this.CONSTANTS.CHAT, JSON.stringify(chats));
-
-        // Atualiza as notificações relacionadas no LABEL_CHAT
-        const chatLabelString = this.instance.getString(this.CONSTANTS.LABEL_CHAT);
-        if (chatLabelString) {
-            const allChatsLabel = JSON.parse(chatLabelString) as LabelChatProps[];
-
-            const updatedLabels = allChatsLabel.map(label => 
-                label.chat_id === chat_id 
-                    ? { ...label, notification: 0 } 
-                    : label
-            );
-
-            // Atualiza as notificações no armazenamento
-            this.instance.set(this.CONSTANTS.LABEL_CHAT, JSON.stringify(updatedLabels));
-        }
+      const updatedLabels = allChatsLabel.map(label => 
+        label.chat_id === chat_id 
+          ? { ...label, notification: 0 } 
+          : label
+      );
+  
+      this.instance.set(this.CONSTANTS.LABEL_CHAT, JSON.stringify(updatedLabels));
     }
   }
 
+  public setUserProfile(userProfile: UserProfileProps): void {
+    this.instance.set(this.CONSTANTS.USER_PROFILE, JSON.stringify(userProfile));
+  }
+
+  public getUserProfile(): UserProfileProps | null {
+    const userProfileString = this.instance.getString(this.CONSTANTS.USER_PROFILE);
+    return userProfileString ? JSON.parse(userProfileString) as UserProfileProps : null;
+  }
 
   public cleanAll(){
     this.instance.clearAll()

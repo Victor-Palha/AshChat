@@ -27,7 +27,8 @@ defmodule ChatServiceWeb.ChatController do
           message: "Chat created successfully",
           chat_id: chat.id,
           messages: [],
-          nickname: receiver.nickname
+          nickname: receiver.nickname,
+          profile_picture: receiver.photo_url
         })
     {:error, %UserNotFoundError{}} ->
       conn

@@ -13,6 +13,7 @@ defmodule ChatServiceWeb.Router do
     post "/chat", ChatController, :create
     patch "/user/nickname", UserController, :update_name
     patch "/user/photo", UserController, :update_user_photo
+    get "/user", UserController, :get_user_by_id
   end
 
 

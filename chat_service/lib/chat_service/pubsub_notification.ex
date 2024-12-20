@@ -27,7 +27,6 @@ defmodule ChatService.PubsubNotification do
         [notification | notifications]
       end)
 
-    # Publica a notificação no tópico específico
     topic = "notifications:#{user_id}"
     PubSub.broadcast(@pubsub_name, topic, notification)
 

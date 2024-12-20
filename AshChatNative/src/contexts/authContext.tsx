@@ -52,7 +52,6 @@ export function AuthProvider({children}: {children: React.ReactNode}){
     }, [])
 
     async function onLogin(email: string, password: string){
-        console.log(email, password)
         try {
             const deviceUniqueToken = await safeStorage.getUniqueDeviceId()
             if(!deviceUniqueToken){
