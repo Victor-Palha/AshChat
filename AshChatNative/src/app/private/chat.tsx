@@ -1,7 +1,7 @@
+import { LoadMessages } from "@/src/components/LoadMessages";
 import { SocketContext } from "@/src/contexts/socketContext";
 import { AddMessageProps, MessageProps } from "@/src/persistence/MMKVStorage";
 import { colors } from "@/src/styles/colors";
-import { getHoursFromDate } from "@/src/utils/getHoursFromDate";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { Channel } from "phoenix";
@@ -29,9 +29,10 @@ export default function Chat(): JSX.Element {
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [isReceiverOnline, setIsReceiverOnline] = useState<boolean>(false);
 
+  // Load chat messages and divide into chunks
   useEffect(() => {
     const response = mmkvStorage.getChat(chat_id as string);
-
+  
     if (!response) return;
     if (!response.searched_chats) {
       Alert.alert("Chat not found");
@@ -40,9 +41,15 @@ export default function Chat(): JSX.Element {
     }
     mmkvStorage.clearNotifications(chat_id as string);
     setProfilePicture(response.searched_chats.profile_picture);
-    setMessages(response.searched_chats.messages);
+  
+    // Ordena as mensagens por timestamp
+    const sortedMessages = response.searched_chats.messages.sort(
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+  
+    setMessages(sortedMessages);
   }, [chat_id, mmkvStorage]);
-
+  
   // Join the chat channel when the screen is focused
   useFocusEffect(
     useCallback(() => {
@@ -60,6 +67,7 @@ export default function Chat(): JSX.Element {
         setIsReceiverOnline(status);
       });
 
+      // Receive messages from the chat channel
       const handleReceiveMessage = (message: AddMessageProps) => {
         const who = message.sender_id === user_id ? "user" : "contact";
         const newMessage = mmkvStorage.addMessage({
@@ -67,9 +75,10 @@ export default function Chat(): JSX.Element {
           sender_id: who,
           timestamp: new Date().toISOString(),
         }) as MessageProps;
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
+        setMessages((prevMessages) => [newMessage, ...prevMessages]);
       };
 
+      // Update message status
       const handleMessageSent = ({ chat_id, status, message_id }: any) => {
         mmkvStorage.updateMessageStatus({
           chat_id,
@@ -78,9 +87,11 @@ export default function Chat(): JSX.Element {
         });
       };
 
+      // Add event listeners
       chatChannel.on("receive_message", handleReceiveMessage);
       chatChannel.on("message_sent", handleMessageSent);
 
+      // Remove event listeners when the screen is unfocused
       return () => {
         chatChannel.leave();
         chatChannel.off("receive_message");
@@ -88,12 +99,21 @@ export default function Chat(): JSX.Element {
       };
     }, [chat_id, socket, user_id])
   );
+  // Load more messages when reaching the end
+  function getOlderMessages(chat_id: string, offset: number): MessageProps[] {
+    // Simula a obtenção de mensagens mais antigas
+    const chat = mmkvStorage.getChat(chat_id);
+    if (!chat || !chat.searched_chats) return [];
+    return chat.searched_chats.messages.slice(offset, offset + 20).reverse();
+  }
 
+  // Close the chat and leave the channel
   function handleCloseChat() {
     channel?.leave();
     router.back();
   }
 
+  // Send a message to the chat channel
   function handleSend() {
     if (inputMessage.trim()) {
       const newMessage = mmkvStorage.addMessage({
@@ -102,49 +122,14 @@ export default function Chat(): JSX.Element {
         sender_id: "user",
         timestamp: new Date().toISOString(),
       }) as MessageProps;
-
       channel?.push("send_message", { mobile_ref_id: newMessage.id_message, content: inputMessage });
 
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      setMessages((prevMessages) => [newMessage, ...prevMessages]);
       setInputMessage("");
     }
   }
 
   const flatListRef = useRef<FlatList>(null);
-
-  const renderMessage = ({ item }: { item: MessageProps }) => {
-    const isCurrentUser = item.sender_id === "user";
-
-    return (
-      <View>
-        {/* Message Bubble */}
-        <View
-          className={`my-2 p-3 rounded-xl ${
-            isCurrentUser ? "bg-purple-700 self-end" : "bg-gray-950 self-start"
-          }`}
-        >
-          <Text className="text-white">{item.content}</Text>
-        </View>
-
-        {/* Time and Status */}
-        <View
-          className={`flex-row items-center ${
-            isCurrentUser ? "justify-end" : "justify-start"
-          }`}
-        >
-          <Text className="text-gray-400 text-sm">
-            {getHoursFromDate(item.timestamp)}
-          </Text>
-
-          {isCurrentUser && (
-            <Text className="text-gray-400 text-sm ml-2">
-              {item.status === "sent" ? "Sent" : "Delivered"}
-            </Text>
-          )}
-        </View>
-      </View>
-    );
-  };
 
   return (
     <KeyboardAvoidingView
@@ -171,16 +156,22 @@ export default function Chat(): JSX.Element {
         ref={flatListRef}
         data={messages}
         keyExtractor={(item) => item.id_message}
-        renderItem={renderMessage}
+        renderItem={LoadMessages}
         className="flex-1 px-4 py-2"
         contentContainerStyle={{ flexGrow: 1 }}
+        inverted={true} // Inverte a ordem das mensagens
         initialNumToRender={20}
         maxToRenderPerBatch={10}
         windowSize={5}
-        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
-        onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
-        removeClippedSubviews={true}
         onEndReachedThreshold={0.1} // Define a proximidade para carregar mais mensagens
+        onEndReached={() => {
+          // Função para carregar mensagens mais antigas
+          const oldMessages = getOlderMessages(chat_id as string, messages.length);
+          if (oldMessages.length > 0) {
+            setMessages((prevMessages) => [...prevMessages, ...oldMessages]);
+          }
+        }}
+        removeClippedSubviews={true}
       />
 
       {/* Campo de Entrada */}

@@ -165,6 +165,15 @@ export class MMKVStorage {
       }
   }
 
+  public getMessagesFromChat(chat_id: string){
+    const result = this.getChat(chat_id);
+    if (!result) return;
+    const { searched_chats } = result;
+    if (!searched_chats) return;
+  
+    return searched_chats.messages;
+  }
+  
   private updateLabel({
     chat_id,
     last_message,
