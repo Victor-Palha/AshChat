@@ -1,3 +1,4 @@
+import { LoadMessages } from "@/src/components/LoadMessages";
 import { SocketContext } from "@/src/contexts/socketContext";
 import { AddMessageProps, MessageProps } from "@/src/persistence/MMKVStorage";
 import { colors } from "@/src/styles/colors";
@@ -14,6 +15,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Image,
 } from "react-native";
 
 export default function Chat(): JSX.Element {
@@ -24,73 +26,95 @@ export default function Chat(): JSX.Element {
   const [messages, setMessages] = useState<MessageProps[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
   const [channel, setChannel] = useState<Channel | null>(null);
+  const [profilePicture, setProfilePicture] = useState<string | null>(null);
+  const [isReceiverOnline, setIsReceiverOnline] = useState<boolean>(false);
 
-  // Load initial messages
+  // Load chat messages and divide into chunks
   useEffect(() => {
     const response = mmkvStorage.getChat(chat_id as string);
+  
     if (!response) return;
     if (!response.searched_chats) {
       Alert.alert("Chat not found");
       router.back();
       return;
     }
-    console.log("Chat found");
-    setMessages(response.searched_chats.messages);
+    mmkvStorage.clearNotifications(chat_id as string);
+    setProfilePicture(response.searched_chats.profile_picture);
+  
+    // Ordena as mensagens por timestamp
+    const sortedMessages = response.searched_chats.messages.sort(
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+  
+    setMessages(sortedMessages);
   }, [chat_id, mmkvStorage]);
-
+  
   // Join the chat channel when the screen is focused
   useFocusEffect(
     useCallback(() => {
       if (!socket) return;
 
       const chatChannel = socket.channel(`chat:${chat_id}`, {});
+
       chatChannel
         .join()
-        .receive("ok", () => {
-          console.log("Channel joined");
-        })
-        .receive("error", () => {
-          console.log("Failed to join channel");
-        });
+        .receive("ok", () => {})
+        .receive("error", () => {});
 
       setChannel(chatChannel);
+      chatChannel.on("receiver_online", ({ status }: { status: boolean }) => {
+        setIsReceiverOnline(status);
+      });
 
-      mmkvStorage.updatingAllMessagesFromAChat(chat_id as string);
+      // Receive messages from the chat channel
+      const handleReceiveMessage = (message: AddMessageProps) => {
+        const who = message.sender_id === user_id ? "user" : "contact";
+        const newMessage = mmkvStorage.addMessage({
+          ...message,
+          sender_id: who,
+          timestamp: new Date().toISOString(),
+        }) as MessageProps;
+        setMessages((prevMessages) => [newMessage, ...prevMessages]);
+      };
 
+      // Update message status
+      const handleMessageSent = ({ chat_id, status, message_id }: any) => {
+        mmkvStorage.updateMessageStatus({
+          chat_id,
+          id_message: message_id,
+          status: status,
+        });
+      };
+
+      // Add event listeners
+      chatChannel.on("receive_message", handleReceiveMessage);
+      chatChannel.on("message_sent", handleMessageSent);
+
+      // Remove event listeners when the screen is unfocused
       return () => {
         chatChannel.leave();
-        console.log("Channel left");
+        chatChannel.off("receive_message");
+        chatChannel.off("message_sent");
       };
-    }, [chat_id, socket])
+    }, [chat_id, socket, user_id])
   );
+  // Load more messages when reaching the end
+  function getOlderMessages(chat_id: string, offset: number): MessageProps[] {
+    // Simula a obtenção de mensagens mais antigas
+    const chat = mmkvStorage.getChat(chat_id);
+    if (!chat || !chat.searched_chats) return [];
+    return chat.searched_chats.messages.slice(offset, offset + 20).reverse();
+  }
 
-  function handleReceiveMessage({ chat_id, content, sender_id }: AddMessageProps) {
-    const who = sender_id === user_id ? "user" : "contact";
-
-    const newMessage = mmkvStorage.addMessage({
-      chat_id,
-      content,
-      sender_id: who,
-      timestamp: new Date().toISOString(),
-    }) as MessageProps;
-
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-  };
-
-  function handleMessageSent({ chat_id, status, message_id }: any){
-    mmkvStorage.updateMessageStatus({
-      chat_id,
-      id_message: message_id,
-      status,
-    });
-  };
-
-  function handleCloseChat(){
+  // Close the chat and leave the channel
+  function handleCloseChat() {
     channel?.leave();
     router.back();
-  };
+  }
 
-  function handleSend(){
+  // Send a message to the chat channel
+  function handleSend() {
     if (inputMessage.trim()) {
       const newMessage = mmkvStorage.addMessage({
         chat_id: chat_id as string,
@@ -98,32 +122,14 @@ export default function Chat(): JSX.Element {
         sender_id: "user",
         timestamp: new Date().toISOString(),
       }) as MessageProps;
-
       channel?.push("send_message", { mobile_ref_id: newMessage.id_message, content: inputMessage });
 
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      setMessages((prevMessages) => [newMessage, ...prevMessages]);
       setInputMessage("");
     }
-  };
+  }
 
   const flatListRef = useRef<FlatList>(null);
-
-  useEffect(() => {
-    if (flatListRef.current) flatListRef.current.scrollToEnd({ animated: true });
-  }, [messages]);
-
-  channel?.on("receive_message", handleReceiveMessage);
-  channel?.on("message_sent", handleMessageSent);
-
-  const renderMessage = ({ item }: { item: MessageProps }) => (
-    <View
-      className={`my-2 p-3 rounded-xl ${
-        item.sender_id === "user" ? "bg-purple-700 self-end" : "bg-gray-950 self-start"
-      }`}
-    >
-      <Text className="text-white">{item.content}</Text>
-    </View>
-  );
 
   return (
     <KeyboardAvoidingView
@@ -136,7 +142,13 @@ export default function Chat(): JSX.Element {
         <TouchableOpacity onPress={handleCloseChat}>
           <MaterialIcons name="keyboard-arrow-left" size={34} color={colors.purple[700]} />
         </TouchableOpacity>
-        <Text className="text-white font-bold text-2xl ml-3">{nickname}</Text>
+        <View className="flex-row items-center ml-3">
+          {profilePicture && <Image source={{ uri: profilePicture }} className="w-12 h-12 rounded-full" />}
+          <Text className="text-white font-bold text-2xl ml-3">{nickname}</Text>
+          {/* Online? */}
+          {isReceiverOnline && <View className="w-3 h-3 bg-green-500 rounded-full ml-2" />}
+          {!isReceiverOnline && <View className="w-3 h-3 bg-red-500 rounded-full ml-2" />}
+        </View>
       </View>
 
       {/* Lista de Mensagens */}
@@ -144,9 +156,22 @@ export default function Chat(): JSX.Element {
         ref={flatListRef}
         data={messages}
         keyExtractor={(item) => item.id_message}
-        renderItem={renderMessage}
+        renderItem={LoadMessages}
         className="flex-1 px-4 py-2"
         contentContainerStyle={{ flexGrow: 1 }}
+        inverted={true} // Inverte a ordem das mensagens
+        initialNumToRender={20}
+        maxToRenderPerBatch={10}
+        windowSize={5}
+        onEndReachedThreshold={0.1} // Define a proximidade para carregar mais mensagens
+        onEndReached={() => {
+          // Função para carregar mensagens mais antigas
+          const oldMessages = getOlderMessages(chat_id as string, messages.length);
+          if (oldMessages.length > 0) {
+            setMessages((prevMessages) => [...prevMessages, ...oldMessages]);
+          }
+        }}
+        removeClippedSubviews={true}
       />
 
       {/* Campo de Entrada */}

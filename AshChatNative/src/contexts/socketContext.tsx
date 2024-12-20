@@ -2,7 +2,7 @@ import React, { createContext, useEffect, useState } from "react";
 import { MMKVStorage } from "../persistence/MMKVStorage";
 import { useMMKVString } from "react-native-mmkv";
 import SecureStoragePersistence from "../persistence/SecureStorage";
-import { Socket } from "phoenix";
+import { Socket, Channel } from "phoenix";
 
 type SocketProps = {
     socket: Socket | undefined;
@@ -15,6 +15,7 @@ type Notification = {
     sender_id: string;
     content: string;
     timestamp: string;
+    isNotification?: boolean;
 };
 
 export const SocketContext = createContext<SocketProps>({} as SocketProps);
@@ -24,6 +25,7 @@ const mmkvStorage = new MMKVStorage();
 export function SocketProvider({ children }: { children: React.ReactNode }) {
     const [user_id] = useMMKVString("ashchat.user_id");
     const [socket, setSocket] = useState<Socket | undefined>();
+    const [channel, setChannel] = useState<Channel | null>(null);
 
     async function setUserId() {
         const userId = await SecureStoragePersistence.getUserId();
@@ -41,8 +43,8 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     async function connectSocket() {
         const jwtToken = await SecureStoragePersistence.getJWT();
         const deviceToken = await SecureStoragePersistence.getUniqueDeviceId();
-
-        if (!jwtToken || !deviceToken) {
+        const userProfile = mmkvStorage.getUserProfile();
+        if (!jwtToken || !deviceToken || !userProfile) {
             throw new Error("JWT or Device token not found");
         }
 
@@ -50,6 +52,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
             params: {
                 token: jwtToken,
                 device_unique_id: deviceToken,
+                preferred_language: userProfile.preferred_language
             },
             transport: global.WebSocket,
         });
@@ -60,27 +63,48 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     }
 
     useEffect(() => {
-        if (!user_id || socket) return; // Só tenta conectar se user_id existir e socket não estiver conectado
-
+        if (!user_id || socket) return;
+    
         connectSocket()
             .then((newSocket) => {
-                const channel = newSocket.channel(`notifications:${user_id}`, {});
-                channel.join();
+                const presenceChannel = newSocket.channel("presence:lobby", {});
+                const notificationChannel = newSocket.channel(`notifications:${user_id}`, {});
+    
+                presenceChannel.join();
+                notificationChannel.join();
+    
+                setChannel(notificationChannel);
+    
+                function handleNotification(notification: Notification) {
+                    const { chat_id, sender_id, content, timestamp, isNotification = true } = notification;
+                    mmkvStorage.addMessage({
+                        chat_id,
+                        content,
+                        sender_id,
+                        timestamp,
+                        isNotification,
+                    });
+                }
 
-                const handlePendingNotification = (notification: Notification) => {
-                    mmkvStorage.addMessage(notification);
+                notificationChannel.off("pending_notification");
+                notificationChannel.off("new_notification");
+    
+                notificationChannel.on("pending_notification", handleNotification);
+                notificationChannel.on("new_notification", handleNotification);
+    
+                return () => {
+                    notificationChannel.off("pending_notification");
+                    notificationChannel.off("new_notification");
+                    notificationChannel.leave(); 
                 };
-
-                channel.on("pending_notification", handlePendingNotification);
-                channel.on("new_notification", handlePendingNotification);
             })
             .catch((error) => console.error("Error connecting to socket:", error));
-    }, [user_id]); // Removido `socket` das dependências para evitar loop
+    }, [user_id]);
 
     const values = {
         socket,
         mmkvStorage,
-        user_id,
+        user_id
     };
 
     return (

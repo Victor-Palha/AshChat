@@ -8,15 +8,13 @@ COPY src ./src
 
 RUN bun install --frozen-lockfile
 
-FROM base as build
-
 COPY . .
 
 FROM oven/bun:1.1.4 as runtime
 
 WORKDIR /app
 
-COPY --from=build /app /app
+COPY --from=base /app /app
 
 ENV PORT=3006
 

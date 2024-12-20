@@ -6,6 +6,7 @@ export function useValidate(){
     const {authState} = useContext(AuthContext)
     useFocusEffect(useCallback(()=> {
         if(!authState.authenticated){
+            console.log('Not Authenticated')
             return
         }
         if(authState.authenticated){

@@ -4,6 +4,7 @@ defmodule ChatServiceWeb.UserSocket do
 
   channel "chat:*", ChatServiceWeb.ChatChannel
   channel "notifications:*", ChatServiceWeb.NotificationChannel
+  channel "presence:lobby", ChatServiceWeb.PresenceChannel
 
   def connect(%{"token" => token, "device_unique_id" => device_unique_id, "preferred_language" => preferred_language}, socket, _connect_info) do
     with {:ok, claims} <- ChatService.Auth.verify_token(token),

@@ -75,4 +75,21 @@ defmodule ChatService.Services.User do
       {:error, reason} -> {:error, reason}
     end
   end
+
+  def get_user_profile(user_id) do
+    user_id = BSON.ObjectId.decode!(user_id)
+    case Mongo.find_one(:mongo, "users", %{"_id" => user_id}) do
+      nil -> {:error, :user_not_found}
+      {:error, _} -> {:error, :database_error}
+      user ->
+        user_response = %{
+          nickname: user["nickname"],
+          description: user["description"],
+          photo_url: user["photo_url"],
+          preferred_language: user["preferred_language"],
+          tag_user_id: user["tag_user_id"],
+        }
+        {:ok, user_response}
+    end
+  end
 end
