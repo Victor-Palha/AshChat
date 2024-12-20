@@ -14,7 +14,7 @@ defmodule ChatServiceWeb.ChatChannel do
 
   defp handle_chat_found(chat, socket, chat_id) do
     receiver_id = Enum.find(chat.users_id, fn user_id -> user_id != socket.assigns.user_id end)
-    send(self(), {:after_join, receiver_id})
+    send(self(), {:after_join})
     socket
     |> assign(:receiver_id, receiver_id)
     |> assign(:chat_id, chat_id)
@@ -23,14 +23,30 @@ defmodule ChatServiceWeb.ChatChannel do
     |> then(&{:ok, &1})
   end
 
-  def handle_info({:after_join, receiver_id}, socket) do
+  def handle_info({:after_join}, socket) do
     track_presence(socket)
-    notify_receiver_status(socket, receiver_id)
+    ChatServiceWeb.Endpoint.subscribe("presence:lobby")
+    # notify_receiver_status(socket, receiver_id)
     {:noreply, socket}
   end
   def handle_info({:basic_consume_ok, _info}, socket), do: {:noreply, socket}
   def handle_info({:basic_cancel, _info}, socket), do: {:stop, :normal, socket}
   def handle_info({:basic_cancel_ok, _info}, socket), do: {:noreply, socket}
+  def handle_info(%{event: "presence_diff", payload: payload}, socket) do
+    receiver_id = socket.assigns.receiver_id
+
+    # Verificar se o usuário entrou (online)
+    if Map.has_key?(payload.joins, receiver_id) do
+      push(socket, "receiver_online", %{status: true})
+    end
+
+    # Verificar se o usuário saiu (offline)
+    if Map.has_key?(payload.leaves, receiver_id) do
+      push(socket, "receiver_online", %{status: false})
+    end
+
+    {:noreply, socket}
+  end
 
   defp track_presence(socket) do
     Presence.track(socket, "chat:" <> socket.assigns.chat_id, %{
@@ -38,11 +54,11 @@ defmodule ChatServiceWeb.ChatChannel do
     })
   end
 
-  defp notify_receiver_status(socket, receiver_id) do
-    online_users = Presence.list("presence:lobby")
-    status = Map.has_key?(online_users, receiver_id)
-    push(socket, "receiver_online", %{status: status})
-  end
+  # defp notify_receiver_status(socket, receiver_id) do
+  #   online_users = Presence.list("presence:lobby")
+  #   status = Map.has_key?(online_users, receiver_id)
+  #   push(socket, "receiver_online", %{status: status})
+  # end
 
   def handle_in("send_message", %{"content" => content, "mobile_ref_id" => mobile_ref_id}, socket) do
     message = build_message(content, mobile_ref_id, socket)
