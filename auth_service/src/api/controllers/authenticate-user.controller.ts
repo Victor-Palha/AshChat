@@ -46,7 +46,7 @@ export async function authenticateUserController(req: Request, res: Response): P
 
         const token = generateToken({
             subject: user_id,
-            expiresIn: "7d",
+            expiresIn: "1d",
             type: "MAIN"
         })
 

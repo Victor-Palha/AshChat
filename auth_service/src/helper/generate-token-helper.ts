@@ -1,6 +1,5 @@
-import { sign } from "jsonwebtoken";
+import { Algorithm, sign } from "jsonwebtoken";
 import { env } from "../config/env";
-import { readFileSync } from "node:fs";
 
 type GenerateToken = {
     subject: string,
@@ -22,12 +21,22 @@ export function generateToken({subject, expiresIn, type}: GenerateToken): string
         type: type
     };
 
-    if(type === "MAIN"){
-        return sign(payload, env.JWT_SECRET, {
-            subject: subject, 
-            expiresIn: expiresIn,
-            algorithm: "RS256"
-        })
+    let JWT_SECRET = ""
+    let ALGORITHM: Algorithm = "HS256"
+
+    switch(type){
+        case "MAIN":
+            JWT_SECRET = env.JWT_SECRET
+            ALGORITHM = "RS256"
+            break
+        case "TEMPORARY":
+            JWT_SECRET = env.JWT_TEMPORARY_TOKEN
+            break
     }
-    return sign(payload, env.JWT_TEMPORARY_TOKEN, {subject: subject, expiresIn: expiresIn})
+
+    return sign(payload, JWT_SECRET, {
+        subject: subject,
+        expiresIn: expiresIn,
+        algorithm: ALGORITHM
+    });
 }
