@@ -15,6 +15,8 @@ export type ChatProps = {
   nickname: string;
   messages: MessageProps[];
   profile_picture: string;
+  description: string;
+  preferred_language: string;
 };
 
 export type MessageProps = {
@@ -61,7 +63,7 @@ export class MMKVStorage {
     this.instance = new MMKV();
   }
   
-  public addChat({ chat_id, messages, nickname, profile_picture }: ChatProps): void {
+  public addChat({ chat_id, messages, nickname, profile_picture, description, preferred_language }: ChatProps): void {
     const allChatsString = this.instance.getString(this.CONSTANTS.CHAT);
 
     // Cria o novo chat
@@ -69,7 +71,9 @@ export class MMKVStorage {
         chat_id,
         nickname,
         messages: messages || [],
-        profile_picture
+        profile_picture,
+        description,
+        preferred_language
     };
 
     // Última mensagem (se existir)
@@ -164,15 +168,6 @@ export class MMKVStorage {
         return newMessage;
       }
   }
-
-  public getMessagesFromChat(chat_id: string){
-    const result = this.getChat(chat_id);
-    if (!result) return;
-    const { searched_chats } = result;
-    if (!searched_chats) return;
-  
-    return searched_chats.messages;
-  }
   
   private updateLabel({
     chat_id,
@@ -191,6 +186,20 @@ export class MMKVStorage {
               notification: isNotification ? label.notification + notification : 0,
               last_interaction,
             }
+          : label
+      );
+      this.instance.set(this.CONSTANTS.LABEL_CHAT, JSON.stringify(updatedLabels));
+    }
+  }
+
+  private updateNicknameAndProfilePictureForLabel({ chat_id, nickname, profile_picture }: Omit<LabelChatProps, 'last_message' | 'notification' | 'last_interaction'>): void {
+    const labelsString = this.instance.getString(this.CONSTANTS.LABEL_CHAT);
+    if (labelsString) {
+      const labels = JSON.parse(labelsString) as LabelChatProps[];
+      const newProfilePicture = `http://localhost:3006${profile_picture}`;
+      const updatedLabels = labels.map(label =>
+        label.chat_id === chat_id
+          ? { ...label, nickname, profile_picture: newProfilePicture }
           : label
       );
       this.instance.set(this.CONSTANTS.LABEL_CHAT, JSON.stringify(updatedLabels));
@@ -237,6 +246,30 @@ export class MMKVStorage {
   public getUserProfile(): UserProfileProps | null {
     const userProfileString = this.instance.getString(this.CONSTANTS.USER_PROFILE);
     return userProfileString ? JSON.parse(userProfileString) as UserProfileProps : null;
+  }
+
+  public updateChatInformationProfile({ nickname, photo_url, description }: Omit<UserProfileProps, "tag_user_id">, chat_id: string): void {
+    const chatData = this.getChat(chat_id);
+    if (!chatData) return;
+
+    const { chats, searched_chats } = chatData;
+    if (!searched_chats) return;
+
+    const updatedChat = this.updateChatDetails(searched_chats, { nickname, photo_url, description, preferred_language: searched_chats.preferred_language });
+    this.updateNicknameAndProfilePictureForLabel({ chat_id, nickname, profile_picture: photo_url });
+    const updatedChats = chats.map(chat => chat.chat_id === chat_id ? updatedChat : chat);
+
+    this.instance.set(this.CONSTANTS.CHAT, JSON.stringify(updatedChats));
+  }
+
+  private updateChatDetails(chat: ChatProps, { nickname, photo_url, description, preferred_language }: Omit<UserProfileProps, "tag_user_id">): ChatProps {
+    return {
+      ...chat,
+      nickname: chat.nickname !== nickname ? nickname : chat.nickname,
+      profile_picture: chat.profile_picture !== photo_url ? "http://localhost:3006"+photo_url : chat.profile_picture,
+      description: chat.description !== description ? description : chat.description,
+      preferred_language: chat.preferred_language !== preferred_language ? preferred_language : chat.preferred_language,
+    };
   }
 
   public cleanAll(){

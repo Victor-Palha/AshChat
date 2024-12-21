@@ -15,6 +15,8 @@ defmodule ChatServiceWeb.ChatChannel do
   defp handle_chat_found(chat, socket, chat_id) do
     receiver_id = Enum.find(chat.users_id, fn user_id -> user_id != socket.assigns.user_id end)
     send(self(), {:after_join})
+    send(self(), {:receiver_info, receiver_id})
+
     socket
     |> assign(:receiver_id, receiver_id)
     |> assign(:chat_id, chat_id)
@@ -23,10 +25,26 @@ defmodule ChatServiceWeb.ChatChannel do
     |> then(&{:ok, &1})
   end
 
+  def handle_info({:receiver_info, receiver_id}, socket) do
+    case UserS.get_user_by_id(receiver_id) do
+      nil -> {:noreply, socket}
+      user ->
+        receiver_information = %{
+          nickname: user.nickname,
+          photo_url: user.photo_url,
+          description: user.description,
+          preferred_language: user.preferred_language,
+          tag_user_id: user.tag_user_id
+        }
+        push(socket, "receiver_info", receiver_information)
+        {:noreply, socket}
+    end
+  end
   def handle_info({:after_join}, socket) do
     track_presence(socket)
     ChatServiceWeb.Endpoint.subscribe("presence:lobby")
-    # notify_receiver_status(socket, receiver_id)
+    receiver_id = socket.assigns.receiver_id
+    notify_receiver_status(socket, receiver_id)
     {:noreply, socket}
   end
   def handle_info({:basic_consume_ok, _info}, socket), do: {:noreply, socket}
@@ -54,11 +72,11 @@ defmodule ChatServiceWeb.ChatChannel do
     })
   end
 
-  # defp notify_receiver_status(socket, receiver_id) do
-  #   online_users = Presence.list("presence:lobby")
-  #   status = Map.has_key?(online_users, receiver_id)
-  #   push(socket, "receiver_online", %{status: status})
-  # end
+  defp notify_receiver_status(socket, receiver_id) do
+    online_users = Presence.list("presence:lobby")
+    status = Map.has_key?(online_users, receiver_id)
+    push(socket, "receiver_online", %{status: status})
+  end
 
   def handle_in("send_message", %{"content" => content, "mobile_ref_id" => mobile_ref_id}, socket) do
     message = build_message(content, mobile_ref_id, socket)

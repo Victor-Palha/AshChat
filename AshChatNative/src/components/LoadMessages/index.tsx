@@ -11,8 +11,8 @@ export function LoadMessages({ item }: LoadMessagesProps): JSX.Element {
         <View>
             {/* Message Bubble */}
             <View
-                className={`my-2 p-3 rounded-xl ${
-                isCurrentUser ? "bg-purple-700 self-end" : "bg-gray-950 self-start"
+                className={`my-2 p-3 rounded-xl max-w-[80%] ${
+                    isCurrentUser ? "bg-purple-700 self-end" : "bg-gray-950 self-start"
                 }`}
             >
                 <Text className="text-white">{item.content}</Text>

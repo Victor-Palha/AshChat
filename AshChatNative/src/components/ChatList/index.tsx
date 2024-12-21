@@ -31,7 +31,7 @@ export function ChatList({chatLabels}: ChatListProps){
                                 <Image source={{ uri: item.profile_picture }} className="w-12 h-12 rounded-full" />
                                 <Text className="text-white font-bold text-base">{item.nickname}</Text>
                             </View>
-                            <Text className="text-gray-400 text-sm mt-2">
+                            <Text className="text-gray-400 text-sm mt-2 max-w-[95%] max-h-10">
                                 {item.last_message ? item.last_message.content : ""}
                             </Text>
                         </View>
