@@ -1,16 +1,26 @@
 # AshChat
 
-**AshChat** is a sophisticated web application designed to facilitate real-time communication between users. Leveraging the power of websockets, AshChat ensures seamless and instantaneous interaction between the server and clients. The application is developed using __Node.js__ and __Express.js__, with __Socket.io__ handling the websocket connections. To enhance code quality and maintainability, the project is implemented in **TypeScript**.
+**AshChat** is a sophisticated web application designed to facilitate real-time communication between users. Leveraging the power of websockets, AshChat ensures seamless and instantaneous interaction between the server and clients. The application is developed using __Node.js__, __Elixir__, __React Native__.
+This project is developed using microservices architecture and is divided into five services:
+- **Authentication Service**
+- **Chat Service**
+- **Translation Service**
+- **Static Service**
+- **Email Service**
 
 ## Features
 
 AshChat offers a robust chat room environment where users can engage in real-time conversations. Key features include:
 
-- **User Accounts**: Each user has a personal account.
+- **User Accounts**: Each user has a personal and secure account.
 - **Real-Time Chat**: Users can communicate with each other in real-time.
 - **Online Status**: Users can see when their friends are online.
 - **Typing Indicators**: Users can see when their friends are typing.
 - **Offline Status**: Users can see when their friends are offline.
+- **Multilingual Support**: Users can select their preferred language for communication.
+- **Translation**: Messages are automatically translated to the recipient's chosen language.
+- **Notifications**: Users receive notifications for new messages.
+- **Profile Customization**: Users can customize their profiles with avatars and status messages.
 
 ### Main Feature
 
