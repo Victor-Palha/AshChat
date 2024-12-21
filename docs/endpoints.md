@@ -121,6 +121,27 @@ This document provides detailed information about the API endpoints available in
 - `401 Unauthorized`: Invalid email or password
 - `403 Forbidden`: User device not verified
 
+## Refresh Token
+`GET /user/refresh-token`
+
+### Request - JWT token in the Authorization header Bearer token
+
+### Response
+#### Success (200 OK)
+```json
+{
+    "token": "jwt_token"
+}
+```
+
+#### Errors
+- `401 Unauthorized`: Invalid token
+- `500 Internal Server Error`: Server error
+
+### Status Codes
+- `200 OK`: Token refreshed successfully
+- `401 Unauthorized`: Invalid token
+- `500 Internal Server Error`: Server error
 
 ## Confirm New Device
 
