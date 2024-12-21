@@ -28,28 +28,60 @@ export const AuthContext = createContext<AuthProps>({} as AuthProps)
 export function AuthProvider({children}: {children: React.ReactNode}){
     const [authState, setAuthState] = useState<AuthState>({token: null, authenticated: null, user_id: null})
     const [isLoading, setIsLoading] = useState(true)
+    const [isChecking, setIsChecking] = useState(false);
 
-    useEffect(()=> {
-        const safeStorage = SecureStoragePersistence
-        async function checkToken(){
-            const token = await safeStorage.getJWT()
-            const deviceUniqueToken = await safeStorage.getUniqueDeviceId()
-            const user_id = await safeStorage.getUserId()
-            if(!deviceUniqueToken){
-                const deviceUniqueToken = randomUUID()
-                await safeStorage.setUniqueDeviceId(deviceUniqueToken)
-            }
-            if(token){
-                setAuthState({token, authenticated: true, user_id})
-                AuthAPIClient.setTokenAuth(token)
-            } else {
-                setAuthState({token: null, authenticated: false, user_id})
-            }
+    async function validateToken(token: string): Promise<boolean>{
+        const api = AuthAPIClient
+        api.setTokenAuth(token)
+        const response = await api.server.get("/user/refresh-token")
+        if(response.status != 200){
+            return false
         }
-        checkToken().finally(()=>{
-            setIsLoading(false)
-        })
-    }, [])
+        const {token: newToken} = response.data
+        await safeStorage.setJWT(newToken)
+        api.setTokenAuth(newToken)
+        return true
+    }
+
+    async function checkToken() {
+        if (isChecking) return;
+        setIsChecking(true);
+        const token = await safeStorage.getJWT();
+        const deviceUniqueToken = await safeStorage.getUniqueDeviceId();
+        const user_id = await safeStorage.getUserId();
+
+        if (!deviceUniqueToken) {
+            const newDeviceUniqueToken = randomUUID();
+            await safeStorage.setUniqueDeviceId(newDeviceUniqueToken);
+        }
+
+        if (token) {
+            const isValid = await validateToken(token);
+            if (!isValid) {
+                setAuthState({ token: null, authenticated: false, user_id });
+                setIsChecking(false);
+                return;
+            }
+            setAuthState({ token, authenticated: true, user_id });
+        } else {
+            setAuthState({ token: null, authenticated: false, user_id });
+        }
+        setIsChecking(false);
+    }
+
+    useEffect(() => {
+        checkToken().finally(() => {
+            setIsLoading(false);
+        });
+        
+        const minute = 60 * 1000 // 1 min
+        const oneHour = minute * 60 // 1 hour
+        const intervalId = setInterval(() => {
+            checkToken();
+        }, oneHour);
+
+        return () => clearInterval(intervalId);
+    }, []);
 
     async function onLogin(email: string, password: string){
         try {
