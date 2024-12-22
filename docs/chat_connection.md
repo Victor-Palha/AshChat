@@ -1,7 +1,7 @@
 # Chat Connection
 
 ## Overview
-The chat service are made with Elixir and Phoenix Framework, the communication of messages between users is done in real-time using WebSockets and Channels in Phoenix. To connect to the chat service, the client must establish a WebSocket connection to the server.
+The chat service is made with Elixir and the Phoenix Framework. The communication of messages between users is done in real-time using WebSockets and Channels in Phoenix. To connect to the chat service, the client must establish a WebSocket connection to the server.
 
 ## WebSocket Connection
 The chat service uses WebSockets to establish a persistent connection between the client and the server. This connection allows for real-time communication between users in chat rooms. The client can send and receive messages over the WebSocket connection, enabling instant messaging functionality.
@@ -10,19 +10,19 @@ The chat service uses WebSockets to establish a persistent connection between th
 The WebSocket connection URL for the chat service is `ws://localhost:4000/socket/`. The client must connect to this URL to establish a WebSocket connection with the server.
 
 ### Connection Process
-To connect to the chat service, the client must send some informations to the server. The client must send a `connect` message to the server with the following informations:
+To connect to the chat service, the client must send some information to the server. The client must send a `connect` message to the server with the following information:
 - `token` - The user's authentication jwt token.
 - `device_unique_id` - The unique id of the device that the user is connecting from.
 - `preferred_language` - The preferred language of the user.
 
 After sending the `connect` message, the client can connect to the channels and start sending and receiving messages.
 #### Chat Channel
-To connect to the chat channel, the client must send a `join` message to the server with the following informations:
+To connect to the chat channel, the client must send a `join` message to the server with the following information:
 - `chat:room_id` - The id of the chat room that the user wants to join.
     - Example: `chat:1`
 After sending the `join` message, the client can start sending and receiving messages in the chat room.
 ##### Sending Messages
-To send a message in the chat room, the client must send a `message` message to the server channel with the `send_message` event and the following informations:
+To send a message in the chat room, the client must send a `message` message to the server channel with the `send_message` event and the following information:
 - `content` - The content of the message.
 - `mobile_ref_id` - The unique id of the message in the client side.
 
@@ -34,14 +34,14 @@ After sending the `message` message, the client will receive a confirmation that
 - `chat_id` - The id of the chat room that the message was sent to.
 
 ##### Receiving Messages
-To receive messages in the chat room, the client will receive a `receive_message` event from the server channel with the following informations:
+To receive messages in the chat room, the client will receive a `receive_message` event from the server channel with the following information:
 - `chat_id` - The id of the chat room that the message was sent to.
 - `content` - The content of the message.
 - `sender_id` - The id of the user that sent the message.
 
 #### Notification Channel
 To connect to the notification channel, the client must join the `notification:*` channel. This channel is used to receive notifications about new messages in chat rooms that the user is participating in.
-Every time a new message is sent in a chat room that the user is participating in, the client will receive a `new_notification` event from the server channel if the user is not in the chat room. This event will contain the following informations:
+Every time a new message is sent in a chat room that the user is participating in, the client will receive a `new_notification` event from the server channel if the user is not in the chat room. This event will contain the following information:
 - `chat_id` - The id of the chat room that the message was sent to.
 - `sender_id` - The id of the user that sent the message.
 - `content` - The content of the message.
@@ -49,7 +49,7 @@ Every time a new message is sent in a chat room that the user is participating i
 
 ##### Pending Notifications
 If the user is not connected to the chat service when a new message is sent, the server will store the notification in the database and send it to the user when they connect to the chat service. This ensures that the user does not miss any messages while they are offline.
-The pending notifications come from the `pending_notifications` event with the following informations:
+The pending notifications come from the `pending_notifications` event with the following information:
 - `chat_id` - The id of the chat room that the message was sent to.
 - `sender_id` - The id of the user that sent the message.
 - `content` - The content of the message.
