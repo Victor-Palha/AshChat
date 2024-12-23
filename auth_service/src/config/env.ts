@@ -8,6 +8,7 @@ const applicationEnvSchema = z.object({
     AMQP_URI: z.string().url(),
     JWT_TEMPORARY_TOKEN: z.string(),
     JWT_SECRET: z.string().default(readFileSync(`${__dirname}/../../private_key.pem`, 'utf8')),
+    JWT_REFRESH_TOKEN: z.string(),
 })
 
 process.env.JWT_SECRET = readFileSync(`${__dirname}/../../private_key.pem`, 'utf8');

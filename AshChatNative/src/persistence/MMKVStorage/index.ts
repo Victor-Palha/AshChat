@@ -56,11 +56,20 @@ export class MMKVStorage {
     LABEL_CHAT: 'ashchat.label.chats',
     CHAT: 'ashchat.chat',
     USER_ID: 'ashchat.user_id',
-    USER_PROFILE: 'ashchat.user_profile'
+    USER_PROFILE: 'ashchat.user_profile',
+    TOKEN: 'ashchat.jwt',
   };
 
   constructor() {
     this.instance = new MMKV();
+  }
+
+  public setToken(token: string): void {
+    this.instance.set(this.CONSTANTS.TOKEN, token);
+  }
+
+  public getToken(): string | undefined {
+    return this.instance.getString(this.CONSTANTS.TOKEN);
   }
   
   public addChat({ chat_id, messages, nickname, profile_picture, description, preferred_language }: ChatProps): void {

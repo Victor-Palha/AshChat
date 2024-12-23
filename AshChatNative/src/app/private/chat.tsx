@@ -18,10 +18,6 @@ import {
   Image,
 } from "react-native";
 
-type ReceiverInfo = {
-
-}
-
 export default function Chat(): JSX.Element {
   const { chat_id, nickname } = useLocalSearchParams();
   const { socket, mmkvStorage, user_id } = useContext(SocketContext);

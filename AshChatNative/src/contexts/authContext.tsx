@@ -37,8 +37,10 @@ export function AuthProvider({children}: {children: React.ReactNode}){
         if(response.status != 200){
             return false
         }
-        const {token: newToken} = response.data
+        const {token: newToken, refresh_token} = response.data
         await safeStorage.setJWT(newToken)
+        await safeStorage.setRefreshToken(refresh_token)
+        MMKV.setToken(newToken)
         api.setTokenAuth(newToken)
         return true
     }
@@ -46,7 +48,7 @@ export function AuthProvider({children}: {children: React.ReactNode}){
     async function checkToken() {
         if (isChecking) return;
         setIsChecking(true);
-        const token = await safeStorage.getJWT();
+        const token = await safeStorage.getRefreshToken();
         const deviceUniqueToken = await safeStorage.getUniqueDeviceId();
         const user_id = await safeStorage.getUserId();
 
@@ -75,10 +77,10 @@ export function AuthProvider({children}: {children: React.ReactNode}){
         });
         
         const minute = 60 * 1000 // 1 min
-        const oneHour = minute * 60 // 1 hour
+        const fithteenMinutes = minute * 15 // 15 minutes
         const intervalId = setInterval(() => {
             checkToken();
-        }, oneHour);
+        }, fithteenMinutes);
 
         return () => clearInterval(intervalId);
     }, []);
@@ -92,10 +94,12 @@ export function AuthProvider({children}: {children: React.ReactNode}){
             // Call the login endpoint
             const response = await api.server.post('/user/login', {email, password, deviceUniqueToken})
             const token = response.data.token
+            const refreshToken = response.data.refresh_token
             const user_id = response.data.user_id
 
             // Save the token to the secure storage
             await safeStorage.setJWT(token)
+            await safeStorage.setRefreshToken(refreshToken)
             MMKV.setUserId(user_id)
             // Set the token to the axios instance
             api.setTokenAuth(token)

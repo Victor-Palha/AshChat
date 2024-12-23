@@ -4,7 +4,7 @@ import { env } from "../config/env";
 type GenerateToken = {
     subject: string,
     expiresIn: string
-    type: "MAIN" | "TEMPORARY"
+    type: "MAIN" | "TEMPORARY" | "REFRESH"
 }
 /**
  * Generates a JSON Web Token (JWT) based on the provided parameters.
@@ -31,6 +31,9 @@ export function generateToken({subject, expiresIn, type}: GenerateToken): string
             break
         case "TEMPORARY":
             JWT_SECRET = env.JWT_TEMPORARY_TOKEN
+            break
+        case "REFRESH":
+            JWT_SECRET = env.JWT_REFRESH_TOKEN
             break
     }
 
