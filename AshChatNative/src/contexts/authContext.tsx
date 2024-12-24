@@ -33,6 +33,9 @@ export function AuthProvider({children}: {children: React.ReactNode}){
     async function validateToken(token: string): Promise<boolean>{
         const api = AuthAPIClient
         api.setTokenAuth(token)
+        const deviceUniqueToken = await safeStorage.getUniqueDeviceId()
+        if(!deviceUniqueToken) return false
+        api.setHeader("device_token", deviceUniqueToken)
         const response = await api.server.get("/user/refresh-token")
         if(response.status == 401){
             await safeStorage.clearTokens()
