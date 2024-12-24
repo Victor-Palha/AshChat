@@ -1,7 +1,8 @@
-import { createHash, randomUUID } from "crypto";
+import { randomUUID } from "crypto";
 import { UserRepository } from "../../repositories/user-repository";
 import { faker } from "@faker-js/faker";
 import { hash } from "bcryptjs";
+import { hashDeviceToken } from "../../../helper/hash-device-token-helper";
 
 type CreateTestUserHelperDTO = {
     userRepository: UserRepository,
@@ -23,7 +24,7 @@ export async function createTestUserHelper({userRepository, mockedEmail, mockedP
         devices: {
             deviceOS: "IOS",
             deviceNotificationToken: randomUUID(),
-            deviceUniqueToken: createHash("sha256").update(uniqueTokenDevice).digest("hex")
+            deviceUniqueToken: hashDeviceToken(uniqueTokenDevice)
         }
     })
 

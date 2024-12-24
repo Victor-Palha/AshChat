@@ -8,8 +8,8 @@ import { RabbitMQService } from "../../config/rabbitmq";
 import { env } from "../../config/env";
 import { Queues } from "../../config/rabbitmq/queues";
 import { findUserByEmailFactory } from "../../domain/factories/find-user-by-email.factory";
-import { createHash } from "crypto";
 import { generateEmailCodeHelper } from "../../helper/generate-email-code-helper";
+import { hashDeviceToken } from "../../helper/hash-device-token-helper";
 
 
 /**
@@ -72,7 +72,7 @@ export async function authenticateUserController(req: Request, res: Response): P
         if(error instanceof NewDeviceTryingToLogError){
             const {user} = await findUserByEmailFactory().execute(email)
             const rabbitMQ = await RabbitMQService.getInstance(env.AMQP_URI);
-            const tokenHashed = createHash("sha256").update(deviceUniqueToken).digest("hex")
+            const tokenHashed = hashDeviceToken(deviceUniqueToken);
             const emailCode = generateEmailCodeHelper();
 
             const temporaryToken = generateToken({
