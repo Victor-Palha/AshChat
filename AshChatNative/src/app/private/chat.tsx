@@ -63,9 +63,6 @@ export default function Chat(): JSX.Element {
         .receive("error", () => {});
 
       setChannel(chatChannel);
-      chatChannel.on("receiver_online", ({ status }: { status: boolean }) => {
-        setIsReceiverOnline(status);
-      });
 
       // Receive messages from the chat channel
       const handleReceiveMessage = (message: AddMessageProps) => {
@@ -87,9 +84,15 @@ export default function Chat(): JSX.Element {
         });
       };
 
-      // Add event listeners
+      // events listeners
       chatChannel.on("receive_message", handleReceiveMessage);
       chatChannel.on("message_sent", handleMessageSent);
+      chatChannel.on("receiver_online", ({ status }: { status: boolean }) => {
+        setIsReceiverOnline(status);
+      });
+      chatChannel.on("receiver_info", ({description, nickname, photo_url, preferred_language})=>{
+        mmkvStorage.updateChatInformationProfile({description, nickname, photo_url, preferred_language}, chat_id as string, );
+      });
 
       // Remove event listeners when the screen is unfocused
       return () => {
@@ -151,7 +154,7 @@ export default function Chat(): JSX.Element {
         </View>
       </View>
 
-      {/* Lista de Mensagens */}
+      {/* Message List */}
       <FlatList
         ref={flatListRef}
         data={messages}
@@ -159,13 +162,12 @@ export default function Chat(): JSX.Element {
         renderItem={LoadMessages}
         className="flex-1 px-4 py-2"
         contentContainerStyle={{ flexGrow: 1 }}
-        inverted={true} // Inverte a ordem das mensagens
+        inverted={true}
         initialNumToRender={20}
         maxToRenderPerBatch={10}
         windowSize={5}
-        onEndReachedThreshold={0.1} // Define a proximidade para carregar mais mensagens
+        onEndReachedThreshold={0.1} 
         onEndReached={() => {
-          // Função para carregar mensagens mais antigas
           const oldMessages = getOlderMessages(chat_id as string, messages.length);
           if (oldMessages.length > 0) {
             setMessages((prevMessages) => [...prevMessages, ...oldMessages]);
@@ -174,7 +176,7 @@ export default function Chat(): JSX.Element {
         removeClippedSubviews={true}
       />
 
-      {/* Campo de Entrada */}
+      {/* Keyboard Area */}
       <View className="bg-gray-900 p-3 pb-12">
         <View className="bg-gray-200 rounded-full flex-row items-center">
           <TextInput

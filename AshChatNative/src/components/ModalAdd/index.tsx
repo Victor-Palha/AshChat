@@ -12,6 +12,15 @@ type ModalAddProps = {
     closeModal: (isOpen: boolean) => void;
 }
 
+type ResponseDataModalAdd = {
+    chat_id: string;
+    messages: [];
+    nickname: string;
+    profile_picture: string;
+    description: string;
+    preferred_language: string;
+}
+
 export function ModalAdd({modalIsOpen, closeModal}: ModalAddProps) {
     const {mmkvStorage} = useContext(SocketContext)
     const [userTag, setUserTag] = useState("");
@@ -23,27 +32,34 @@ export function ModalAdd({modalIsOpen, closeModal}: ModalAddProps) {
         if(!token || !device_token) return
         api.setTokenAuth(token)
         api.setHeader("device_token", device_token)
-        if(userTag.length > 0){
-            const response = await api.server.post("/chat", {
-                receiver_tag: userTag
-            })
+        if(userTag.length < 1) Alert.alert("Invalid Tag", "Please enter a valid Tag")
 
-            if(response.status == 201){
-                const {chat_id, messages, nickname, profile_picture} = response.data
-                mmkvStorage.addChat({
-                    chat_id,
-                    messages,
-                    nickname,
-                    profile_picture
-                })
-                Alert.alert("Success", "Chat created successfully")
-                closeModal(false)
-            }else{
-                Alert.alert("Error", "An error occurred while creating the chat")
+        const response = await api.server.post("/chat", {
+            receiver_tag: userTag
+        })
+
+        if(response.status == 201){
+            let profile_url = ""
+            const {chat_id, messages, nickname, profile_picture, description, preferred_language} = response.data as ResponseDataModalAdd
+            if(profile_picture.startsWith("https")){
+                profile_url = profile_picture
+            }  else {
+                profile_url = `http://localhost:3006/${profile_picture}`
             }
+            mmkvStorage.addChat({
+                chat_id,
+                messages,
+                nickname,
+                profile_picture,
+                description,
+                preferred_language
+            })
+            Alert.alert("Success", "Chat created successfully")
+            closeModal(false)
         }else{
-            Alert.alert("Invalid Tag", "Please enter a valid Tag")
+            Alert.alert("Error", "An error occurred while creating the chat")
         }
+        
     }
 
     return (

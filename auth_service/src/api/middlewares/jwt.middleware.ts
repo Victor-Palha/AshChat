@@ -24,10 +24,10 @@ export function jwtMiddleware(req: Request, res: Response, next: NextFunction): 
     const [, token] = authToken.split(" ")
 
     try {
-        const decoded = verify(token, env.JWT_SECRET) as JwtPayload;
+        const decoded = verify(token, env.JWT_REFRESH_TOKEN) as JwtPayload;
 
         if (!decoded.sub) {
-            return res.status(401).json({ message: 'Token inválido: sub não encontrado' });
+            return res.status(401).json({ message: 'Invalid Token: no sub found' });
         }
 
         req.user_id = { sub: decoded.sub };
@@ -35,9 +35,9 @@ export function jwtMiddleware(req: Request, res: Response, next: NextFunction): 
         return next();
     } catch (error) {
         if (error instanceof Error && error.name === 'TokenExpiredError') {
-            return res.status(401).json({ message: 'Token expirado' });
+            return res.status(401).json({ message: 'Invalid Token: Session expired' });
         }
 
-        return res.status(401).json({ message: 'Token inválido' });
+        return res.status(401).json({ message: 'Invalid Token' });
     }
 }

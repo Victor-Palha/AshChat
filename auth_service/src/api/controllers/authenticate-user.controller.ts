@@ -44,13 +44,20 @@ export async function authenticateUserController(req: Request, res: Response): P
             deviceUniqueToken
         })
 
-        const token = generateToken({
+        const refresh_token = generateToken({
             subject: user_id,
             expiresIn: "7d",
+            type: "REFRESH"
+        })
+
+        const token = generateToken({
+            subject: user_id,
+            expiresIn: "30m",
             type: "MAIN"
         })
 
         return res.status(200).send({
+            refresh_token,
             token,
             user_id
         })

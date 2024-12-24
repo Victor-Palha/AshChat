@@ -1,8 +1,9 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { MMKVStorage } from "../persistence/MMKVStorage";
 import { useMMKVString } from "react-native-mmkv";
 import SecureStoragePersistence from "../persistence/SecureStorage";
 import { Socket, Channel } from "phoenix";
+import { AuthContext } from "./authContext";
 
 type SocketProps = {
     socket: Socket | undefined;
@@ -24,8 +25,9 @@ const mmkvStorage = new MMKVStorage();
 
 export function SocketProvider({ children }: { children: React.ReactNode }) {
     const [user_id] = useMMKVString("ashchat.user_id");
+    const [jwtToken] = useMMKVString("ashchat.jwt");
     const [socket, setSocket] = useState<Socket | undefined>();
-    const [channel, setChannel] = useState<Channel | null>(null);
+    const [, setChannel] = useState<Channel | null>(null);
 
     async function setUserId() {
         const userId = await SecureStoragePersistence.getUserId();
@@ -40,8 +42,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
         setUserId();
     }, []);
 
-    async function connectSocket() {
-        const jwtToken = await SecureStoragePersistence.getJWT();
+    async function connectSocket(jwtToken: string | undefined) {
         const deviceToken = await SecureStoragePersistence.getUniqueDeviceId();
         const userProfile = mmkvStorage.getUserProfile();
         if (!jwtToken || !deviceToken || !userProfile) {
@@ -65,7 +66,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (!user_id || socket) return;
     
-        connectSocket()
+        connectSocket(jwtToken)
             .then((newSocket) => {
                 const presenceChannel = newSocket.channel("presence:lobby", {});
                 const notificationChannel = newSocket.channel(`notifications:${user_id}`, {});
@@ -99,7 +100,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
                 };
             })
             .catch((error) => console.error("Error connecting to socket:", error));
-    }, [user_id]);
+    }, [user_id, jwtToken]);
 
     const values = {
         socket,

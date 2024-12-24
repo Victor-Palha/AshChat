@@ -3,11 +3,23 @@ import * as SecureStore from 'expo-secure-store';
 class SecureStoragePersistence {
     private static KEYS = {
         TOKEN: "ashChat.jwt",
+        REFRESH: "ashChat.refresh",
         EMAIL: "ashChat.email",
         UNIQUEDEVICEID: "ashChat.uniqueDeviceId",
         DEVICEOS: "ashChat.deviceOS",
         USERID: "ashChat.userId",
         NOTIFICATIONTOKEN: "ashChat.notificationToken"
+    }
+    static async clearTokens(){
+        await SecureStore.deleteItemAsync(this.KEYS.TOKEN);
+        await SecureStore.deleteItemAsync(this.KEYS.REFRESH);
+    }
+    static async setRefreshToken(value: string){
+        await SecureStore.setItemAsync(this.KEYS.REFRESH, value);
+    }
+
+    static async getRefreshToken(): Promise<string | null>{
+        return await SecureStore.getItemAsync(this.KEYS.REFRESH);
     }
 
     static async setJWT(value: string){
