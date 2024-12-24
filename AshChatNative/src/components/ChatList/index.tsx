@@ -7,7 +7,6 @@ type ChatListProps = {
     chatLabels: LabelChatProps[]
 }
 export function ChatList({chatLabels}: ChatListProps){
-    console.log(chatLabels)
     return (
         <FlatList
             className="mt-5"
