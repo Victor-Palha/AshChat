@@ -33,7 +33,3 @@ The documentation for the application is available in the `docs` folder. The doc
 - [Architecture](./docs/architecture.md)
 - [Endpoints](./docs/endpoints.md)
 - [Chat Connection](./docs/chat_connection.md)
-
-## ISSUE
-1. Quando muda o device token no auth service, precisa alterar no chat service também
-2. Quando faz o logout, um loop infinito é criado entre a tela de login e a tela home
