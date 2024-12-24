@@ -24,7 +24,7 @@ export function jwtMiddleware(req: Request, res: Response, next: NextFunction): 
     const [, token] = authToken.split(" ")
 
     try {
-        const decoded = verify(token, env.JWT_SECRET) as JwtPayload;
+        const decoded = verify(token, env.JWT_REFRESH_TOKEN) as JwtPayload;
 
         if (!decoded.sub) {
             return res.status(401).json({ message: 'Invalid Token: no sub found' });

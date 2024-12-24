@@ -239,6 +239,29 @@ This document provides detailed information about the API endpoints available in
 - `404 Not Found`: User not found
 - `500 Internal Server Error`: Server error
 
+## Refresh Token
+`GET /user/refresh-token`
+
+### Request - JWT token in the Authorization header Bearer token
+
+### Response
+#### Success (200 OK)
+```json
+{
+    "token": "jwt_token",
+    "refresh_token": "refresh_token"
+}
+```
+
+#### Errors
+- `401 Unauthorized`: Invalid token
+- `500 Internal Server Error`: Server error
+
+### Status Codes
+- `200 OK`: Token refreshed successfully
+- `401 Unauthorized`: Invalid token
+- `500 Internal Server Error`: Server error
+
 # Chat Service Endpoints - http://localhost:4000/
 (IMPORTANT: add JWT token in the Authorization header Bearer token and device_token to the http header)
 ## Create Chat
