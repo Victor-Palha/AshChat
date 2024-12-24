@@ -5,6 +5,8 @@ import { Alert, Platform } from "react-native";
 import { router } from "expo-router";
 import { MMKVStorage } from "../persistence/MMKVStorage";
 import { AuthAPIClient } from "../api/auth-api-client";
+import { backupMessages } from "../utils/backupMessages";
+import { AxiosError } from "axios";
 
 const MMKV = new MMKVStorage()
 const api = AuthAPIClient
@@ -20,7 +22,8 @@ interface AuthProps {
     isLoading: boolean,
     onRegister: (email: string, password: string, nickname: string, preferredLanguage: string) => Promise<any>,
     onLogin: (email: string, password: string) => Promise<any>,
-    onConfirmSignUp: (emailCode: string) => Promise<any>
+    onConfirmSignUp: (emailCode: string) => Promise<any>,
+    onLogout(): Promise<void>
 }
 
 export const AuthContext = createContext<AuthProps>({} as AuthProps)
@@ -38,6 +41,7 @@ export function AuthProvider({children}: {children: React.ReactNode}){
         api.setHeader("device_token", deviceUniqueToken)
         const response = await api.server.get("/user/refresh-token")
         if(response.status == 401){
+            console.log('Token expired')
             await safeStorage.clearTokens()
             MMKV.clearToken()
         }
@@ -54,6 +58,7 @@ export function AuthProvider({children}: {children: React.ReactNode}){
 
     async function checkToken() {
         if (isChecking) return;
+        if (authState.authenticated === false) return;
         setIsChecking(true);
         const token = await safeStorage.getRefreshToken();
         const deviceUniqueToken = await safeStorage.getUniqueDeviceId();
@@ -95,6 +100,7 @@ export function AuthProvider({children}: {children: React.ReactNode}){
     async function onLogin(email: string, password: string){
         try {
             const deviceUniqueToken = await safeStorage.getUniqueDeviceId()
+            // const notificationToken = await safeStorage.getNotificationToken()
             if(!deviceUniqueToken){
                 return Alert.alert('Error', "No device token found. Please try again.")
             }
@@ -103,11 +109,22 @@ export function AuthProvider({children}: {children: React.ReactNode}){
             const token = response.data.token
             const refreshToken = response.data.refresh_token
             const user_id = response.data.user_id
+            //Validate if user_id is the same as the one stored in the secure storage
+            const storedUserId = await safeStorage.getUserId()
+            if(storedUserId && storedUserId !== user_id){
 
-            // Save the token to the secure storage
+            }
+
+            // Save secure storage and MMKV values
             await safeStorage.setJWT(token)
             await safeStorage.setRefreshToken(refreshToken)
+            await safeStorage.setUserId(user_id)
+            await safeStorage.setEmail(email)
+            await safeStorage.setDeviceOS(Platform.OS)
             MMKV.setUserId(user_id)
+            MMKV.setToken(token)
+            // Backup messages
+            await backupMessages()
             // Set the token to the axios instance
             api.setTokenAuth(token)
 
@@ -115,6 +132,15 @@ export function AuthProvider({children}: {children: React.ReactNode}){
             setAuthState({token, authenticated: true, user_id})
             router.navigate('/private/home')
         } catch (error) {
+            if(error instanceof AxiosError){
+                if(error.response?.status === 401){
+                    return Alert.alert('Error', "Invalid credentials. Please try again.")
+                }
+                if(error.response?.status === 403){
+                    console.log(error.response.data)
+                    return Alert.alert('Error', "A new device is trying to login. Please confirm your email.")
+                }
+            }
             Alert.alert('Error', "An error occurred while trying to login. Please try again.")
         }
     }
@@ -130,9 +156,10 @@ export function AuthProvider({children}: {children: React.ReactNode}){
 
             if(response.status === 202){
                 Alert.alert('Success', "You have successfully registered. Please check your email to confirm your account.")
-                safeStorage.setEmail(email)
-                safeStorage.setDeviceOS(Platform.OS)
-                safeStorage.setNotificationToken(randomUUID())
+                await safeStorage.setEmail(email)
+                await safeStorage.setDeviceOS(Platform.OS)
+                const deviceNotificationToken = await safeStorage.getNotificationToken()
+                if(!deviceNotificationToken) await safeStorage.setNotificationToken(randomUUID())
                 router.navigate('/confirmsignup')
             }
             
@@ -170,7 +197,16 @@ export function AuthProvider({children}: {children: React.ReactNode}){
         }
     }
 
-    const values = {authState, onRegister, onLogin, isLoading, onConfirmSignUp}
+    async function onLogout(){
+        await safeStorage.clearAll()
+        // await safeStorage.clearUserId()
+        MMKV.cleanAll()
+        setAuthState({token: null, authenticated: false, user_id: null})
+
+        router.navigate('/')
+    }
+
+    const values = {authState, onRegister, onLogin, isLoading, onConfirmSignUp, onLogout}
 
     return (
         <AuthContext.Provider value={values}>

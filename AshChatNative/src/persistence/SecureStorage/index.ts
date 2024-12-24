@@ -72,11 +72,15 @@ class SecureStoragePersistence {
 
     static async clearAll(){
         await SecureStore.deleteItemAsync(this.KEYS.TOKEN);
+        await SecureStore.deleteItemAsync(this.KEYS.REFRESH);
         await SecureStore.deleteItemAsync(this.KEYS.EMAIL);
-        await SecureStore.deleteItemAsync(this.KEYS.UNIQUEDEVICEID);
+        // await SecureStore.deleteItemAsync(this.KEYS.UNIQUEDEVICEID);
         await SecureStore.deleteItemAsync(this.KEYS.DEVICEOS);
+        // await SecureStore.deleteItemAsync(this.KEYS.NOTIFICATIONTOKEN);
+    }
+
+    static async clearUserId(){
         await SecureStore.deleteItemAsync(this.KEYS.USERID);
-        await SecureStore.deleteItemAsync(this.KEYS.NOTIFICATIONTOKEN);
     }
 }
 
