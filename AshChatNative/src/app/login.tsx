@@ -22,6 +22,7 @@ export default function Login(){
         try {
             await onLogin(email, password)
         } catch (error) {
+            Alert.alert("An error occurred while trying to login. Please try again.")
             console.log(error)
         }
     }

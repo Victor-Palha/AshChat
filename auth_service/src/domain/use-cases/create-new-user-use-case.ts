@@ -1,7 +1,7 @@
+import { hashDeviceToken } from "../../helper/hash-device-token-helper";
 import { UserDTO } from "../entities/user";
 import { UserRepository } from "../repositories/user-repository";
 import { UserWithSameEmailError } from "./errors/user-with-same-email-error";
-import { Hash, createHash } from "crypto";
 
 export type CreateUserDTO = Omit<UserDTO, 'id' | 'online' | 'chatsID' | 'contactsID'>
 type CreateUserResponse = Omit<UserDTO, 'password' | 'online' | 'chatsID'| 'contactsID'>
@@ -16,7 +16,7 @@ export class CreateNewUserUseCase {
             throw new UserWithSameEmailError()
         }
 
-        const uniqueDeviceToken = createHash('sha256').update(devices.deviceUniqueToken).digest('hex')
+        const uniqueDeviceToken = hashDeviceToken(devices.deviceUniqueToken);
 
         const newUser = await this.userRepository.createUser({
             nickname, 

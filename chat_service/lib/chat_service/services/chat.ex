@@ -59,5 +59,4 @@ defmodule ChatService.Services.Chat do
         {:error, reason}
     end
   end
-
 end

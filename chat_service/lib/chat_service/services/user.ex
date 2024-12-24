@@ -92,4 +92,15 @@ defmodule ChatService.Services.User do
         {:ok, user_response}
     end
   end
+
+  def get_all_chats_from_user(user_id) do
+    user_id = BSON.ObjectId.decode!(user_id)
+    user = Mongo.find_one(:mongo, "users", %{"_id" => user_id})
+    if user == nil do
+      {:error, :user_not_found}
+    else
+      chats = user["chats_id"]
+      {:ok, chats}
+    end
+  end
 end

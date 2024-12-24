@@ -3,12 +3,13 @@ import { MMKVStorage } from "../persistence/MMKVStorage";
 import { useMMKVString } from "react-native-mmkv";
 import SecureStoragePersistence from "../persistence/SecureStorage";
 import { Socket, Channel } from "phoenix";
-import { AuthContext } from "./authContext";
+import { PhoenixAPIClient } from "../api/phoenix-api-client";
 
 type SocketProps = {
     socket: Socket | undefined;
     mmkvStorage: MMKVStorage;
     user_id: string | undefined;
+    setUserProfile(): Promise<void>;
 };
 
 type Notification = {
@@ -29,20 +30,34 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     const [socket, setSocket] = useState<Socket | undefined>();
     const [, setChannel] = useState<Channel | null>(null);
 
-    async function setUserId() {
-        const userId = await SecureStoragePersistence.getUserId();
-        if (!userId) {
-            return;
+    async function setUserProfile() {
+        const api = PhoenixAPIClient
+        const mmkvStorage = new MMKVStorage()
+        const token = await SecureStoragePersistence.getJWT()
+        const device_token = await SecureStoragePersistence.getUniqueDeviceId()
+        if(!token || !device_token) return
+        api.setTokenAuth(token)
+        api.setHeader("device_token", device_token)
+        try {
+            const response = await api.server.get("/user")
+            if(response.status == 200){
+                const {nickname, description, photo_url, preferred_language, tag_user_id} = response.data.user
+                mmkvStorage.setUserProfile({
+                    nickname,
+                    description,
+                    photo_url,
+                    preferred_language,
+                    tag_user_id
+                })
+            }
+        } catch (error) {
+            console.log("socketContext error")
+            console.log(error)
         }
-        mmkvStorage.setUserId(userId);
-        return userId;
     }
 
-    useEffect(() => {
-        setUserId();
-    }, []);
-
     async function connectSocket(jwtToken: string | undefined) {
+        await setUserProfile();
         const deviceToken = await SecureStoragePersistence.getUniqueDeviceId();
         const userProfile = mmkvStorage.getUserProfile();
         if (!jwtToken || !deviceToken || !userProfile) {
@@ -105,7 +120,8 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     const values = {
         socket,
         mmkvStorage,
-        user_id
+        user_id,
+        setUserProfile,
     };
 
     return (

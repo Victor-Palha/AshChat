@@ -1,7 +1,7 @@
 import { saveFileController } from "./controllers/save-file-controller";
 import { getFileController } from "./controllers/get-file-controller";
 
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = Number(process.env.PORT) || 3006;
 
 const server = Bun.serve({
   port: PORT,

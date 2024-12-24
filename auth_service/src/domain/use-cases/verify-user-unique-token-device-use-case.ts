@@ -1,6 +1,6 @@
-import { createHash } from "crypto";
 import { UserRepository } from "../repositories/user-repository";
 import { UserNotFoundError } from "./errors/user-not-found-error";
+import { hashDeviceToken } from "../../helper/hash-device-token-helper";
 
 
 type VerifyUserDeviceUniqueTokenUseCaseRequest = {
@@ -22,7 +22,7 @@ export class VerifyUserDeviceUniqueTokenUseCase{
             throw new UserNotFoundError()
         }
         const uniqueTokenDevice = userExists.devices.deviceUniqueToken
-        const deviceUniqueTokenHashed = createHash('sha256').update(deviceUniqueToken).digest('hex')
+        const deviceUniqueTokenHashed = hashDeviceToken(deviceUniqueToken);
         const isValid = uniqueTokenDevice === deviceUniqueTokenHashed
         return {isValid}
     }

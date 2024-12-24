@@ -40,8 +40,8 @@ export default function Chat(): JSX.Element {
       return;
     }
     mmkvStorage.clearNotifications(chat_id as string);
-    setProfilePicture(response.searched_chats.profile_picture);
-  
+    setProfilePicture("http://localhost:3006"+response.searched_chats.profile_picture);
+    
     // Ordena as mensagens por timestamp
     const sortedMessages = response.searched_chats.messages.sort(
       (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()

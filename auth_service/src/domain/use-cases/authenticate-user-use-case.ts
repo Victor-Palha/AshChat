@@ -1,8 +1,8 @@
 import { compare } from "bcryptjs";
 import { UserRepository } from "../repositories/user-repository";
 import { UserCredentialsError } from "./errors/user-credentials-error";
-import { createHash } from "node:crypto";
 import { NewDeviceTryingToLogError } from "./errors/new-device-trying-to-log-error";
+import { hashDeviceToken } from "../../helper/hash-device-token-helper";
 
 type AuthenticateUserDTO = {
     email: string
@@ -31,7 +31,7 @@ export class AuthenticateUserUseCase {
             throw new UserCredentialsError()
         }
 
-        const uniqueTokenHashed = createHash("sha256").update(deviceUniqueToken).digest("hex")
+        const uniqueTokenHashed = hashDeviceToken(deviceUniqueToken);
         
         if(userExists.devices.deviceUniqueToken !== uniqueTokenHashed){
             throw new NewDeviceTryingToLogError()

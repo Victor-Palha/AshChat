@@ -5,7 +5,8 @@ import { z } from "zod";
 import { env } from "../../config/env";
 import { RabbitMQService } from "../../config/rabbitmq";
 import { Queues } from "../../config/rabbitmq/queues";
-import { createHash, randomUUID } from "crypto";
+import { randomUUID } from "crypto";
+import { hashDeviceToken } from "../../helper/hash-device-token-helper";
 
 /**
  * Controller to confirm a new device for a user.
@@ -38,7 +39,7 @@ export async function confirmNewDeviceController(req: Request, res: Response): P
         const replyQueueName = `${Queues.CONFIRM_NEW_DEVICE_REPLY_QUEUE}-`+randomUUID();
         const replyQueue = await rabbitMQ.createQueue(replyQueueName);
         const correlationId = randomUUID();
-        const deviceUniqueTokenHashed = createHash("sha256").update(deviceUniqueToken).digest("hex");
+        const deviceUniqueTokenHashed = hashDeviceToken(deviceUniqueToken);
 
         await rabbitMQ.sendToQueue(
             Queues.CONFIRM_NEW_DEVICE_REPLY_QUEUE,
