@@ -64,6 +64,10 @@ export class MMKVStorage {
     this.instance = new MMKV();
   }
 
+  public clearToken(): void {
+    this.instance.delete(this.CONSTANTS.TOKEN);
+  }
+
   public setToken(token: string): void {
     this.instance.set(this.CONSTANTS.TOKEN, token);
   }

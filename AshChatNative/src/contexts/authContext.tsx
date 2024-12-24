@@ -34,6 +34,10 @@ export function AuthProvider({children}: {children: React.ReactNode}){
         const api = AuthAPIClient
         api.setTokenAuth(token)
         const response = await api.server.get("/user/refresh-token")
+        if(response.status == 401){
+            await safeStorage.clearTokens()
+            MMKV.clearToken()
+        }
         if(response.status != 200){
             return false
         }

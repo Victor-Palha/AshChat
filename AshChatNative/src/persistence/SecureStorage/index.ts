@@ -10,7 +10,10 @@ class SecureStoragePersistence {
         USERID: "ashChat.userId",
         NOTIFICATIONTOKEN: "ashChat.notificationToken"
     }
-
+    static async clearTokens(){
+        await SecureStore.deleteItemAsync(this.KEYS.TOKEN);
+        await SecureStore.deleteItemAsync(this.KEYS.REFRESH);
+    }
     static async setRefreshToken(value: string){
         await SecureStore.setItemAsync(this.KEYS.REFRESH, value);
     }
