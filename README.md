@@ -8,6 +8,9 @@ This project is developed using microservices architecture and is divided into f
 - **Static Service**
 - **Email Service**
 
+## Design
+[Figma Design](https://www.figma.com/design/rPB1Q1Gnk8svporPUCEW1C/AshChat?node-id=0-1&t=wantuSG0vWp6POR4-1)
+
 ## Features
 
 AshChat offers a robust chat room environment where users can engage in real-time conversations. Key features include:

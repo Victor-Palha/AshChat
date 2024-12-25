@@ -1,6 +1,6 @@
-import { createHash } from "crypto";
 import { UserRepository } from "../repositories/user-repository";
 import { UserNotFoundError } from "./errors/user-not-found-error";
+import { hashDeviceToken } from "../../helper/hash-device-token-helper";
 
 type ChangeUserDeviceIdDTO = {
     userId: string;
@@ -18,7 +18,7 @@ export class ChangeUserDeviceIdUseCase {
         if(!userExists){
             throw new UserNotFoundError();
         }
-        const tokenHashed = createHash('sha256').update(newDeviceId).digest('hex')
+        const tokenHashed = hashDeviceToken(newDeviceId);
         
         await this.userRepository.changeUserDeviceId(userId, tokenHashed, deviceOS, deviceNotificationToken);
     }

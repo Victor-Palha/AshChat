@@ -114,7 +114,6 @@ defmodule ChatServiceWeb.ChatChannel do
       broadcast_message(socket, updated_message, chat_id)
       message_sent(socket, updated_message.status, updated_message.id, chat_id)
     else
-      IO.inspect("Entrou aqui!")
       ChatS.add_message_to_chat(chat_id, message)
       notify_recipient(message, chat_id, recipient_id)
       message_sent(socket, message.status, message.id, chat_id)

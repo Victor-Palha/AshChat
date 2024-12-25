@@ -50,4 +50,42 @@ defmodule ChatServiceWeb.ChatController do
       |> json(%{error: "An error occurred"})
     end
   end
+
+  def get_chats(conn, _params) do
+    user_id = conn.assigns[:user_id]
+    case User.get_all_chats_from_user(user_id) do
+      {:ok, chats} ->
+        if chats == [] do
+          conn
+          |> put_status(:ok)
+          |> json(%{chats: chats})
+        else
+          chats = Enum.map(chats, fn chat ->
+            chat = Chat.get_chat_by_id(chat)
+            receiver_id = Enum.find(chat.users_id, fn user -> user != user_id end)
+            receiver =
+              User.get_user_by_id(receiver_id)
+              |> Map.delete(:_id)
+              |> Map.delete(:device_token)
+              |> Map.delete(:online)
+              |> Map.delete(:chats_id)
+              |> Map.delete(:contacts_id)
+              |> Map.delete(:blocked_id)
+              |> Map.delete(:notification_token)
+              |> Map.from_struct()
+            chat
+            |> Map.from_struct()
+            |> Map.update!(:_id, &BSON.ObjectId.encode!/1)
+            |> Map.put(:receiver, receiver)
+          end)
+          conn
+          |> put_status(:ok)
+          |> json(%{chats: chats})
+        end
+      {:error, reason} ->
+        conn
+        |> put_status(:internal_server_error)
+        |> json(%{error: reason})
+    end
+  end
 end

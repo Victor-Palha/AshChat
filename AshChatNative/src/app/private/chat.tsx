@@ -21,13 +21,13 @@ import {
 export default function Chat(): JSX.Element {
   const { chat_id, nickname } = useLocalSearchParams();
   const { socket, mmkvStorage, user_id } = useContext(SocketContext);
-
   // States
   const [messages, setMessages] = useState<MessageProps[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
   const [channel, setChannel] = useState<Channel | null>(null);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [isReceiverOnline, setIsReceiverOnline] = useState<boolean>(false);
+  const [userId, setUserId] = useState<string>(user_id as string);
 
   // Load chat messages and divide into chunks
   useEffect(() => {
@@ -40,8 +40,8 @@ export default function Chat(): JSX.Element {
       return;
     }
     mmkvStorage.clearNotifications(chat_id as string);
-    setProfilePicture(response.searched_chats.profile_picture);
-  
+    setProfilePicture("http://localhost:3006"+response.searched_chats.profile_picture);
+    
     // Ordena as mensagens por timestamp
     const sortedMessages = response.searched_chats.messages.sort(
       (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
@@ -118,11 +118,11 @@ export default function Chat(): JSX.Element {
 
   // Send a message to the chat channel
   function handleSend() {
-    if (inputMessage.trim()) {
+    if (inputMessage.trim()) {;
       const newMessage = mmkvStorage.addMessage({
         chat_id: chat_id as string,
         content: inputMessage,
-        sender_id: "user",
+        sender_id: userId,
         timestamp: new Date().toISOString(),
       }) as MessageProps;
       channel?.push("send_message", { mobile_ref_id: newMessage.id_message, content: inputMessage });
@@ -159,7 +159,7 @@ export default function Chat(): JSX.Element {
         ref={flatListRef}
         data={messages}
         keyExtractor={(item) => item.id_message}
-        renderItem={LoadMessages}
+        renderItem={({ item }) => <LoadMessages item={item} user_id={userId} />}
         className="flex-1 px-4 py-2"
         contentContainerStyle={{ flexGrow: 1 }}
         inverted={true}

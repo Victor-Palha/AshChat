@@ -4,9 +4,10 @@ import { Text, View } from "react-native";
 
 type LoadMessagesProps = {
     item: MessageProps;
+    user_id: string;
 }
-export function LoadMessages({ item }: LoadMessagesProps): JSX.Element {
-    const isCurrentUser = item.sender_id === "user";
+export function LoadMessages({ item, user_id }: LoadMessagesProps): JSX.Element {
+    const isCurrentUser = item.sender_id === user_id;
     return (
         <View>
             {/* Message Bubble */}
