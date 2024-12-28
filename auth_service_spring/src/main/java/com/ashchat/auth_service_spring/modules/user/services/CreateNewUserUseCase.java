@@ -14,7 +14,7 @@ public class CreateNewUserUseCase {
         this.userRepository = userRepository;
     }
 
-    public UserEntity execute(UserEntity createNewUser) {
+    public UserEntity execute(UserEntity createNewUser) throws UserWithSameCredentialsAlreadyExists {
         final String email;
         email = createNewUser.getEmail();
         Optional<UserEntity> userExists = this.userRepository.findByEmail(email);

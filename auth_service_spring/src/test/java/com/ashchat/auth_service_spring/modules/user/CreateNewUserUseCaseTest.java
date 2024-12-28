@@ -27,15 +27,14 @@ public class CreateNewUserUseCaseTest {
     public void should_be_able_to_create_user() {
         String userDeviceToken = UUID.randomUUID().toString();
         String userNotificationToken = UUID.randomUUID().toString();
-        UserEntity newUser = UserEntity
-                .builder()
-                .name("John Doe")
-                .email("john.doe@example.com")
-                .password("password")
-                .deviceOS("Windows 10")
-                .deviceTokenId(userDeviceToken)
-                .deviceNotificationToken(userNotificationToken)
-                .build();
+        UserEntity newUser = new UserEntity();
+        newUser.setName("John Doe");
+        newUser.setEmail("john.doe@example.com");
+        newUser.setPassword("password");
+        newUser.setDeviceOS("Windows 10");
+        newUser.setDeviceTokenId(userDeviceToken);
+        newUser.setDeviceNotificationToken(userNotificationToken);
+
         when(userRepository.findByEmail("john.doe@example.com")).thenReturn(Optional.empty());
         when(userRepository.save(newUser)).thenReturn(newUser);
         try{
