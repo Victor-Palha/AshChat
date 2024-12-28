@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity(name = "user_profile")
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEntity {
