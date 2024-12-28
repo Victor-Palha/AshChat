@@ -1,4 +1,17 @@
 services:
+  postgres:
+    image: bitnami/postgresql:latest
+    container_name: postgres_container_dev
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: ashchat
+    networks:
+      - ashchat_network
+    volumes:
+      - postgres-data:/bitnami/postgresql
   mongodb:
     image: mongo:latest
     container_name: mongodb_container_dev
@@ -41,6 +54,8 @@ volumes:
   mongo-data:
     driver: local
   redis_data:
+    driver: local
+  postgres-data:  
     driver: local
 
 networks:

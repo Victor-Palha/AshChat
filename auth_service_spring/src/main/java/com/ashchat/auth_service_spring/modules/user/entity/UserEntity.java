@@ -9,8 +9,8 @@ import org.hibernate.validator.constraints.Length;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity(name = "user_profile")
 @Data
+@Entity(name = "user_profile")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,7 +18,9 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID userId;
-    @Email(message = "The field [EMAIL] should be a valid email!")
+
+    @Email()
+    @Column(nullable = false, unique = true)
     private String email;
     @Length(min = 6)
     private String password;
