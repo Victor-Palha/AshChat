@@ -36,3 +36,6 @@ The documentation for the application is available in the `docs` folder. The doc
 - [Architecture](./docs/architecture.md)
 - [Endpoints](./docs/endpoints.md)
 - [Chat Connection](./docs/chat_connection.md)
+
+## Updates
+- Changing Auth Service from NodeJS with TS to Java with Spring Boot
