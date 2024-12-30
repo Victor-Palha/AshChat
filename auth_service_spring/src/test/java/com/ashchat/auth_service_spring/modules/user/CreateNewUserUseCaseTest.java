@@ -42,6 +42,7 @@ public class CreateNewUserUseCaseTest {
             assert userCreated != null;
             assert userCreated.getEmail().equals(newUser.getEmail());
         }catch (Exception e){
+            System.out.println(e.getMessage());
             assert e instanceof UserWithSameCredentialsAlreadyExists;
         }
     }
