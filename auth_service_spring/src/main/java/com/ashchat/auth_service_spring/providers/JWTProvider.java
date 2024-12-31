@@ -38,21 +38,18 @@ public class JWTProvider {
     @Value("${api.security.token.refresh}")
     private String JWT_REFRESH_SECRET;
 
-    public Map<String, Object> validateToken(String token, JWTTypes jwtTypes) throws InvalidTokenError {
+    public DecodedJWT decodeTokenWithoutValidation(String token) {
+        return JWT.decode(token);
+    }
+
+    public DecodedJWT validateToken(String token, JWTTypes jwtTypes) throws InvalidTokenError {
         final String jwt = token.replace("Bearer ", "");
         final Algorithm algorithm = this.loadAlgorithm(jwtTypes);
         try {
-            final DecodedJWT decodedJWT = JWT.require(algorithm)
+            return JWT.require(algorithm)
                     .build()
                     .verify(jwt);
-            final String sub = decodedJWT.getSubject();
-            final String type = decodedJWT.getClaim("type").asString();
 
-            Map<String, Object> jwtInformation = new HashMap<>();
-            jwtInformation.put("sub", sub);
-            jwtInformation.put("type", type);
-
-            return jwtInformation;
         } catch (JWTVerificationException error){
             throw new InvalidTokenError();
         }
