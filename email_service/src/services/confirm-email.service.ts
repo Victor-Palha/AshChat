@@ -29,7 +29,6 @@ export class ConfirmEmailService {
 
             try {
                 const { email, emailCode } = JSON.parse(msg.content.toString()) as ConfirmEmailMessage;
-                console.log(`Received message to confirm email code for email: ${email}`);
                 const response = await this.validateEmailCode(email, emailCode);
 
                 const { replyTo, correlationId } = msg.properties;

@@ -5,19 +5,18 @@ import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
-@Entity(name = "user_profile")
+@Document(collection = "user_profile")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID userId;
+    private String id;
     @Email()
     @Column(nullable = false, unique = true)
     private String email;

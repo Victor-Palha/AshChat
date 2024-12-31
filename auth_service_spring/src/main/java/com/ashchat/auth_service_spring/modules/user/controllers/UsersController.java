@@ -100,9 +100,10 @@ public class UsersController {
                     .build();
 
             UserEntity userCreated = this.createNewUserUseCase.execute(userInformation);
+            System.out.println(userCreated);
             ConfirmationAccountCreatedDTO messageToConfirmationToBroker = ConfirmationAccountCreatedDTO
                     .builder()
-                    .id(userCreated.getUserId().toString())
+                    .id(userCreated.getId())
                     .nickname(userCreated.getName())
                     .preferredLanguage(response.getData().getPreferredLanguage())
                     .unique_device_token(HashedDeviceToken)
