@@ -40,11 +40,11 @@ export class CreateTemporaryUserService {
                 JSON.stringify({email, emailCode, nickname, password, preferredLanguage})
             )
             .then(async () => {
-                await this.mailerService.sendMailToRegister({
-                    to: email,
-                    code: emailCode,
-                    who: nickname,
-                });
+                // await this.mailerService.sendMailToRegister({
+                //     to: email,
+                //     code: emailCode,
+                //     who: nickname,
+                // });
             })
         });
     }

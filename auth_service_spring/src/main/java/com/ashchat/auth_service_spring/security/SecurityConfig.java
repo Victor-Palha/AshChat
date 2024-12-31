@@ -17,6 +17,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> {
                     // Public routes
                     auth.requestMatchers("/user/signup").permitAll();
+                    auth.requestMatchers("/user/confirm-email").permitAll();
                     // Add auth process to all others
                     auth.anyRequest().authenticated();
                 });

@@ -2,6 +2,7 @@ package com.ashchat.auth_service_spring.modules.user.controllers;
 
 import com.ashchat.auth_service_spring.configs.UserProducer;
 import com.ashchat.auth_service_spring.exceptions.UserWithSameCredentialsAlreadyExists;
+import com.ashchat.auth_service_spring.modules.user.dto.ConfirmEmailAndValidateAccountDTO;
 import com.ashchat.auth_service_spring.modules.user.dto.CreateTempNewUserDTO;
 import com.ashchat.auth_service_spring.modules.user.services.CreateTempUserUseCase;
 import com.ashchat.auth_service_spring.security.CreateValidateCode;
@@ -21,6 +22,8 @@ public class UsersController {
     // Queues to Message Broker
     @Value("${broker.queue.email.creation}")
     private String emailCreationQueue;
+    @Value("${broker.queue.email.confirmation}")
+    private String emailConfirmationQueue;
 
     // Dependencies
     final private CreateTempUserUseCase createTempUserUseCase;
@@ -32,7 +35,6 @@ public class UsersController {
 
     @PostMapping("/signup")
     public ResponseEntity<Object> registerUser(@RequestBody CreateTempNewUserDTO tempUserDTO) {
-        System.out.println(tempUserDTO);
         try{
             CreateTempNewUserDTO createdUser = createTempUserUseCase.execute(tempUserDTO);
             final String validateCode = CreateValidateCode.generateEmailCodeHelper();
@@ -61,8 +63,20 @@ public class UsersController {
         }
     }
 
-    @PostMapping("/signin")
-    public void authenticateUser() {
+    @PostMapping("/confirm-email")
+    public void confirmEmailAndValidateAccount(@RequestBody ConfirmEmailAndValidateAccountDTO confirmEmailAndValidateAccountDTO) {
+        try{
+            Map<String, Object> message = new HashMap<>();
+            message.put("email", confirmEmailAndValidateAccountDTO.getEmail());
+            message.put("emailCode", confirmEmailAndValidateAccountDTO.getEmailCode());
+            message.put("deviceTokenId", confirmEmailAndValidateAccountDTO.getDeviceTokenId());
+            message.put("deviceNotificationToken", confirmEmailAndValidateAccountDTO.getDeviceNotificationToken());
+            message.put("deviceOS", confirmEmailAndValidateAccountDTO.getDeviceOS());
 
+            Object response = this.userProducer.publishToRPCQueue(this.emailConfirmationQueue, message);
+            System.out.println(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
