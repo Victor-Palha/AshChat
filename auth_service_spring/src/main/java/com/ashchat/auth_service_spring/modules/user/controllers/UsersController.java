@@ -2,10 +2,12 @@ package com.ashchat.auth_service_spring.modules.user.controllers;
 
 import com.ashchat.auth_service_spring.configs.UserProducer;
 import com.ashchat.auth_service_spring.exceptions.UserWithSameCredentialsAlreadyExists;
-import com.ashchat.auth_service_spring.modules.user.dto.ConfirmEmailAndValidateAccountDTO;
-import com.ashchat.auth_service_spring.modules.user.dto.CreateTempNewUserDTO;
+import com.ashchat.auth_service_spring.modules.user.dto.*;
+import com.ashchat.auth_service_spring.modules.user.entity.UserEntity;
+import com.ashchat.auth_service_spring.modules.user.services.CreateNewUserUseCase;
 import com.ashchat.auth_service_spring.modules.user.services.CreateTempUserUseCase;
 import com.ashchat.auth_service_spring.security.CreateValidateCode;
+import com.ashchat.auth_service_spring.security.HashDeviceToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,14 +24,21 @@ public class UsersController {
     // Queues to Message Broker
     @Value("${broker.queue.email.creation}")
     private String emailCreationQueue;
-    @Value("${broker.queue.email.confirmation}")
+    @Value("${broker.queue.email.code.confirm}")
     private String emailConfirmationQueue;
+    @Value("${broker.queue.email.creation.confirm}")
+    private String emailConfirmationQueueCreation;
 
     // Dependencies
+    // Use cases
     final private CreateTempUserUseCase createTempUserUseCase;
+    final private CreateNewUserUseCase createNewUserUseCase;
+    // Config
     final private UserProducer userProducer;
-    public UsersController(CreateTempUserUseCase createTempUserUseCase, UserProducer userProducer) {
+    public UsersController(CreateTempUserUseCase createTempUserUseCase, CreateNewUserUseCase createNewUserUseCase,
+                           UserProducer userProducer) {
         this.createTempUserUseCase = createTempUserUseCase;
+        this.createNewUserUseCase = createNewUserUseCase;
         this.userProducer = userProducer;
     }
 
@@ -64,19 +73,74 @@ public class UsersController {
     }
 
     @PostMapping("/confirm-email")
-    public void confirmEmailAndValidateAccount(@RequestBody ConfirmEmailAndValidateAccountDTO confirmEmailAndValidateAccountDTO) {
+    public ResponseEntity<Object> confirmEmailAndValidateAccount(@RequestBody ConfirmEmailAndValidateAccountDTO confirmEmailAndValidateAccountDTO) {
         try{
-            Map<String, Object> message = new HashMap<>();
-            message.put("email", confirmEmailAndValidateAccountDTO.getEmail());
-            message.put("emailCode", confirmEmailAndValidateAccountDTO.getEmailCode());
-            message.put("deviceTokenId", confirmEmailAndValidateAccountDTO.getDeviceTokenId());
-            message.put("deviceNotificationToken", confirmEmailAndValidateAccountDTO.getDeviceNotificationToken());
-            message.put("deviceOS", confirmEmailAndValidateAccountDTO.getDeviceOS());
 
-            Object response = this.userProducer.publishToRPCQueue(this.emailConfirmationQueue, message);
-            System.out.println(response);
+            Map<String, Object> message = createMessageToBroker(confirmEmailAndValidateAccountDTO);
+
+            ConfirmEmailBrokerResponseDTO response = this.userProducer.publishToRPCQueue(
+                    this.emailConfirmationQueue,
+                    message, ConfirmEmailBrokerResponseDTO.class
+            );
+            
+            if (!response.getSuccess()) {
+                return ResponseEntity.status(400).body(response.getMessage());
+            }
+            // From now on, the device token id is hashed and the device is linked to the account
+            String HashedDeviceToken = HashDeviceToken.hash(confirmEmailAndValidateAccountDTO.getDeviceTokenId());
+
+            UserEntity userInformation = UserEntity
+                    .builder()
+                    .email(confirmEmailAndValidateAccountDTO.getEmail())
+                    .name(response.getData().getNickname())
+                    .password(response.getData().getPassword())
+                    .deviceOS(confirmEmailAndValidateAccountDTO.getDeviceOS())
+                    .deviceTokenId(HashedDeviceToken)
+                    .deviceNotificationToken(confirmEmailAndValidateAccountDTO.getDeviceNotificationToken())
+                    .build();
+
+            UserEntity userCreated = this.createNewUserUseCase.execute(userInformation);
+            ConfirmationAccountCreatedDTO messageToConfirmationToBroker = ConfirmationAccountCreatedDTO
+                    .builder()
+                    .id(userCreated.getUserId().toString())
+                    .nickname(userCreated.getName())
+                    .preferredLanguage(response.getData().getPreferredLanguage())
+                    .unique_device_token(HashedDeviceToken)
+                    .notification_token(confirmEmailAndValidateAccountDTO.getDeviceNotificationToken())
+                    .build();
+
+            this.userProducer.publishToQueueDefault(
+                    this.emailConfirmationQueueCreation,
+                    confirmationAccountCreationToBroker(messageToConfirmationToBroker)
+            );
+
+            Map<String, String> responseMessage = new HashMap<>();
+            responseMessage.put("message", "Account created successfully");
+
+            return ResponseEntity.status(201).body(responseMessage);
+            
         } catch (Exception e) {
-            e.printStackTrace();
+            return ResponseEntity.status(500).body(e.getMessage());
         }
+    }
+
+    private static Map<String, Object> createMessageToBroker(ConfirmEmailAndValidateAccountDTO confirmEmailAndValidateAccountDTO) {
+        Map<String, Object> message = new HashMap<>();
+        message.put("email", confirmEmailAndValidateAccountDTO.getEmail());
+        message.put("emailCode", confirmEmailAndValidateAccountDTO.getEmailCode());
+        message.put("deviceTokenId", confirmEmailAndValidateAccountDTO.getDeviceTokenId());
+        message.put("deviceNotificationToken", confirmEmailAndValidateAccountDTO.getDeviceNotificationToken());
+        message.put("deviceOS", confirmEmailAndValidateAccountDTO.getDeviceOS());
+        return message;
+    }
+
+    private static Map<String, Object> confirmationAccountCreationToBroker(ConfirmationAccountCreatedDTO confirmationAccountCreatedDTO) {
+        Map<String, Object> message = new HashMap<>();
+        message.put("id", confirmationAccountCreatedDTO.getId());
+        message.put("nickname", confirmationAccountCreatedDTO.getNickname());
+        message.put("preferredLanguage", confirmationAccountCreatedDTO.getPreferredLanguage());
+        message.put("unique_device_token", confirmationAccountCreatedDTO.getUnique_device_token());
+        message.put("notification_token", confirmationAccountCreatedDTO.getNotification_token());
+        return message;
     }
 }

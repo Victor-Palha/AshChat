@@ -11,6 +11,7 @@ import java.util.UUID;
 
 @Data
 @Entity(name = "user_profile")
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEntity {

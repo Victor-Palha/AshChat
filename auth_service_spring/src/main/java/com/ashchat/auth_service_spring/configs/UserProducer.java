@@ -1,6 +1,8 @@
 package com.ashchat.auth_service_spring.configs;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,12 +25,24 @@ public class UserProducer {
         rabbitTemplate.convertAndSend("", queue, message);
     }
 
-    public Object publishToRPCQueue(String queue, Map<String, Object> message) {
-        String correlationId = UUID.randomUUID().toString();
-        return rabbitTemplate.convertSendAndReceive(queue, message, messageResponse -> {
-            messageResponse.getMessageProperties().setCorrelationId(correlationId);
-            messageResponse.getMessageProperties().setReplyTo(queue);
-            return messageResponse;
-        });
+    public <T> T publishToRPCQueue(String queue, Map<String, Object> message, Class<T> responseType) {
+        try{
+            String correlationId = UUID.randomUUID().toString();
+            Object response = rabbitTemplate.convertSendAndReceive(queue, message, messageResponse -> {
+                messageResponse.getMessageProperties().setCorrelationId(correlationId);
+                messageResponse.getMessageProperties().setReplyTo(queue);
+                return messageResponse;
+            });
+            if(response != null) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                return objectMapper.convertValue(response, responseType);
+            }else {
+                throw new RuntimeException("No response received");
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            throw new RuntimeException("Failed to send message to RPC queue.", e);
+        }
     }
 }
