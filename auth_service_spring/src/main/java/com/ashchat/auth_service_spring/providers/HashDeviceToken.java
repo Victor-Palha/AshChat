@@ -1,4 +1,4 @@
-package com.ashchat.auth_service_spring.security;
+package com.ashchat.auth_service_spring.providers;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;

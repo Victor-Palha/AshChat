@@ -1,5 +1,6 @@
 package com.ashchat.auth_service_spring.security;
 
+import com.ashchat.auth_service_spring.providers.HashDeviceToken;
 import org.junit.jupiter.api.Test;
 
 public class HashDeviceTokenTest {

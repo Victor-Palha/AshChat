@@ -1,10 +1,9 @@
 package com.ashchat.auth_service_spring.modules.user.entity;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -18,7 +17,6 @@ public class UserEntity {
     @Id
     private String id;
     @Email()
-    @Column(nullable = false, unique = true)
     private String email;
     @Length(min = 6)
     private String password;
@@ -30,6 +28,4 @@ public class UserEntity {
     private String deviceTokenId;
     @Length(min = 2)
     private String deviceNotificationToken;
-    @CreationTimestamp
-    private LocalDateTime createdAt;
 }

@@ -1,13 +1,19 @@
 package com.ashchat.auth_service_spring.modules.user.controllers;
 
 import com.ashchat.auth_service_spring.configs.UserProducer;
+import com.ashchat.auth_service_spring.constants.JWTTypes;
+import com.ashchat.auth_service_spring.exceptions.InvalidCredentialsError;
+import com.ashchat.auth_service_spring.exceptions.NewDeviceTryingToLogError;
 import com.ashchat.auth_service_spring.exceptions.UserWithSameCredentialsAlreadyExists;
 import com.ashchat.auth_service_spring.modules.user.dto.*;
 import com.ashchat.auth_service_spring.modules.user.entity.UserEntity;
+import com.ashchat.auth_service_spring.modules.user.services.AuthenticateUserUseCase;
 import com.ashchat.auth_service_spring.modules.user.services.CreateNewUserUseCase;
 import com.ashchat.auth_service_spring.modules.user.services.CreateTempUserUseCase;
-import com.ashchat.auth_service_spring.security.CreateValidateCode;
-import com.ashchat.auth_service_spring.security.HashDeviceToken;
+import com.ashchat.auth_service_spring.modules.user.services.FindUserByEmailUseCase;
+import com.ashchat.auth_service_spring.providers.JWTProvider;
+import com.ashchat.auth_service_spring.providers.CreateValidateCode;
+import com.ashchat.auth_service_spring.providers.HashDeviceToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,11 +21,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 public class UsersController {
     // Queues to Message Broker
     @Value("${broker.queue.email.creation}")
@@ -28,18 +39,32 @@ public class UsersController {
     private String emailConfirmationQueue;
     @Value("${broker.queue.email.creation.confirm}")
     private String emailConfirmationQueueCreation;
+    @Value("${broker.queue.email.device.new}")
+    private String emailNewDeviceQueue;
 
     // Dependencies
     // Use cases
     final private CreateTempUserUseCase createTempUserUseCase;
     final private CreateNewUserUseCase createNewUserUseCase;
+    final private AuthenticateUserUseCase authenticateUserUseCase;
+    final private FindUserByEmailUseCase findUserByEmailUseCase;
     // Config
     final private UserProducer userProducer;
-    public UsersController(CreateTempUserUseCase createTempUserUseCase, CreateNewUserUseCase createNewUserUseCase,
-                           UserProducer userProducer) {
+    final private JWTProvider jwtProvider;
+    public UsersController(
+            CreateTempUserUseCase createTempUserUseCase,
+            CreateNewUserUseCase createNewUserUseCase,
+            UserProducer userProducer,
+            AuthenticateUserUseCase authenticateUserUseCase,
+            JWTProvider jwtProvider,
+            FindUserByEmailUseCase findUserByEmailUseCase
+    ) {
         this.createTempUserUseCase = createTempUserUseCase;
         this.createNewUserUseCase = createNewUserUseCase;
         this.userProducer = userProducer;
+        this.authenticateUserUseCase = authenticateUserUseCase;
+        this.jwtProvider = jwtProvider;
+        this.findUserByEmailUseCase = findUserByEmailUseCase;
     }
 
     @PostMapping("/signup")
@@ -125,6 +150,50 @@ public class UsersController {
         }
     }
 
+    @PostMapping("/signin")
+    public ResponseEntity<Object> authenticateUser(@RequestBody AuthenticateUserDTO authenticateUserDTO) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        try{
+            String userId = this.authenticateUserUseCase.execute(authenticateUserDTO);
+            // 7 days to refresh token expires
+            Instant refreshExpirationTime = Instant.now().plus(Duration.ofDays(7));
+            String jwtRefreshToken = this.jwtProvider.generateJWTToken(userId, JWTTypes.REFRESH, refreshExpirationTime);
+            // 30 minutes until main token expires
+            Instant mainExpirationTime = Instant.now().plus(Duration.ofMinutes(30));
+            String jwtMainToken = this.jwtProvider.generateJWTToken(userId, JWTTypes.MAIN, mainExpirationTime);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("refresh_token", jwtRefreshToken);
+            response.put("token", jwtMainToken);
+            response.put("user_id", userId);
+
+            // 200
+            return ResponseEntity.ok(response);
+        }
+        catch (Exception e){
+            if (e instanceof NewDeviceTryingToLogError) {
+                String user_id = newDeviceTryingToSignin(authenticateUserDTO);
+                if(user_id == null){
+                    // 500
+                    return ResponseEntity.status(500).body(e.getMessage());
+                }
+                // 403
+                Instant temporaryExpirationTime = Instant.now().plus(Duration.ofMinutes(10));
+                String jwtTemporaryToken = this.jwtProvider.generateJWTToken(user_id, JWTTypes.TEMPORARY, temporaryExpirationTime);
+                Map<String, String> response = new HashMap<>();
+                response.put("token", jwtTemporaryToken);
+                response.put("message", "A new device is trying to log in. Check your email to allow it.");
+                response.put("info", "To allow the new device, use the JWT temporary token and the code sent to your email to endpoint /api/user/confirm-new-device");
+                return ResponseEntity.status(403).body(response);
+            }
+            if (e instanceof InvalidCredentialsError){
+                // 401
+                return ResponseEntity.status(401).body(e.getMessage());
+            }
+            // 500
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
     private static Map<String, Object> createMessageToBroker(ConfirmEmailAndValidateAccountDTO confirmEmailAndValidateAccountDTO) {
         Map<String, Object> message = new HashMap<>();
         message.put("email", confirmEmailAndValidateAccountDTO.getEmail());
@@ -143,5 +212,24 @@ public class UsersController {
         message.put("unique_device_token", confirmationAccountCreatedDTO.getUnique_device_token());
         message.put("notification_token", confirmationAccountCreatedDTO.getNotification_token());
         return message;
+    }
+
+    private String newDeviceTryingToSignin (AuthenticateUserDTO authenticateUserDTO) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        Optional<UserEntity> user = this.findUserByEmailUseCase.execute(authenticateUserDTO.getEmail());
+        if (user.isEmpty()) {
+            return null;
+        }
+        String newTokenHashed = HashDeviceToken.hash(authenticateUserDTO.getDeviceTokenId());
+        String emailCodeConfirmation = CreateValidateCode.generateEmailCodeHelper();
+
+        Map<String, Object> message = new HashMap<>();
+        message.put("email", user.get().getEmail());
+        message.put("emailCode", emailCodeConfirmation);
+        message.put("deviceUniqueToken", newTokenHashed);
+        message.put("nickname", user.get().getName());
+        message.put("user_id", user.get().getId());
+
+        this.userProducer.publishToQueueDefault(emailNewDeviceQueue, message);
+        return user.get().getId();
     }
 }

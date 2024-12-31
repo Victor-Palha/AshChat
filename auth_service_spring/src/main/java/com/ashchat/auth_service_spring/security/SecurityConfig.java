@@ -16,8 +16,9 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> {
                     // Public routes
-                    auth.requestMatchers("/user/signup").permitAll();
-                    auth.requestMatchers("/user/confirm-email").permitAll();
+                    auth.requestMatchers("/api/user/signup").permitAll();
+                    auth.requestMatchers("/api/user/confirm-email").permitAll();
+                    auth.requestMatchers("/api/user/signin").permitAll();
                     // Add auth process to all others
                     auth.anyRequest().authenticated();
                 });
