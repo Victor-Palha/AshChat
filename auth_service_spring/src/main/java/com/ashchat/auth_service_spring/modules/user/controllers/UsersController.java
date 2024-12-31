@@ -16,10 +16,8 @@ import com.ashchat.auth_service_spring.providers.CreateValidateCode;
 import com.ashchat.auth_service_spring.providers.HashDeviceToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -194,6 +192,12 @@ public class UsersController {
         }
     }
 
+    @GetMapping("/hello")
+    @PreAuthorize("hasRole('REFRESH')")
+    public String hello() {
+        return "Hello World!";
+    }
+    // Helper Methods to controllers
     private static Map<String, Object> createMessageToBroker(ConfirmEmailAndValidateAccountDTO confirmEmailAndValidateAccountDTO) {
         Map<String, Object> message = new HashMap<>();
         message.put("email", confirmEmailAndValidateAccountDTO.getEmail());

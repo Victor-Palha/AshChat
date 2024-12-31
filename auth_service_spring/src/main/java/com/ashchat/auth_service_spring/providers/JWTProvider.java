@@ -21,8 +21,6 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class JWTProvider {
@@ -39,12 +37,15 @@ public class JWTProvider {
     private String JWT_REFRESH_SECRET;
 
     public DecodedJWT decodeTokenWithoutValidation(String token) {
+        token = token.replace("Bearer ", "").trim();
         return JWT.decode(token);
     }
 
     public DecodedJWT validateToken(String token, JWTTypes jwtTypes) throws InvalidTokenError {
-        final String jwt = token.replace("Bearer ", "");
+        final String jwt = token.replace("Bearer ", "").trim();
+
         final Algorithm algorithm = this.loadAlgorithm(jwtTypes);
+
         try {
             return JWT.require(algorithm)
                     .build()
@@ -80,7 +81,6 @@ public class JWTProvider {
             }
             return algorithm;
         } catch (Exception e) {
-            System.out.println(e);
             throw new RuntimeException("Error loading algorithm", e);
         }
     }
@@ -94,7 +94,6 @@ public class JWTProvider {
                     .replace("-----BEGIN PRIVATE KEY-----", "")
                     .replace("-----END PRIVATE KEY-----", "")
                     .replaceAll("\\s", "");
-            System.out.println(privateKeyPEM);
             byte[] decoded = Base64.getDecoder().decode(privateKeyPEM);
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");

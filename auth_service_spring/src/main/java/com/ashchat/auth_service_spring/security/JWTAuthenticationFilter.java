@@ -30,27 +30,25 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         SecurityContextHolder.getContext().setAuthentication(null);
         String header = request.getHeader("Authorization");
-        if(header == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-        try {
-            DecodedJWT decodedJWT = jwtProvider.decodeTokenWithoutValidation(header);
-            String jwtTypeToken = decodedJWT.getClaim("type").asString();
-            JWTTypes jwtTypes = JWTTypes.valueOf(jwtTypeToken);
+        if(header != null) {
+            try {
+                DecodedJWT decodedJWT = jwtProvider.decodeTokenWithoutValidation(header);
+                String jwtTypeToken = decodedJWT.getClaim("type").asString();
+                JWTTypes jwtTypes = JWTTypes.valueOf(jwtTypeToken);
 
-            DecodedJWT validatedToken = jwtProvider.validateToken(header, jwtTypes);
-            request.setAttribute("user_id", validatedToken.getSubject());
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    validatedToken.getSubject(),
-                    null,
-                    Collections.singleton(new SimpleGrantedAuthority("TYPE_"+jwtTypes))
-            );
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-        }
-        catch (Exception e) {
-            System.err.println("Invalid token: " + e.getMessage());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                DecodedJWT validatedToken = jwtProvider.validateToken(header, jwtTypes);
+                request.setAttribute("user_id", validatedToken.getSubject());
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                        validatedToken.getSubject(),
+                        null,
+                        Collections.singleton(new SimpleGrantedAuthority("ROLE_"+jwtTypes.name()))
+                );
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            }
+            catch (Exception e) {
+                System.err.println("Invalid token: " + e.getMessage());
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            }
         }
         filterChain.doFilter(request, response);
     }
