@@ -8,7 +8,7 @@ import java.util.Optional;
 
 @Service
 public class FindUserByEmailUseCase {
-    final private UserRepository userRepository;
+    private final UserRepository userRepository;
     public FindUserByEmailUseCase(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
