@@ -14,6 +14,12 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
+    private static final String[] SWAGGER_WHITELIST = {
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-resources/**"
+    };
+
     private final JWTProvider jwtProvider;
     public SecurityConfig(JWTProvider jwtProvider) {
         this.jwtProvider = jwtProvider;
@@ -26,6 +32,8 @@ public class SecurityConfig {
                     auth.requestMatchers("/api/user/signup").permitAll();
                     auth.requestMatchers("/api/user/confirm-email").permitAll();
                     auth.requestMatchers("/api/user/signin").permitAll();
+                    // Swagger
+                    auth.requestMatchers(SWAGGER_WHITELIST).permitAll();
                     // Add auth process to all others
                     auth.anyRequest().authenticated();
                 })

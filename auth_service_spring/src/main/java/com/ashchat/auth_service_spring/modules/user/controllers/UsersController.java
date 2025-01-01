@@ -11,6 +11,13 @@ import com.ashchat.auth_service_spring.modules.user.services.*;
 import com.ashchat.auth_service_spring.providers.JWTProvider;
 import com.ashchat.auth_service_spring.providers.CreateValidateCode;
 import com.ashchat.auth_service_spring.providers.HashDeviceToken;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +34,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/user")
+@Tag(name = "User Account Security", description = "User Account Security related endpoints")
 public class UsersController {
     // Queues to Message Broker
     @Value("${broker.queue.email.creation}")
@@ -49,6 +57,7 @@ public class UsersController {
     // Config
     final private UserProducer userProducer;
     final private JWTProvider jwtProvider;
+
     public UsersController(
             CreateTempUserUseCase createTempUserUseCase,
             CreateNewUserUseCase createNewUserUseCase,
@@ -68,8 +77,52 @@ public class UsersController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<Object> registerUser(@RequestBody CreateTempNewUserDTO tempUserDTO) {
-        try{
+    @Operation(
+            summary = "Register a new user account",
+            description = "This endpoint create a temporary user account and send a e-mail with a code to validate " +
+                    "identity"
+    )
+    @ApiResponse(
+            responseCode = "202",
+            description = "Verification email is being processed",
+            content =
+            @Content(
+                    mediaType = "application/json",
+                    examples =
+                    @ExampleObject(
+                            name = "SuccessExample",
+                            value = "{ \"status\": 202, \"message\": \"Verification email is being processed\", \"data\": null }"
+                    ),
+                    schema = @Schema(implementation = EndpointResponse.class))
+    )
+    @ApiResponse(
+            responseCode = "409",
+            description = "User with same credentials already exists",
+            content =
+            @Content(
+                    mediaType = "application/json",
+                    examples =
+                    @ExampleObject(
+                            name = "ConflictExample",
+                            value = "{ \"status\": 409, \"message\": \"User already exists\", \"data\": null }"
+                    ),
+                    schema = @Schema(implementation = EndpointResponse.class))
+    )
+    @ApiResponse(
+            responseCode = "500",
+            description = "Unexpected server error",
+            content =
+            @Content(
+                    mediaType = "application/json",
+                    examples =
+                    @ExampleObject(
+                            name = "ServerErrorExample",
+                            value = "{ \"status\": 500, \"message\": \"Internal server error\", \"data\": null }"
+                    ),
+                    schema = @Schema(implementation = EndpointResponse.class))
+    )
+    public ResponseEntity<EndpointResponse<String>> registerUser(@RequestBody CreateTempNewUserDTO tempUserDTO) {
+        try {
             CreateTempNewUserDTO createdUser = createTempUserUseCase.execute(tempUserDTO);
             final String validateCode = CreateValidateCode.generateEmailCodeHelper();
             Map<String, Object> message = new HashMap<>();
@@ -86,20 +139,84 @@ public class UsersController {
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "Verification email is being processed");
 
-            return ResponseEntity.status(202).body(response);
-        }catch (Exception e){
-            if (e instanceof UserWithSameCredentialsAlreadyExists){
-                return ResponseEntity.status(409).body(e.getMessage());
+            return ResponseEntity.ok(
+                    new EndpointResponse<>(202, "Verification email is being processed", null)
+            );
+        } catch (Exception e) {
+            if (e instanceof UserWithSameCredentialsAlreadyExists) {
+                return ResponseEntity.status(409).body(
+                        new EndpointResponse<>(409, "User with same credentials already exists", null)
+                );
             }
             HashMap<String, String> response = new HashMap<>();
             response.put("message", e.getMessage());
-            return ResponseEntity.status(500).body(response);
+            return ResponseEntity.status(500).body(
+                    new EndpointResponse<>(500, "Unexpected server error", null)
+            );
         }
     }
 
     @PostMapping("/confirm-email")
-    public ResponseEntity<Object> confirmEmailAndValidateAccount(@RequestBody ConfirmEmailAndValidateAccountDTO confirmEmailAndValidateAccountDTO) {
-        try{
+    @Operation(
+            summary = "Receive the email code from the user",
+            description = "If email code matches with the code that was send then create the user account"
+    )
+    @ApiResponse(
+            responseCode = "201",
+            description = "User Account Created",
+            content =
+            @Content(
+                    mediaType = "application/json",
+                    examples =
+                    @ExampleObject(
+                            name = "SuccessExample",
+                            value = "{ \"status\": 201, \"message\": \"Account created successfully\", " +
+                                    "\"data\": null }"
+                    ),
+                    schema = @Schema(implementation = EndpointResponse.class))
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "Error with email code validation",
+            content =
+            @Content(
+                    mediaType = "application/json",
+                    examples =
+                    @ExampleObject(
+                            name = "ConflictExample",
+                            value = "{ \"status\": 400, \"message\": \"Invalid email code\", \"data\": null }"
+                    ),
+                    schema = @Schema(implementation = EndpointResponse.class))
+    )
+    @ApiResponse(
+            responseCode = "409",
+            description = "User with same credentials already register on system",
+            content =
+            @Content(
+                    mediaType = "application/json",
+                    examples =
+                    @ExampleObject(
+                            name = "ConflictExample",
+                            value = "{ \"status\": 409, \"message\": \"User with same credentials already register\"," +
+                                    " \"data\": null }"
+                    ),
+                    schema = @Schema(implementation = EndpointResponse.class))
+    )
+    @ApiResponse(
+            responseCode = "500",
+            description = "Unexpected server error",
+            content =
+            @Content(
+                    mediaType = "application/json",
+                    examples =
+                    @ExampleObject(
+                            name = "ServerErrorExample",
+                            value = "{ \"status\": 500, \"message\": \"Internal server error\", \"data\": null }"
+                    ),
+                    schema = @Schema(implementation = EndpointResponse.class))
+    )
+    public ResponseEntity<EndpointResponse<String>> confirmEmailAndValidateAccount(@RequestBody ConfirmEmailAndValidateAccountDTO confirmEmailAndValidateAccountDTO) {
+        try {
 
             Map<String, Object> message = createMessageToBroker(confirmEmailAndValidateAccountDTO);
 
@@ -107,9 +224,11 @@ public class UsersController {
                     this.emailConfirmationQueue,
                     message, ConfirmEmailBrokerResponseDTO.class
             );
-            
+
             if (!response.getSuccess()) {
-                return ResponseEntity.status(400).body(response.getMessage());
+                return ResponseEntity.status(400).body(
+                        new EndpointResponse<>(400, response.getMessage(), null)
+                );
             }
             // From now on, the device token id is hashed and the device is linked to the account
             String HashedDeviceToken = HashDeviceToken.hash(confirmEmailAndValidateAccountDTO.getDeviceTokenId());
@@ -125,7 +244,6 @@ public class UsersController {
                     .build();
 
             UserEntity userCreated = this.createNewUserUseCase.execute(userInformation);
-            System.out.println(userCreated);
             ConfirmationAccountCreatedDTO messageToConfirmationToBroker = ConfirmationAccountCreatedDTO
                     .builder()
                     .id(userCreated.getId())
@@ -140,19 +258,100 @@ public class UsersController {
                     confirmationAccountCreationToBroker(messageToConfirmationToBroker)
             );
 
-            Map<String, String> responseMessage = new HashMap<>();
-            responseMessage.put("message", "Account created successfully");
+            return ResponseEntity.status(201).body(
+                    new EndpointResponse<>(201, "Account created successfully", null)
+            );
 
-            return ResponseEntity.status(201).body(responseMessage);
-            
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
+            if (e instanceof UserWithSameCredentialsAlreadyExists){
+                // 409
+                return ResponseEntity.status(409).body(
+                        new EndpointResponse<>(409, "User with same credentials already exists", null)
+                );
+            }
+            return ResponseEntity.status(500).body(
+                    new EndpointResponse<>(500, "Unexpected server error", null)
+            );
         }
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<Object> authenticateUser(@RequestBody AuthenticateUserDTO authenticateUserDTO) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        try{
+    @Operation(
+            summary = "Authenticate user",
+            description = "Verify user credentials to allow access to AshChat system"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "User Authenticated",
+            content =
+            @Content(
+                    mediaType = "application/json",
+                    examples =
+                    @ExampleObject(
+                            name = "SuccessExample",
+                            value = """
+                                    {
+                                      "status": 200,
+                                      "message": "User authenticated successfully",
+                                      "data": {
+                                        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                                        "user_id": "187418365e002c243176de40",
+                                        "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                      }
+                                    }"""
+                    ),
+                    schema = @Schema(implementation = EndpointResponse.class))
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "A new device is trying to log in",
+            content =
+            @Content(
+                    mediaType = "application/json",
+                    examples =
+                    @ExampleObject(
+                            name = "ConflictExample",
+                            value = """
+                                    {
+                                      "status": 403,
+                                      "message": "A new device is trying to log in. Check your email to allow it.",
+                                      "data": {
+                                        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                                        "info": "To allow the new device, use the JWT temporary token and the code sent to your email to endpoint /api/user/confirm-new-device"
+                                      }
+                                    }"""
+                    ),
+                    schema = @Schema(implementation = EndpointResponse.class))
+    )
+    @ApiResponse(
+            responseCode = "401",
+            description = "Invalid Credentials email/password",
+            content =
+            @Content(
+                    mediaType = "application/json",
+                    examples =
+                    @ExampleObject(
+                            name = "ConflictExample",
+                            value = "{ \"status\": 401, \"message\": \"Invalid Credentials Error\"," +
+                                    " \"data\": null }"
+                    ),
+                    schema = @Schema(implementation = EndpointResponse.class))
+    )
+    @ApiResponse(
+            responseCode = "500",
+            description = "Unexpected server error",
+            content =
+            @Content(
+                    mediaType = "application/json",
+                    examples =
+                    @ExampleObject(
+                            name = "ServerErrorExample",
+                            value = "{ \"status\": 500, \"message\": \"Internal server error\", \"data\": null }"
+                    ),
+                    schema = @Schema(implementation = EndpointResponse.class))
+    )
+    public ResponseEntity<EndpointResponse> authenticateUser(@RequestBody AuthenticateUserDTO authenticateUserDTO) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        try {
             String userId = this.authenticateUserUseCase.execute(authenticateUserDTO);
             // 7 days to refresh token expires
             Instant refreshExpirationTime = Instant.now().plus(Duration.ofDays(7));
@@ -167,39 +366,85 @@ public class UsersController {
             response.put("user_id", userId);
 
             // 200
-            return ResponseEntity.ok(response);
-        }
-        catch (Exception e){
+            return ResponseEntity.ok(
+                    new EndpointResponse<>(200, "User authenticated successfully", response)
+            );
+        } catch (Exception e) {
             if (e instanceof NewDeviceTryingToLogError) {
                 String user_id = newDeviceTryingToSignin(authenticateUserDTO);
-                if(user_id == null){
+                if (user_id == null) {
                     // 500
-                    return ResponseEntity.status(500).body(e.getMessage());
+                    return ResponseEntity.status(500).body(
+                            new EndpointResponse<>(500, "Unexpected server error", null)
+                    );
                 }
                 // 403
                 Instant temporaryExpirationTime = Instant.now().plus(Duration.ofMinutes(10));
                 String jwtTemporaryToken = this.jwtProvider.generateJWTToken(user_id, JWTTypes.TEMPORARY, temporaryExpirationTime);
                 Map<String, String> response = new HashMap<>();
                 response.put("token", jwtTemporaryToken);
-                response.put("message", "A new device is trying to log in. Check your email to allow it.");
                 response.put("info", "To allow the new device, use the JWT temporary token and the code sent to your email to endpoint /api/user/confirm-new-device");
-                return ResponseEntity.status(403).body(response);
+                return ResponseEntity.status(403).body(
+                        new EndpointResponse<>(403, "A new device is trying to log in. Check your email to allow it.", response)
+                );
             }
-            if (e instanceof InvalidCredentialsError){
+            if (e instanceof InvalidCredentialsError) {
                 // 401
-                return ResponseEntity.status(401).body(e.getMessage());
+                return ResponseEntity.status(401).body(
+                        new EndpointResponse<>(401, e.getMessage(), null)
+                );
             }
             // 500
-            return ResponseEntity.status(500).body(e.getMessage());
+            return ResponseEntity.status(500).body(
+                    new EndpointResponse<>(500, e.getMessage(), null)
+            );
         }
     }
 
     @PostMapping("/confirm-new-device")
     @PreAuthorize("hasRole('TEMPORARY')")
-    public ResponseEntity<Object> confirmNewDeviceAuth(HttpServletRequest request,
-                                  @RequestBody ConfirmNewDeviceAuthDTO confirmNewDeviceAuthDTO) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    @Operation(
+            summary = "Confirm new device to link account",
+            description = "Receives the email code and link the new device to the user account"
+    )
+    @ApiResponse(
+            responseCode = "204",
+            description = "New device was confirmed"
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "Invalid Email Code",
+            content =
+            @Content(
+                    mediaType = "application/json",
+                    examples =
+                    @ExampleObject(
+                            name = "ConflictExample",
+                            value = "{ \"status\": 403, \"message\": \"Invalid Email Code\"," +
+                                    " \"data\": null }"
+                    ),
+                    schema = @Schema(implementation = EndpointResponse.class))
+    )
+    @ApiResponse(
+            responseCode = "500",
+            description = "Unexpected server error",
+            content =
+            @Content(
+                    mediaType = "application/json",
+                    examples =
+                    @ExampleObject(
+                            name = "ServerErrorExample",
+                            value = "{ \"status\": 500, \"message\": \"Internal server error\", \"data\": null }"
+                    ),
+                    schema = @Schema(implementation = EndpointResponse.class))
+    )
+    @SecurityRequirement(name = "jwt_auth")
+    public ResponseEntity<Object> confirmNewDeviceAuth(
+            HttpServletRequest request,
+            @RequestBody ConfirmNewDeviceAuthDTO confirmNewDeviceAuthDTO
+    ) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         final String userId = request.getAttribute("user_id").toString();
-        try{
+        try {
             String hashedDeviceToken = HashDeviceToken.hash(confirmNewDeviceAuthDTO.getDeviceTokenId());
             confirmNewDeviceAuthDTO.setDeviceTokenId(hashedDeviceToken);
 
@@ -212,17 +457,20 @@ public class UsersController {
                     messageToBroker,
                     ConfirmaNewDeviceBrokerResponseDTO.class
             );
-            if(!response.isSuccess()){
+            if (!response.isSuccess()) {
                 // 403
-                return ResponseEntity.status(403).body(response.getMessage());
+                return ResponseEntity.status(403).body(
+                        new EndpointResponse<>(403, response.getMessage(), null)
+                );
             }
             this.changeDeviceInformationFromUserAccountUseCase.execute(userId, confirmNewDeviceAuthDTO);
             // 204
             return ResponseEntity.noContent().build();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             // 500
-            return ResponseEntity.status(500).body(e.getMessage());
+            return ResponseEntity.status(500).body(
+                    new EndpointResponse<>(500, e.getMessage(), null)
+            );
         }
     }
 
@@ -232,6 +480,7 @@ public class UsersController {
         final String userId = request.getAttribute("user_id").toString();
         return "Hello " + userId;
     }
+
     // Helper Methods to controllers
     private static Map<String, Object> createMessageToBroker(ConfirmEmailAndValidateAccountDTO confirmEmailAndValidateAccountDTO) {
         Map<String, Object> message = new HashMap<>();
@@ -253,7 +502,7 @@ public class UsersController {
         return message;
     }
 
-    private String newDeviceTryingToSignin (AuthenticateUserDTO authenticateUserDTO) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    private String newDeviceTryingToSignin(AuthenticateUserDTO authenticateUserDTO) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         Optional<UserEntity> user = this.findUserByEmailUseCase.execute(authenticateUserDTO.getEmail());
         if (user.isEmpty()) {
             return null;
