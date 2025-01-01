@@ -7,13 +7,11 @@ import com.ashchat.auth_service_spring.exceptions.NewDeviceTryingToLogError;
 import com.ashchat.auth_service_spring.exceptions.UserWithSameCredentialsAlreadyExists;
 import com.ashchat.auth_service_spring.modules.user.dto.*;
 import com.ashchat.auth_service_spring.modules.user.entity.UserEntity;
-import com.ashchat.auth_service_spring.modules.user.services.AuthenticateUserUseCase;
-import com.ashchat.auth_service_spring.modules.user.services.CreateNewUserUseCase;
-import com.ashchat.auth_service_spring.modules.user.services.CreateTempUserUseCase;
-import com.ashchat.auth_service_spring.modules.user.services.FindUserByEmailUseCase;
+import com.ashchat.auth_service_spring.modules.user.services.*;
 import com.ashchat.auth_service_spring.providers.JWTProvider;
 import com.ashchat.auth_service_spring.providers.CreateValidateCode;
 import com.ashchat.auth_service_spring.providers.HashDeviceToken;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,13 +37,15 @@ public class UsersController {
     private String emailConfirmationQueueCreation;
     @Value("${broker.queue.email.device.new}")
     private String emailNewDeviceQueue;
-
+    @Value("${broker.queue.email.device.confirm}")
+    private String emailDeviceConfirmationQueue;
     // Dependencies
     // Use cases
     final private CreateTempUserUseCase createTempUserUseCase;
     final private CreateNewUserUseCase createNewUserUseCase;
     final private AuthenticateUserUseCase authenticateUserUseCase;
     final private FindUserByEmailUseCase findUserByEmailUseCase;
+    final private ChangeDeviceInformationFromUserAccountUseCase changeDeviceInformationFromUserAccountUseCase;
     // Config
     final private UserProducer userProducer;
     final private JWTProvider jwtProvider;
@@ -55,7 +55,8 @@ public class UsersController {
             UserProducer userProducer,
             AuthenticateUserUseCase authenticateUserUseCase,
             JWTProvider jwtProvider,
-            FindUserByEmailUseCase findUserByEmailUseCase
+            FindUserByEmailUseCase findUserByEmailUseCase,
+            ChangeDeviceInformationFromUserAccountUseCase changeDeviceInformationFromUserAccountUseCase
     ) {
         this.createTempUserUseCase = createTempUserUseCase;
         this.createNewUserUseCase = createNewUserUseCase;
@@ -63,6 +64,7 @@ public class UsersController {
         this.authenticateUserUseCase = authenticateUserUseCase;
         this.jwtProvider = jwtProvider;
         this.findUserByEmailUseCase = findUserByEmailUseCase;
+        this.changeDeviceInformationFromUserAccountUseCase = changeDeviceInformationFromUserAccountUseCase;
     }
 
     @PostMapping("/signup")
@@ -192,10 +194,43 @@ public class UsersController {
         }
     }
 
+    @PostMapping("/confirm-new-device")
+    @PreAuthorize("hasRole('TEMPORARY')")
+    public ResponseEntity<Object> confirmNewDeviceAuth(HttpServletRequest request,
+                                  @RequestBody ConfirmNewDeviceAuthDTO confirmNewDeviceAuthDTO) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        final String userId = request.getAttribute("user_id").toString();
+        try{
+            String hashedDeviceToken = HashDeviceToken.hash(confirmNewDeviceAuthDTO.getDeviceTokenId());
+            confirmNewDeviceAuthDTO.setDeviceTokenId(hashedDeviceToken);
+
+            Map<String, Object> messageToBroker = new HashMap<>();
+            messageToBroker.put("user_id", userId);
+            messageToBroker.put("deviceUniqueToken", hashedDeviceToken);
+            messageToBroker.put("emailCode", confirmNewDeviceAuthDTO.getEmailCode());
+            ConfirmaNewDeviceBrokerResponseDTO response = this.userProducer.publishToRPCQueue(
+                    this.emailDeviceConfirmationQueue,
+                    messageToBroker,
+                    ConfirmaNewDeviceBrokerResponseDTO.class
+            );
+            if(!response.isSuccess()){
+                // 403
+                return ResponseEntity.status(403).body(response.getMessage());
+            }
+            this.changeDeviceInformationFromUserAccountUseCase.execute(userId, confirmNewDeviceAuthDTO);
+            // 204
+            return ResponseEntity.noContent().build();
+        }
+        catch (Exception e){
+            // 500
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
     @GetMapping("/hello")
     @PreAuthorize("hasRole('REFRESH')")
-    public String hello() {
-        return "Hello World!";
+    public String hello(HttpServletRequest request) {
+        final String userId = request.getAttribute("user_id").toString();
+        return "Hello " + userId;
     }
     // Helper Methods to controllers
     private static Map<String, Object> createMessageToBroker(ConfirmEmailAndValidateAccountDTO confirmEmailAndValidateAccountDTO) {
