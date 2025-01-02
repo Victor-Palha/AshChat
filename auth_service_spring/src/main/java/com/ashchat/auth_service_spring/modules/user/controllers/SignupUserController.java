@@ -61,7 +61,7 @@ public class SignupUserController {
                     emailMessageBrokerContent
             );
 
-            return ResponseEntity.ok(
+            return ResponseEntity.status(202).body(
                     new EndpointResponse<>(202, "Verification email is being processed", null)
             );
         } catch (Exception e) {
