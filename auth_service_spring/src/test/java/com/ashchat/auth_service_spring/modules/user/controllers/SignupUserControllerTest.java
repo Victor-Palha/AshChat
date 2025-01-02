@@ -1,18 +1,15 @@
 package com.ashchat.auth_service_spring.modules.user.controllers;
 
 import com.ashchat.auth_service_spring.modules.user.dto.CreateTempNewUserDTO;
-import com.ashchat.auth_service_spring.modules.user.dto.EndpointResponse;
 import com.ashchat.auth_service_spring.modules.user.entity.UserEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.containers.MongoDBContainer;
@@ -22,7 +19,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.UUID;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -49,7 +45,7 @@ public class SignupUserControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    public void testSignupSuccess() throws Exception {
+    public void should_be_able_to_register_a_new_user() throws Exception {
         CreateTempNewUserDTO request = new CreateTempNewUserDTO(
                 "test@example.com",
                 "TestUser",
@@ -72,7 +68,7 @@ public class SignupUserControllerTest {
     }
 
     @Test
-    public void testSignupConflict() throws Exception {
+    public void should_not_be_able_to_register_an_user_if_email_already_registered() throws Exception {
         String userDeviceToken = UUID.randomUUID().toString();
         String userNotificationToken = UUID.randomUUID().toString();
         UserEntity newUser = new UserEntity();
@@ -98,7 +94,7 @@ public class SignupUserControllerTest {
     }
 
     @Test
-    public void testSignupServerError() throws Exception {
+    public void should_not_be_able_to_register_an_user_if_information_are_incomplete() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/user/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
