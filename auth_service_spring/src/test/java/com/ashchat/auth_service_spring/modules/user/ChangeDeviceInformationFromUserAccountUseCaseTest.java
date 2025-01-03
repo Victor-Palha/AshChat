@@ -1,6 +1,7 @@
 package com.ashchat.auth_service_spring.modules.user;
 
 
+import com.ashchat.auth_service_spring.exceptions.UserNotFoundError;
 import com.ashchat.auth_service_spring.modules.user.dto.ConfirmNewDeviceAuthDTO;
 import com.ashchat.auth_service_spring.modules.user.entity.UserEntity;
 import com.ashchat.auth_service_spring.modules.user.repository.UserRepository;
@@ -11,9 +12,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,10 +51,10 @@ public class ChangeDeviceInformationFromUserAccountUseCaseTest {
                 .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(userToBeSearched));
-
+        when(userRepository.save(any())).thenReturn(userToBeSearched);
         try{
-            changeDeviceInformationFromUserAccountUseCase.execute(userId, confirmNewDeviceAuthDTO);
-            assert true;
+            UserEntity user = changeDeviceInformationFromUserAccountUseCase.execute(userId, confirmNewDeviceAuthDTO);
+            assert Objects.equals(user.getEmail(), userToBeSearched.getEmail());
         }
         catch (Exception e){
             throw new RuntimeException(e);
@@ -64,10 +67,9 @@ public class ChangeDeviceInformationFromUserAccountUseCaseTest {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
         try{
             changeDeviceInformationFromUserAccountUseCase.execute(userId, null);
-            assert true;
         }
         catch (Exception e){
-            assert e instanceof IllegalArgumentException;
+            assert e instanceof UserNotFoundError;
         }
     }
 }

@@ -1,6 +1,9 @@
 package com.ashchat.auth_service_spring.modules.user.controllers;
 
+import com.ashchat.auth_service_spring.constants.JWTTypes;
+import com.ashchat.auth_service_spring.modules.user.dto.ConfirmNewDeviceAuthDTO;
 import com.ashchat.auth_service_spring.modules.user.entity.UserEntity;
+import com.ashchat.auth_service_spring.providers.JWTProvider;
 import com.rabbitmq.client.AMQP;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,16 +23,15 @@ import org.testcontainers.containers.RabbitMQContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.Instant;
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Testcontainers
-public class ConfirmUserIdentityControllerTest {
-
+public class ConfirmNewDeviceToLinkWithAccountControllerTest {
     @Container
     static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:latest");
 
@@ -51,17 +53,20 @@ public class ConfirmUserIdentityControllerTest {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
+    @Autowired
+    private JWTProvider jwtProvider;
+
     @BeforeEach
     void setupQueue() {
         // Declare and configure the queue where the requests will go
         rabbitTemplate.execute(channel -> {
-            channel.queueDeclare("confirm_email_code_queue", true, false, false, null); // Durable queue
+            channel.queueDeclare("confirm_new_device_reply_queue", true, false, false, null); // Durable queue
             return null;
         });
 
         new Thread(() -> rabbitTemplate.execute(channel -> {
             // Listen for messages on the queue
-            String queue = "confirm_email_code_queue";
+            String queue = "confirm_new_device_reply_queue";
             channel.basicConsume(queue, true, (consumerTag, message) -> {
                 String replyQueue = message.getProperties().getReplyTo();
                 String correlationId = message.getProperties().getCorrelationId();
@@ -70,12 +75,7 @@ public class ConfirmUserIdentityControllerTest {
                 String response = """
                     {
                         "success": true,
-                        "message": "Email code validated",
-                        "data": {
-                            "nickname": "John Doe",
-                            "password": "hashed_password",
-                            "preferredLanguage": "en"
-                        }
+                        "message": "Device successfully confirmed"
                     }
                     """;
 
@@ -98,52 +98,72 @@ public class ConfirmUserIdentityControllerTest {
     }
 
     @Test
-    public void should_create_user_account_if_email_code_is_valid() throws Exception {
+    public void should_be_able_to_confirm_a_new_device_to_link_with_an_account() throws Exception {
+        String userDeviceToken = UUID.randomUUID().toString();
+        String userNotificationToken = UUID.randomUUID().toString();
+        UserEntity userToBeCreated = new UserEntity();
+        userToBeCreated.setName("John Doe");
+        userToBeCreated.setEmail("john.doe@example.com");
+        userToBeCreated.setPassword("password");
+        userToBeCreated.setDeviceOS("Windows 10");
+        userToBeCreated.setDeviceTokenId(userDeviceToken);
+        userToBeCreated.setDeviceNotificationToken(userNotificationToken);
+        UserEntity userCreated = mongoTemplate.save(userToBeCreated, "user_profile");
+
         String requestPayload = """
             {
-                "email": "john.doe@example.com",
                 "emailCode": "123456",
                 "deviceTokenId": "device123",
                 "deviceNotificationToken": "notif123",
                 "deviceOS": "ANDROID"
             }
-            """;
+        """;
+        Instant expiryTime = Instant.now().plusSeconds(300);
+        String JWTTemporaryToken = jwtProvider.generateJWTToken(
+                userCreated.getId(),
+                JWTTypes.TEMPORARY,
+                expiryTime
+        );
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/user/confirm-email")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/user/confirm-new-device")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + JWTTemporaryToken)
                         .content(requestPayload))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.status").value(201))
-                .andExpect(jsonPath("$.message").value("Account created successfully"));
+                .andExpect(status().isNoContent());
     }
 
     @Test
-    public void should_not_be_able_to_create_user_account_if_email_already_registered() throws Exception {
+    public void should_not_be_able_to_confirm_a_new_device_to_link_with_an_account_if_jwt_token_is_invalid() throws Exception {
         String userDeviceToken = UUID.randomUUID().toString();
         String userNotificationToken = UUID.randomUUID().toString();
-        UserEntity newUser = new UserEntity();
-        newUser.setName("John Doe");
-        newUser.setEmail("john.doe@example.com");
-        newUser.setPassword("password");
-        newUser.setDeviceOS("Windows 10");
-        newUser.setDeviceTokenId(userDeviceToken);
-        newUser.setDeviceNotificationToken(userNotificationToken);
-        mongoTemplate.save(newUser, "user_profile");
+        UserEntity userToBeCreated = new UserEntity();
+        userToBeCreated.setName("John Doe");
+        userToBeCreated.setEmail("john.doe@example.com");
+        userToBeCreated.setPassword("password");
+        userToBeCreated.setDeviceOS("Windows 10");
+        userToBeCreated.setDeviceTokenId(userDeviceToken);
+        userToBeCreated.setDeviceNotificationToken(userNotificationToken);
+        UserEntity userCreated = mongoTemplate.save(userToBeCreated, "user_profile");
+
         String requestPayload = """
             {
-                "email": "john.doe@example.com",
                 "emailCode": "123456",
                 "deviceTokenId": "device123",
                 "deviceNotificationToken": "notif123",
                 "deviceOS": "ANDROID"
             }
-            """;
+        """;
+        Instant expiryTime = Instant.now().plusSeconds(300);
+        String JWTTemporaryToken = jwtProvider.generateJWTToken(
+                "banana",
+                JWTTypes.TEMPORARY,
+                expiryTime
+        );
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/user/confirm-email")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/user/confirm-new-device")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + JWTTemporaryToken)
                         .content(requestPayload))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.status").value(409))
-                .andExpect(jsonPath("$.message").value("User with same credentials already exists"));
+                .andExpect(status().isNotFound());
     }
 }

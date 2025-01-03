@@ -1,6 +1,7 @@
 package com.ashchat.auth_service_spring.modules.user.controllers;
 
 import com.ashchat.auth_service_spring.configs.UserProducer;
+import com.ashchat.auth_service_spring.exceptions.UserNotFoundError;
 import com.ashchat.auth_service_spring.modules.user.dto.ConfirmNewDeviceAuthDTO;
 import com.ashchat.auth_service_spring.modules.user.dto.ConfirmaNewDeviceBrokerResponseDTO;
 import com.ashchat.auth_service_spring.modules.user.dto.EndpointResponse;
@@ -52,6 +53,7 @@ public class ConfirmNewDeviceToLinkWithAccountController {
     @Operation(summary = "Confirm new device to link account", description = "Receives the email code and link the new device to the user account")
     @ApiResponse(responseCode = "204", description = "New device was confirmed")
     @ApiResponse(responseCode = "403", description = "Invalid Email Code", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "ConflictExample", value = "{ \"status\": 403, \"message\": \"Invalid Email Code\",\"data\": null }"), schema = @Schema(implementation = EndpointResponse.class)))
+    @ApiResponse(responseCode = "404", description = "User Not Found", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "NotFoundError", value = "{ \"status\": 404, \"message\": \"User not found\",\"data\": null }"), schema = @Schema(implementation = EndpointResponse.class)))
     @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "ServerErrorExample", value = "{ \"status\": 500, \"message\": \"Internal server error\", \"data\": null }"), schema = @Schema(implementation = EndpointResponse.class)))
     @SecurityRequirement(name = "jwt_auth")
     public ResponseEntity<Object> execute(HttpServletRequest request, @RequestBody ConfirmNewDeviceAuthDTO confirmNewDeviceAuthDTO) throws UnsupportedEncodingException, NoSuchAlgorithmException {
@@ -82,6 +84,11 @@ public class ConfirmNewDeviceToLinkWithAccountController {
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             // 500
+            if (e instanceof UserNotFoundError) {
+                return ResponseEntity.status(404).body(
+                        new EndpointResponse<>(404, e.getMessage(), null)
+                );
+            }
             return ResponseEntity.status(500).body(
                     new EndpointResponse<>(500, e.getMessage(), null)
             );
