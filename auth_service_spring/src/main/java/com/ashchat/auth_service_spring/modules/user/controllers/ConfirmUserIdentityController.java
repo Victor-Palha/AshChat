@@ -2,10 +2,7 @@ package com.ashchat.auth_service_spring.modules.user.controllers;
 
 import com.ashchat.auth_service_spring.configs.UserProducer;
 import com.ashchat.auth_service_spring.exceptions.UserWithSameCredentialsAlreadyExists;
-import com.ashchat.auth_service_spring.modules.user.dto.ConfirmEmailAndValidateAccountDTO;
-import com.ashchat.auth_service_spring.modules.user.dto.ConfirmEmailBrokerResponseDTO;
-import com.ashchat.auth_service_spring.modules.user.dto.ConfirmationAccountCreatedDTO;
-import com.ashchat.auth_service_spring.modules.user.dto.EndpointResponse;
+import com.ashchat.auth_service_spring.modules.user.dto.*;
 import com.ashchat.auth_service_spring.modules.user.entity.UserEntity;
 import com.ashchat.auth_service_spring.modules.user.services.CreateNewUserUseCase;
 import com.ashchat.auth_service_spring.providers.HashDeviceToken;
@@ -54,14 +51,14 @@ public class ConfirmUserIdentityController {
     @ApiResponse(responseCode = "409", description = "User with same credentials already register on system", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "ConflictExample", value = "{ \"status\": 409, \"message\": \"User with same credentials already register\",\"data\": null }"), schema = @Schema(implementation = EndpointResponse.class)))
     @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "ServerErrorExample", value = "{ \"status\": 500, \"message\": \"Internal server error\", \"data\": null }"), schema = @Schema(implementation = EndpointResponse.class)))
     public ResponseEntity<EndpointResponse<String>> execute(@RequestBody ConfirmEmailAndValidateAccountDTO confirmEmailAndValidateAccountDTO) {
-
         try {
 
             Map<String, Object> message = createMessageToBroker(confirmEmailAndValidateAccountDTO);
 
-            ConfirmEmailBrokerResponseDTO response = this.userProducer.publishToRPCQueue(
+            ConfirmEmailBrokerResponseDTO response = userProducer.publishToRPCQueue(
                     this.emailConfirmationQueue,
-                    message, ConfirmEmailBrokerResponseDTO.class
+                    message,
+                    ConfirmEmailBrokerResponseDTO.class
             );
 
             if (!response.getSuccess()) {
