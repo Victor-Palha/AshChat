@@ -35,6 +35,8 @@ public class ConfirmNewDeviceToLinkWithAccountController {
     // Message Broker Queue
     @Value("${broker.queue.email.device.confirm}")
     private String emailDeviceConfirmationQueue;
+    @Value("${broker.queue.chat.device.new}")
+    private String chatDeviceNewQueue;
     // Use Cases
     final private ChangeDeviceInformationFromUserAccountUseCase changeDeviceInformationFromUserAccountUseCase;
     //Configs
@@ -80,6 +82,13 @@ public class ConfirmNewDeviceToLinkWithAccountController {
                 );
             }
             this.changeDeviceInformationFromUserAccountUseCase.execute(userId, confirmNewDeviceAuthDTO);
+
+            Map<String, Object> messageToChatBroker = new HashMap<>();
+            messageToChatBroker.put("id", userId);
+            messageToChatBroker.put("unique_device_token", hashedDeviceToken);
+            messageToChatBroker.put("notification_token", confirmNewDeviceAuthDTO.getDeviceNotificationToken());
+            this.userProducer.publishToQueueDefault(this.chatDeviceNewQueue, messageToChatBroker);
+
             // 204
             return ResponseEntity.noContent().build();
         } catch (Exception e) {

@@ -10,7 +10,7 @@ defmodule ChatService.Rabbitmq.ConsumerStarter do
   @impl true
   def init(_) do
     channel = ChatService.Rabbitmq.Connection.channel()
-
+    ensure_queue_exists(channel, "change_device_token_queue")
     ensure_queue_exists(channel, "confirm_new_account_queue")
 
     start_consumer(channel)
@@ -29,10 +29,15 @@ defmodule ChatService.Rabbitmq.ConsumerStarter do
   end
 
   defp start_consumer(channel) do
-    queue = "confirm_new_account_queue"
-    handler = ChatService.Handlers.QueueConfirmNewAccount
+    queue_new_account = "confirm_new_account_queue"
+    handler_new_account = ChatService.Handlers.QueueConfirmNewAccount
 
-    {:ok, _pid} = ChatService.Rabbitmq.GenericConsumer.start_link(%{channel: channel, queue: queue, handler: handler})
-    Logger.info("Consumer started for queue #{queue}")
+    queue_change_user_device_token = "change_device_token_queue"
+    handler_change_user_device_token = ChatService.Handlers.QueueChangeDeviceTokenQueue
+
+    {:ok, _pid} = ChatService.Rabbitmq.GenericConsumer.start_link(%{channel: channel, queue: queue_change_user_device_token, handler: handler_change_user_device_token})
+    {:ok, _pid} = ChatService.Rabbitmq.GenericConsumer.start_link(%{channel: channel, queue: queue_new_account, handler: handler_new_account})
+    Logger.info("Consumer started for queue #{queue_new_account}")
+    Logger.info("Consumer started for queue #{queue_change_user_device_token}")
   end
 end

@@ -76,6 +76,14 @@ defmodule ChatService.Services.User do
     end
   end
 
+  def update_user_tokens(user_id, new_device_token, new_notification_token) do
+    user_id = BSON.ObjectId.decode!(user_id)
+    case Mongo.update_one(:mongo, "users", %{"_id" => user_id}, %{"$set" => %{"device_token" => new_device_token, "notification_token" => new_notification_token}}) do
+      {:ok, result} -> {:ok, result}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
   def get_user_profile(user_id) do
     user_id = BSON.ObjectId.decode!(user_id)
     case Mongo.find_one(:mongo, "users", %{"_id" => user_id}) do
