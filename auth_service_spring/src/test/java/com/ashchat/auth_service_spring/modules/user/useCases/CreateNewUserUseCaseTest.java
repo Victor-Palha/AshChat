@@ -1,4 +1,4 @@
-package com.ashchat.auth_service_spring.modules.user;
+package com.ashchat.auth_service_spring.modules.user.useCases;
 
 import com.ashchat.auth_service_spring.exceptions.UserWithSameCredentialsAlreadyExists;
 import com.ashchat.auth_service_spring.modules.user.entity.UserEntity;

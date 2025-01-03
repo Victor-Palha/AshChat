@@ -1,4 +1,4 @@
-package com.ashchat.auth_service_spring.modules.user;
+package com.ashchat.auth_service_spring.modules.user.useCases;
 
 import com.ashchat.auth_service_spring.modules.user.dto.CreateTempNewUserDTO;
 import com.ashchat.auth_service_spring.modules.user.repository.UserRepository;
@@ -8,8 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Objects;
 import java.util.Optional;
