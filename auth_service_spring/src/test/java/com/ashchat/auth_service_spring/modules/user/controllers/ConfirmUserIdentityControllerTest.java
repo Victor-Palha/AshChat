@@ -56,6 +56,9 @@ public class ConfirmUserIdentityControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @Autowired
     private RabbitTemplate rabbitTemplate;
 
     @BeforeEach
@@ -66,7 +69,6 @@ public class ConfirmUserIdentityControllerTest {
             return null;
         });
 
-        // Start a consumer thread that listens for messages on the "confirm_email_code_queue"
         new Thread(() -> {
             rabbitTemplate.execute(channel -> {
                 // Listen for messages on the queue
@@ -120,5 +122,35 @@ public class ConfirmUserIdentityControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value(201))
                 .andExpect(jsonPath("$.message").value("Account created successfully"));
+    }
+
+    @Test
+    public void should_not_be_able_to_create_user_account_if_email_already_registered() throws Exception {
+        String userDeviceToken = UUID.randomUUID().toString();
+        String userNotificationToken = UUID.randomUUID().toString();
+        UserEntity newUser = new UserEntity();
+        newUser.setName("John Doe");
+        newUser.setEmail("john.doe@example.com");
+        newUser.setPassword("password");
+        newUser.setDeviceOS("Windows 10");
+        newUser.setDeviceTokenId(userDeviceToken);
+        newUser.setDeviceNotificationToken(userNotificationToken);
+        mongoTemplate.save(newUser, "user_profile");
+        String requestPayload = """
+            {
+                "email": "john.doe@example.com",
+                "emailCode": "123456",
+                "deviceTokenId": "device123",
+                "deviceNotificationToken": "notif123",
+                "deviceOS": "ANDROID"
+            }
+            """;
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/user/confirm-email")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestPayload))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.message").value("User with same credentials already exists"));
     }
 }
