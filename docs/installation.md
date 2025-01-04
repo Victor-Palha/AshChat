@@ -5,6 +5,7 @@ Follow these steps to install the AshChat project on your local machine.
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
+- [Java](https://www.java.com/en/download/) (version 23 or higher)
 - [Node.js](https://nodejs.org/) (version 18 or higher)
 - [npm](https://www.npmjs.com/) (version 10 or higher)
 - [Bun](https://bun.sh/) (version 1.0.27 or higher)
@@ -32,8 +33,8 @@ Change to the project directory:
 3. **Install Dependencies - Auth Service**
 Install the required dependencies of the backend using npm:
 ```bash
-    cd ./AshChat/auth_service
-    npm install
+    cd ./AshChat/auth_service_spring
+    ./mvnw clean install
 ```
 
 4. **Install Dependencies - Email Service**
@@ -66,7 +67,7 @@ Install the required dependencies using bun:
 ```
 
 8. **Configure Environment Variables**
-Create a `.env` file in the root directory and add the necessary environment variables. Refer to `.env.example` for the required variables for the _auth service_, _email service_ and _chat service_.
+Create a `.env` file in the root directory and add the necessary environment variables. Refer to `.env.example` for the required variables for the _email service_, _chat service_ and _translate service_.
 
 9. **Create key files for the JWT**
 On the root directory, run the following command to create the key files for the JWT:
@@ -75,7 +76,7 @@ On the root directory, run the following command to create the key files for the
     chmod +x gen_keys.sh
     source gen_keys.sh
 ```
-This will create the `private_key.pem` and `public_ket.pem` files in __AshChat/auth_service/priv/keys__ and __AshChat/auth_service__.
+This will create the `private_key.pem` and `public_ket.pem` files in __AshChat/auth_service_spring/src/main/resources__ and __AshChat/chat_service/priv/keys__.
 
 10. **Run Docker for Dependencies**
 The dependencies for the project are run using Docker and they are defined in the __AshChat/docker/docker-compose.yml__ file. To run the dependencies, run the following command:
@@ -94,8 +95,8 @@ This will start:
 To run the services, open a new terminal and run the following commands:
 - **Auth Service**
 ```bash
-    cd AshChat/auth_service
-    npm run start:dev
+    cd AshChat/auth_service_spring
+    ./mvnw spring-boot:run
 ```
 - **Email Service**
 ```bash
@@ -137,7 +138,7 @@ Up docker-compose services:
 ## Docker Installation
 If you want to run the project using Docker, you can use the Dockerfile and docker-compose.yml files provided in the project. To run the project using Docker, follow these steps:
 
-1. Create the `.env` file in the root directory of each service and add the necessary environment variables. Refer to `.env.example` for the required variables for the _auth service_, _email service_ and _chat service_.
+1. Create the `.env` file in the root directory of each service and add the necessary environment variables. Refer to `.env.example` for the required variables for the _email service_, _chat service_ and _translate service_.
 
 2. Create the key files for the JWT:
 ```bash
@@ -153,7 +154,7 @@ If you want to run the project using Docker, you can use the Dockerfile and dock
     source start.sh
 ```
 
-4. Create a `.env` file in the root directory of the project and add these environment variables:
+4. Create a `.env` file in the **root directory of the project** and add these environment variables:
 - **SMTP_EMAIL**
 - **SMTP_PASSWORD**
 These variables are used to send emails using the email service, if you don't provide them, the email service will not work!
