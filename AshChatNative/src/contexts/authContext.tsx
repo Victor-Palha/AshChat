@@ -13,7 +13,6 @@ const api = AuthAPIClient
 const safeStorage = SecureStoragePersistence
 
 type AuthState = {
-    token: string | null,
     user_id: string | null,
     authenticated: boolean | null
 }
@@ -29,38 +28,15 @@ interface AuthProps {
 export const AuthContext = createContext<AuthProps>({} as AuthProps)
 
 export function AuthProvider({children}: {children: React.ReactNode}){
-    const [authState, setAuthState] = useState<AuthState>({token: null, authenticated: null, user_id: null})
+    const [authState, setAuthState] = useState<AuthState>({authenticated: null, user_id: null})
     const [isLoading, setIsLoading] = useState(true)
     const [isChecking, setIsChecking] = useState(false);
 
-    async function validateToken(token: string): Promise<boolean>{
-        const api = AuthAPIClient
-        api.setTokenAuth(token)
-        const deviceUniqueToken = await safeStorage.getUniqueDeviceId()
-        if(!deviceUniqueToken) return false
-        api.setHeader("device_token", deviceUniqueToken)
-        const response = await api.server.get("/user/refresh-token")
-        if(response.status == 401){
-            console.log('Token expired')
-            await safeStorage.clearTokens()
-            MMKV.clearToken()
-        }
-        if(response.status != 200){
-            return false
-        }
-        const {data} = response.data
-        await safeStorage.setJWT(data.token)
-        await safeStorage.setRefreshToken(data.refresh_token)
-        MMKV.setToken(data.token)
-        api.setTokenAuth(data.refresh_token)
-        return true
-    }
-
-    async function checkToken() {
+    async function checkToken(): Promise<void> {
         if (isChecking) return;
         if (authState.authenticated === false) return;
         setIsChecking(true);
-        const token = await safeStorage.getRefreshToken();
+        const refresh_token = await safeStorage.getRefreshToken();
         const deviceUniqueToken = await safeStorage.getUniqueDeviceId();
         const user_id = await safeStorage.getUserId();
 
@@ -69,22 +45,58 @@ export function AuthProvider({children}: {children: React.ReactNode}){
             await safeStorage.setUniqueDeviceId(newDeviceUniqueToken);
         }
 
-        if (token) {
-            const isValid = await validateToken(token);
+        if (refresh_token) {
+            const isValid = await validateToken(refresh_token);
             if (!isValid) {
-                setAuthState({ token: null, authenticated: false, user_id });
+                setAuthState({authenticated: false, user_id: null });
                 setIsChecking(false);
                 return;
             }
-            setAuthState({ token, authenticated: true, user_id });
+            setAuthState({authenticated: true, user_id });
         } else {
-            setAuthState({ token: null, authenticated: false, user_id });
+            setAuthState({authenticated: false, user_id: null });
         }
         setIsChecking(false);
     }
 
+    async function validateToken(refresh_token: string): Promise<boolean> {
+        try {
+            const api = AuthAPIClient;
+            const deviceUniqueToken = await safeStorage.getUniqueDeviceId();
+            if (!deviceUniqueToken) return false;
+    
+            api.setTokenAuth(refresh_token);
+            api.setHeader("device_token", deviceUniqueToken);
+    
+            const response = await api.server.get("/user/refresh-token");
+    
+            if (response.status === 401) {
+                console.log('Token expired');
+                await safeStorage.clearTokens();
+                MMKV.clearToken();
+                return false;
+            }
+    
+            if (response.status !== 200) {
+                return false;
+            }
+    
+            const { data } = response.data;
+            await safeStorage.setJWT(data.token);
+            await safeStorage.setRefreshToken(data.refresh_token);
+            MMKV.setToken(data.token);
+            api.setTokenAuth(data.refresh_token);
+    
+            return true;
+        } catch (error) {
+            console.error("Error validating token:", error);
+            return false;
+        }
+    }
+
     useEffect(() => {
-        checkToken().finally(() => {
+        checkToken()
+        .finally(() => {
             setIsLoading(false);
         });
         
@@ -126,8 +138,8 @@ export function AuthProvider({children}: {children: React.ReactNode}){
             api.setTokenAuth(token)
 
             // Set the token to the state
-            setAuthState({token, authenticated: true, user_id})
-            router.navigate('/private/home')
+            setAuthState({authenticated: true, user_id})
+            router.replace('/private/home')
         } catch (error) {
             if(error instanceof AxiosError){
                 if(error.response?.status === 401){
@@ -203,7 +215,7 @@ export function AuthProvider({children}: {children: React.ReactNode}){
         await safeStorage.clearAll()
         // await safeStorage.clearUserId()
         MMKV.cleanAll()
-        setAuthState({token: null, authenticated: false, user_id: null})
+        setAuthState({authenticated: false, user_id: null})
 
         router.navigate('/')
     }

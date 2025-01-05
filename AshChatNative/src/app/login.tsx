@@ -3,13 +3,11 @@ import { Gradient } from "@/src/components/Grandient";
 import { Input } from "@/src/components/Input";
 import { InputPassword } from "@/src/components/InputPassword";
 import { AuthContext } from "@/src/contexts/authContext";
-import { useValidate } from "@/src/hooks/useValidate";
 import { Link } from "expo-router";
 import { useContext, useState } from "react";
 import { Alert, Image, Keyboard, KeyboardAvoidingView, Platform, Text, TouchableWithoutFeedback, View } from "react-native";
 
 export default function Login(){
-    useValidate()
     const {onLogin} = useContext(AuthContext)
 
     const [email, setEmail] = useState("");
