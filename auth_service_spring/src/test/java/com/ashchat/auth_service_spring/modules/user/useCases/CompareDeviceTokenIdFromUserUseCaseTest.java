@@ -11,8 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,8 +26,7 @@ public class CompareDeviceTokenIdFromUserUseCaseTest {
     private UserRepository userRepository;
 
     @Test
-    public void should_be_able_to_validate_user_device_by_id() throws UnsupportedEncodingException,
-            NoSuchAlgorithmException {
+    public void should_be_able_to_validate_user_device_by_id() throws Exception {
         String hashDeviceId = HashDeviceToken.hash("some_random_token");
         String userId = UUID.randomUUID().toString();
         UserEntity userToBeSearched = UserEntity
@@ -55,7 +52,7 @@ public class CompareDeviceTokenIdFromUserUseCaseTest {
     }
 
     @Test
-    public void should_not_be_able_to_validate_user_device_id_the_token_are_incorrect() throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    public void should_not_be_able_to_validate_user_device_id_the_token_are_incorrect() throws Exception {
         String hashDeviceId = HashDeviceToken.hash("some_random_token");
         String userId = UUID.randomUUID().toString();
         UserEntity userToBeSearched = UserEntity
@@ -81,8 +78,7 @@ public class CompareDeviceTokenIdFromUserUseCaseTest {
     }
 
     @Test
-    public void should_not_be_able_to_validate_user_device_id_the_id_are_incorrect() throws UnsupportedEncodingException,
-            NoSuchAlgorithmException {
+    public void should_not_be_able_to_validate_user_device_id_the_id_are_incorrect() throws Exception{
         String hashDeviceId = HashDeviceToken.hash("some_random_token");
         String userId = UUID.randomUUID().toString();
         UserEntity userToBeSearched = UserEntity

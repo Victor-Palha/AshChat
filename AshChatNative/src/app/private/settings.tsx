@@ -1,7 +1,7 @@
 import { Footer } from "@/src/components/Footer";
 import { MMKVStorage, UserProfileProps } from "@/src/persistence/MMKVStorage";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Alert, Button, Image, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
 import { useMMKVObject } from "react-native-mmkv";
 import { useContext, useState } from "react";
@@ -72,12 +72,16 @@ export default function Settings(){
             }
         ])
     }
+    let profilePhoto = userProfile?.photo_url
+    if(profilePhoto != "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"){
+        profilePhoto = "http://localhost:3006" + profilePhoto
+    }
     return (
         <View className="flex-1 pt-[62px] px-10">
             <Text className="font-bold text-white text-3xl">Settings</Text>
             <View className="items-center mt-10 gap-2">
                 <TouchableOpacity onPress={handleSelectNewProfilePhoto}>
-                    <Image source={{uri: "http://localhost:3006" + userProfile?.photo_url}} style={{width: 100, height: 100, borderRadius: 50}}/>
+                    <Image source={{uri: profilePhoto}} style={{width: 100, height: 100, borderRadius: 50}}/>
                 </TouchableOpacity>
 
                 <TouchableOpacity className="flex-row items-center gap-2" onPress={handleOpenModal}>

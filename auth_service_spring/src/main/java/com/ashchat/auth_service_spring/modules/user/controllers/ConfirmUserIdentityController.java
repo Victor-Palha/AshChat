@@ -85,7 +85,7 @@ public class ConfirmUserIdentityController {
                     .id(userCreated.getId())
                     .nickname(userCreated.getName())
                     .preferredLanguage(response.getData().getPreferredLanguage())
-                    .unique_device_token(HashedDeviceToken)
+                    .unique_device_token(confirmEmailAndValidateAccountDTO.getDeviceTokenId())
                     .notification_token(confirmEmailAndValidateAccountDTO.getDeviceNotificationToken())
                     .build();
 

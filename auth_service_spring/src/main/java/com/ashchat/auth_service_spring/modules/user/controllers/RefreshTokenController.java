@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,7 +39,7 @@ public class RefreshTokenController {
     }
 
     @PreAuthorize("hasRole('REFRESH')")
-    @PostMapping("/refresh-token")
+    @GetMapping("/refresh-token")
     @Operation(summary = "Refresh user token", description = "Refresh the tokens for the user if credentials are valid")
     @ApiResponse(responseCode = "200", description = "Valid Refresh", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "SuccessExample",
             value = """

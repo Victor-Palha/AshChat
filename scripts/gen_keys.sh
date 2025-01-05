@@ -9,7 +9,7 @@ PUBLIC_KEY_FILE_SPRING="$AUTH_SERVICE_DIR/public_key.pem"
 PUBLIC_KEY_FILE="$PUBLIC_KEY_DIR/public_key.pem"
 
 # Create the directory if it doesn't exist
-mkdir -p "$KEY_DIR"
+# mkdir -p "$KEY_DIR"
 
 # Generate a private key
 if [ ! -f "$PRIVATE_KEY_FILE" ]; then

@@ -32,7 +32,7 @@ public class AuthenticateUserUseCaseTest {
     private UserRepository userRepository;
 
     @Test
-    public void should_be_able_to_authenticate_user() throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    public void should_be_able_to_authenticate_user() throws Exception {
         String userDeviceToken = UUID.randomUUID().toString();
         String userDeviceTokenHashed = HashDeviceToken.hash(userDeviceToken);
         String userNotificationToken = UUID.randomUUID().toString();
@@ -64,7 +64,7 @@ public class AuthenticateUserUseCaseTest {
     }
 
     @Test
-    public void should_not_be_able_to_authenticate_user_if_password_are_incorrect() throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    public void should_not_be_able_to_authenticate_user_if_password_are_incorrect() throws Exception {
         String userDeviceToken = UUID.randomUUID().toString();
         String userDeviceTokenHashed = HashDeviceToken.hash(userDeviceToken);
         String userNotificationToken = UUID.randomUUID().toString();
@@ -95,7 +95,7 @@ public class AuthenticateUserUseCaseTest {
     }
 
     @Test
-    public void should_not_be_able_to_authenticate_user_if_device_token_are_incorrect() throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    public void should_not_be_able_to_authenticate_user_if_device_token_are_incorrect() throws Exception {
         String userDeviceToken = UUID.randomUUID().toString();
         String userDeviceTokenHashed = HashDeviceToken.hash(userDeviceToken);
         String userNotificationToken = UUID.randomUUID().toString();

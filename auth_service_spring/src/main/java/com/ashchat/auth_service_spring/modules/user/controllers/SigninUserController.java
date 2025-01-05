@@ -84,7 +84,7 @@ public class SigninUserController {
             }"""), schema = @Schema(implementation = EndpointResponse.class)))
     @ApiResponse(responseCode = "401", description = "Invalid Credentials email/password", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "ConflictExample", value = "{ \"status\": 401, \"message\": \"Invalid Credentials Error\", \"data\": null }"), schema = @Schema(implementation = EndpointResponse.class)))
     @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "ServerErrorExample", value = "{ \"status\": 500, \"message\": \"Internal server error\", \"data\": null }"), schema = @Schema(implementation = EndpointResponse.class)))
-    public ResponseEntity<Object> execute(@RequestBody AuthenticateUserDTO authenticateUserDTO) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    public ResponseEntity<Object> execute(@RequestBody AuthenticateUserDTO authenticateUserDTO) throws Exception {
 
         try {
             // Attempt user authentication
@@ -137,7 +137,7 @@ public class SigninUserController {
         }
     }
 
-    private String handleNewDeviceLogin(AuthenticateUserDTO authenticateUserDTO) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    private String handleNewDeviceLogin(AuthenticateUserDTO authenticateUserDTO) throws Exception {
         // Retrieve user based on email
         Optional<UserEntity> user = this.findUserByEmailUseCase.execute(authenticateUserDTO.getEmail());
         if (user.isEmpty()) {

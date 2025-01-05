@@ -58,7 +58,7 @@ public class ConfirmNewDeviceToLinkWithAccountController {
     @ApiResponse(responseCode = "404", description = "User Not Found", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "NotFoundError", value = "{ \"status\": 404, \"message\": \"User not found\",\"data\": null }"), schema = @Schema(implementation = EndpointResponse.class)))
     @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "ServerErrorExample", value = "{ \"status\": 500, \"message\": \"Internal server error\", \"data\": null }"), schema = @Schema(implementation = EndpointResponse.class)))
     @SecurityRequirement(name = "jwt_auth")
-    public ResponseEntity<Object> execute(HttpServletRequest request, @RequestBody ConfirmNewDeviceAuthDTO confirmNewDeviceAuthDTO) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    public ResponseEntity<Object> execute(HttpServletRequest request, @RequestBody ConfirmNewDeviceAuthDTO confirmNewDeviceAuthDTO) throws Exception {
 
         final String userId = request.getAttribute("user_id").toString();
 
@@ -85,7 +85,7 @@ public class ConfirmNewDeviceToLinkWithAccountController {
 
             Map<String, Object> messageToChatBroker = new HashMap<>();
             messageToChatBroker.put("id", userId);
-            messageToChatBroker.put("unique_device_token", hashedDeviceToken);
+            messageToChatBroker.put("unique_device_token", confirmNewDeviceAuthDTO.getDeviceTokenId());
             messageToChatBroker.put("notification_token", confirmNewDeviceAuthDTO.getDeviceNotificationToken());
             this.userProducer.publishToQueueDefault(this.chatDeviceNewQueue, messageToChatBroker);
 

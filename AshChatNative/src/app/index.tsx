@@ -3,6 +3,11 @@ import { router } from "expo-router";
 import { Image, Text, View } from "react-native";
 import { Gradient } from "@/src/components/Grandient";
 import { useValidate } from "@/src/hooks/useValidate";
+import SecureStoragePersistence from "../persistence/SecureStorage";
+import { MMKVStorage } from "../persistence/MMKVStorage";
+
+// const MMKV = new MMKVStorage()
+// const safeStorage = SecureStoragePersistence
 
 export default function Index(){
     useValidate()

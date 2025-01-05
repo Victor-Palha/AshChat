@@ -1,6 +1,7 @@
 defmodule ChatService.Services.User do
   alias ChatService.Models.User, as: User
   alias ChatService.Repo, as: Repo
+  alias ChatService.Utils.HashSha256
 
   def get_user_by_id(user_id) do
     user_id = BSON.ObjectId.decode!(user_id)
@@ -78,7 +79,8 @@ defmodule ChatService.Services.User do
 
   def update_user_tokens(user_id, new_device_token, new_notification_token) do
     user_id = BSON.ObjectId.decode!(user_id)
-    case Mongo.update_one(:mongo, "users", %{"_id" => user_id}, %{"$set" => %{"device_token" => new_device_token, "notification_token" => new_notification_token}}) do
+    hashed_device_token = HashSha256.call(new_device_token)
+    case Mongo.update_one(:mongo, "users", %{"_id" => user_id}, %{"$set" => %{"device_token" => hashed_device_token, "notification_token" => new_notification_token}}) do
       {:ok, result} -> {:ok, result}
       {:error, reason} -> {:error, reason}
     end

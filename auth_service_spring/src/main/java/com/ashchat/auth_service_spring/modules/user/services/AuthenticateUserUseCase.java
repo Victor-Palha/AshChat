@@ -22,7 +22,7 @@ public class AuthenticateUserUseCase {
         this.userRepository = userRepository;
     }
 
-    public String execute(AuthenticateUserDTO authenticateUserDTO) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    public String execute(AuthenticateUserDTO authenticateUserDTO) throws Exception {
         Optional<UserEntity> userExists = this.userRepository.findByEmail(authenticateUserDTO.getEmail());
         if(userExists.isEmpty()){
             throw new InvalidCredentialsError();

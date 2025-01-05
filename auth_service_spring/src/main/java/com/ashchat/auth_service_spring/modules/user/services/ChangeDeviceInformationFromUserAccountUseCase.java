@@ -19,7 +19,7 @@ public class ChangeDeviceInformationFromUserAccountUseCase {
         this.userRepository = userRepository;
     }
 
-    public UserEntity execute(String userId, ConfirmNewDeviceAuthDTO confirmNewDeviceAuthDTO) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    public UserEntity execute(String userId, ConfirmNewDeviceAuthDTO confirmNewDeviceAuthDTO) throws Exception {
         Optional<UserEntity> userExists = this.userRepository.findById(userId);
         if(userExists.isEmpty()) {
             throw new UserNotFoundError();

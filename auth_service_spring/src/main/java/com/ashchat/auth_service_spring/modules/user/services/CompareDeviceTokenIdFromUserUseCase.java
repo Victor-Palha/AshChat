@@ -6,8 +6,6 @@ import com.ashchat.auth_service_spring.modules.user.repository.UserRepository;
 import com.ashchat.auth_service_spring.providers.HashDeviceToken;
 import org.springframework.stereotype.Service;
 
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
 @Service
@@ -19,7 +17,7 @@ public class CompareDeviceTokenIdFromUserUseCase {
         this.userRepository = userRepository;
     }
 
-    public boolean execute(String userId, String deviceTokenId) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    public boolean execute(String userId, String deviceTokenId) throws Exception {
         Optional<UserEntity> userSearched = userRepository.findById(userId);
         if(userSearched.isEmpty()){
             throw new UserNotFoundError();
