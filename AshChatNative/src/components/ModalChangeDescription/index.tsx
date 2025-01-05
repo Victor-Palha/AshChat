@@ -26,7 +26,30 @@ export function ModalChangeDescription({modalIsOpen, closeModal}:ModalAddProps){
     }, [userProfile])
 
     async function handleChangeDescription() {
+        const api = PhoenixAPIClient
+        const token = await SecureStoragePersistence.getJWT()
+        const device_token = await SecureStoragePersistence.getUniqueDeviceId()
+        if(!token || !device_token) return
+        api.setTokenAuth(token)
+        api.setHeader("device_token", device_token)
+        if(newDescription.length > 0 && newDescription.length <= 150){
+            const response = await api.server.patch("/user/description/", {
+                description: newDescription
+            })
 
+            if(response.status == 200){
+                const newProfile: UserProfileProps = {
+                    ...userProfile,
+                    description: newDescription
+                } as UserProfileProps
+                mmkvStorage.setUserProfile(newProfile)
+                closeModal(false)
+            }else{
+                Alert.alert("Error", "An error occurred while creating the chat")
+            }
+        }else{
+            Alert.alert("Invalid Description", "Please enter a description with more then 0 characters and less then 150 characters")
+        }
     }
 
     return (
@@ -38,6 +61,14 @@ export function ModalChangeDescription({modalIsOpen, closeModal}:ModalAddProps){
                 <TouchableOpacity onPress={()=>closeModal(false)}>
                     <Text className="text-purple-700 text-lg">Cancel</Text>
                 </TouchableOpacity>
+                <View className="gap-2 items-center flex-row">
+                    <Text className="text-white text-lg font-semibold">
+                        Description 
+                    </Text>
+                    <Text className={150 - newDescription.length <= 0 ? "text-red-600 text-lg font-bold" : "text-white text-lg font-bold"}>
+                        ({150 - newDescription.length})
+                    </Text>
+                </View>
                 <TouchableOpacity onPress={handleChangeDescription}>
                     <Text className="text-purple-700 text-lg">Save</Text>
                 </TouchableOpacity>

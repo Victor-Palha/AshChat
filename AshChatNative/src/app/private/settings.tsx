@@ -99,7 +99,7 @@ export default function Settings(){
 
                 <Text className="text-white italic text-sm">{userProfile?.tag_user_id}</Text>
             </View>
-            <TouchableOpacity className="mt-5 bg-gray-800 p-5 rounded-2xl" onPress={handleOpenModalToChangeDescription}>
+            <TouchableOpacity className="mt-5 bg-gray-800 p-5 rounded-2xl max-h-[100] overflow-auto" onPress={handleOpenModalToChangeDescription}>
                 <Text className="text-white">{userProfile?.description}</Text>
             </TouchableOpacity>
             <View className="mt-5 bg-gray-800 p-5 rounded-2xl">

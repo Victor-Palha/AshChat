@@ -11,7 +11,8 @@ defmodule ChatServiceWeb.Router do
     pipe_through :api
 
     post "/chat", ChatController, :create
-    patch "/user/nickname", UserController, :update_name
+    patch "/user/nickname", UserController, :update_user_name
+    patch "/user/description", UserController, :update_user_description
     patch "/user/photo", UserController, :update_user_photo
     get "/user", UserController, :get_user_by_id
     get "/chats", ChatController, :get_chats
