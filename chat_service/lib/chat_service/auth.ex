@@ -1,6 +1,7 @@
 defmodule ChatService.Auth do
     use Joken.Config
     alias ChatService.Services.User
+    alias ChatService.Utils.HashSha256
 
     def verify_token(token) do
       signer = Joken.Signer.parse_config(:rs256)
@@ -20,7 +21,7 @@ defmodule ChatService.Auth do
         nil ->
           {:error, "User not found"}
         user ->
-          if user.device_token == :crypto.hash(:sha256, to_string(device_unique_id)) |> Base.encode16() |> String.downcase() do
+          if user.device_token == HashSha256.call(device_unique_id) do
             {:ok, "Device token verified"}
           else
             {:error, "Device token not verified"}

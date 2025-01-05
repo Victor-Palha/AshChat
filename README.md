@@ -1,6 +1,6 @@
 # AshChat
 
-**AshChat** is a sophisticated web application designed to facilitate real-time communication between users. Leveraging the power of websockets, AshChat ensures seamless and instantaneous interaction between the server and clients. The application is developed using __Node.js__, __Elixir__, __React Native__.
+**AshChat** is a sophisticated web application designed to facilitate real-time communication between users. Leveraging the power of websockets, AshChat ensures seamless and instantaneous interaction between the server and clients. The application is developed using __Node.js__, __JAVA__, __Elixir__ and __React Native__.
 This project is developed using microservices architecture and is divided into five services:
 - **Authentication Service**
 - **Chat Service**

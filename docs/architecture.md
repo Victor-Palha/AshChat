@@ -8,10 +8,7 @@ The AshChat application is designed with a microservices architecture, allowing 
 
 ### 1. Auth Service
 
-The Backend Service is responsible for handling user authentication on the AshChat application. It is built using Node.js and Express.js.
-- **Express.js:** The backend service is built using Express.js, a web application framework for Node.js.
-- **Mongoose:** An ODM (Object Data Modeling) library for MongoDB and Node.js, used to interact with the MongoDB database.
-- **Zod:** A TypeScript-first schema declaration and validation library.
+The Backend Service is responsible for handling user authentication on the AshChat application. It is built using **JAVA** and **Spring boot**. This service manages user registration, authentication, and 2FA (Two-Factor Authentication) using JWT (JSON Web Tokens) for secure communication between the services.
 
 ### 2. Email Service
 

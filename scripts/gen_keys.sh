@@ -1,14 +1,15 @@
 #!/bin/bash
 
 # Define the directory and file paths
-PRIVATE_KEY_DIR="../backend/"
+AUTH_SERVICE_DIR="../auth_service_spring/src/main/resources"
 PUBLIC_KEY_DIR="../chat_service/priv/keys"
 
-PRIVATE_KEY_FILE="$PRIVATE_KEY_DIR/private_key.pem"
+PRIVATE_KEY_FILE="$AUTH_SERVICE_DIR/private_key.pem"
+PUBLIC_KEY_FILE_SPRING="$AUTH_SERVICE_DIR/public_key.pem"
 PUBLIC_KEY_FILE="$PUBLIC_KEY_DIR/public_key.pem"
 
 # Create the directory if it doesn't exist
-mkdir -p "$KEY_DIR"
+# mkdir -p "$KEY_DIR"
 
 # Generate a private key
 if [ ! -f "$PRIVATE_KEY_FILE" ]; then
@@ -23,7 +24,8 @@ fi
 if [ ! -f "$PUBLIC_KEY_FILE" ]; then
     echo "Generating public key..."
     openssl rsa -pubout -in "$PRIVATE_KEY_FILE" -out "$PUBLIC_KEY_FILE"
-    echo "Public key saved to $PUBLIC_KEY_FILE"
+    openssl rsa -pubout -in "$PRIVATE_KEY_FILE" -out "$PUBLIC_KEY_FILE_SPRING"
+    echo "Public key saved to $PUBLIC_KEY_FILE and $PUBLIC_KEY_FILE_SPRING"
 else
     echo "Public key already exists at $PUBLIC_KEY_FILE"
 fi

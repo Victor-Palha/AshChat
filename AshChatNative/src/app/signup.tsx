@@ -71,7 +71,7 @@ export default function Signup(){
                 <Input placeholder="Username" icon="person" 
                     value={nickname} onChangeText={setNickname}
                 />
-                <Input placeholder="Email" icon="email" autoCapitalize="none"
+                <Input placeholder="Email" icon="email" autoCapitalize="none" autoComplete="off"
                     value={email} onChangeText={setEmail}
                 />
                 <InputPassword placeholder="Password"

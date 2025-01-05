@@ -1,5 +1,4 @@
-import { useCallback, useContext } from "react";
-import { AuthContext } from "../contexts/authContext";
+import { useCallback } from "react";
 import { router, useFocusEffect } from "expo-router";
 import { useMMKVString } from "react-native-mmkv";
 

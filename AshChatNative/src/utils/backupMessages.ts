@@ -46,7 +46,6 @@ export async function backupMessages(){
 
 async function getBackup(api: typeof PhoenixAPIClient, jwtToken: string, deviceToken: string): Promise<ResponseBackupServer[] | null>{
     api.setTokenAuth(jwtToken);
-    console.log(deviceToken)
     api.setHeader('device_token', deviceToken);
     const response = await api.server.get("/chats")
     const {chats} = response.data as {chats: ResponseBackupServer[] | []}

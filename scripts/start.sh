@@ -28,4 +28,4 @@ else
 fi
 
 # Exibe o status dos contêineres
-docker-compose ps
+docker compose ps

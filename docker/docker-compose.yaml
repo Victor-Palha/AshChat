@@ -42,6 +42,8 @@ volumes:
     driver: local
   redis_data:
     driver: local
+  postgres-data:  
+    driver: local
 
 networks:
   ashchat_network:

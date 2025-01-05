@@ -48,11 +48,11 @@ export function AuthProvider({children}: {children: React.ReactNode}){
         if(response.status != 200){
             return false
         }
-        const {token: newToken, refresh_token} = response.data
-        await safeStorage.setJWT(newToken)
-        await safeStorage.setRefreshToken(refresh_token)
-        MMKV.setToken(newToken)
-        api.setTokenAuth(newToken)
+        const {data} = response.data
+        await safeStorage.setJWT(data.token)
+        await safeStorage.setRefreshToken(data.refresh_token)
+        MMKV.setToken(data.token)
+        api.setTokenAuth(data.refresh_token)
         return true
     }
 
@@ -105,19 +105,16 @@ export function AuthProvider({children}: {children: React.ReactNode}){
                 return Alert.alert('Error', "No device token found. Please try again.")
             }
             // Call the login endpoint
-            const response = await api.server.post('/user/login', {email, password, deviceUniqueToken})
-            const token = response.data.token
-            const refreshToken = response.data.refresh_token
-            const user_id = response.data.user_id
-            //Validate if user_id is the same as the one stored in the secure storage
-            const storedUserId = await safeStorage.getUserId()
-            if(storedUserId && storedUserId !== user_id){
-
-            }
+            const response = await api.server.post('/user/signin', {
+                email, 
+                password, 
+                deviceTokenId:deviceUniqueToken
+            })
+            const {token, refresh_token, user_id} = response.data.data
 
             // Save secure storage and MMKV values
             await safeStorage.setJWT(token)
-            await safeStorage.setRefreshToken(refreshToken)
+            await safeStorage.setRefreshToken(refresh_token)
             await safeStorage.setUserId(user_id)
             await safeStorage.setEmail(email)
             await safeStorage.setDeviceOS(Platform.OS)
@@ -152,7 +149,12 @@ export function AuthProvider({children}: {children: React.ReactNode}){
                 return 
             }
             // Call the register endpoint
-            const response = await api.server.post('/user/register', {email, password, nickname, preferredLanguage, deviceUniqueToken})
+            const response = await api.server.post('/user/signup', {
+                email, 
+                password, 
+                name: nickname, 
+                preferredLanguage,
+            })
 
             if(response.status === 202){
                 Alert.alert('Success', "You have successfully registered. Please check your email to confirm your account.")
@@ -184,7 +186,7 @@ export function AuthProvider({children}: {children: React.ReactNode}){
                 email, 
                 emailCode, 
                 deviceOS, 
-                deviceUniqueToken, 
+                deviceTokenId: deviceUniqueToken, 
                 deviceNotificationToken
             })
 

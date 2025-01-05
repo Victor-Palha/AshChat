@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Caminhos para os serviços
-AUTH_SERVICE="$PWD/../auth_service"
+AUTH_SERVICE="$PWD/../auth_service_spring"
 EMAIL_SERVICE="$PWD/../email_service"
 TRANSLATE_SERVICE="$PWD/../translate_service"
 CHAT_SERVICE="$PWD/../chat_service"
@@ -22,7 +22,7 @@ chmod +x gen_key.sh
 source gen_key.sh
 
 # Inicia Auth Service
-start_service "Auth Service" "$AUTH_SERVICE" "npm install && npm run start:dev"
+start_service "Auth Service" "$AUTH_SERVICE" "./mvnw clean install && ./mvnw spring-boot:run"
 
 # Espera 2 segundos para evitar conflitos
 sleep 2

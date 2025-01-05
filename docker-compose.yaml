@@ -1,6 +1,6 @@
 services:
   auth_service:
-    build: ./auth_service
+    build: ./auth_service_spring
     ports:
       - "3005:3005"
     networks:
