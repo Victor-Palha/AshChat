@@ -153,9 +153,54 @@ export class MMKVStorage {
     return this.instance.getString(this.CONSTANTS.USER_ID);
   }
 
+  private addNewChatThroughNotification({ chat_id, content, sender_id, timestamp }: AddMessageProps): void {
+    const allChatsString = this.instance.getString(this.CONSTANTS.CHAT);
+    const allChats = allChatsString ? JSON.parse(allChatsString) as ChatProps[] : [];
+
+    const newChat: ChatProps = {
+      chat_id,
+      nickname: "Unknown",
+      messages: [
+        {
+          id_message: randomUUID(),
+          content,
+          sender_id,
+          timestamp,
+          status: 'SENT',
+        }
+      ],
+      profile_picture: 'https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg',
+      description: '',
+      preferred_language: '',
+    };
+
+    allChats.push(newChat);
+    this.instance.set(this.CONSTANTS.CHAT, JSON.stringify(allChats));
+
+    this.addLabel({
+      chat_id,
+      nickname: "Unknown",
+      last_message: {
+        id_message: randomUUID(),
+        content,
+        sender_id,
+        timestamp,
+        status: 'PENDING',
+      },
+      notification: 1,
+      last_interaction: new Date(),
+      profile_picture: 'https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg',
+    });
+  }
+
   public addMessage({ chat_id, content, sender_id, timestamp, isNotification = false }: AddMessageProps): MessageProps | undefined {
       const result = this.getChat(chat_id);
-      if (!result) return;
+      if (!result && !isNotification) return;
+      if(!result && isNotification) {
+        this.addNewChatThroughNotification({ chat_id, content, sender_id, timestamp });
+        return
+      }
+      if(!result) return
 
       const { chats, searched_chats } = result;
 

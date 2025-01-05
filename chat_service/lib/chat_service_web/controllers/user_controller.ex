@@ -89,4 +89,18 @@ defmodule ChatServiceWeb.UserController do
     end
   end
 
+  def get_contact_by_id(conn, %{"id" => user_id}) do
+    IO.puts("User ID: #{user_id}")
+    case User.get_user_profile(user_id) do
+      {:error, reason} ->
+        conn
+        |> put_status(404)
+        |> json(%{error: reason})
+      {:ok, user} ->
+        conn
+        |> put_status(:ok)
+        |> json(%{user: user})
+    end
+  end
+
 end
