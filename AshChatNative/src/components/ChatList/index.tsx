@@ -1,10 +1,10 @@
-import { LabelChatProps } from "@/src/persistence/MMKVStorage";
+import { LabelChatPropsDTO } from "@/src/persistence/MMKVStorage/DTO/LabelChatPropsDTO";
 import { formatTimeOrDate } from "@/src/utils/getDateAndTimeFromDate";
 import { Link } from "expo-router";
 import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 
 type ChatListProps = {
-    chatLabels: LabelChatProps[]
+    chatLabels: LabelChatPropsDTO[]
 }
 export function ChatList({chatLabels}: ChatListProps){
     return (

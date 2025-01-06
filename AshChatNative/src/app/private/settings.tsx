@@ -1,5 +1,4 @@
 import { Footer } from "@/src/components/Footer";
-import { MMKVStorage, UserProfileProps } from "@/src/persistence/MMKVStorage";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
@@ -8,14 +7,17 @@ import { useContext, useState } from "react";
 import { PhoenixAPIClient } from "@/src/api/phoenix-api-client";
 import SecureStoragePersistence from "@/src/persistence/SecureStorage";
 import { ModalChangeName } from "@/src/components/ModalChangeName";
-import { AuthContext } from "@/src/contexts/authContext";
 import { ModalChangeDescription } from "@/src/components/ModalChangeDescription";
+import { AuthContext } from "@/src/contexts/auth/authContext";
+import { UserProfilePropsDTO } from "@/src/persistence/MMKVStorage/DTO/UserProfilePropsDTO";
+import { MMKVStorageProfile } from "@/src/persistence/MMKVStorage/MMKVProfile";
 
 export default function Settings(){
     const [isModalOpenToChangeUserName, setIsModalOpenToChangeUserName] = useState(false);
     const [isModalOpenToChangeDescription, setIsModalOpenToChangeDescription] = useState(false);
     const {onLogout} = useContext(AuthContext)
-    const [userProfile] = useMMKVObject<UserProfileProps>("ashchat.user_profile")
+    const [userProfile] = useMMKVObject<UserProfilePropsDTO>("ashchat.user_profile")
+    const [StorageProfile] = useState(new MMKVStorageProfile());
 
     function handleOpenModalToChangeUserName() {
         setIsModalOpenToChangeUserName(!isModalOpenToChangeUserName);
@@ -53,11 +55,12 @@ export default function Settings(){
                 if(responseUpload.status == 200){
                     const {url} = responseUpload.data
 
-                    const newProfile: UserProfileProps = {
+                    const newProfile: UserProfilePropsDTO = {
                         ...userProfile,
                         photo_url: url
-                    } as UserProfileProps
-                    new MMKVStorage().setUserProfile(newProfile)
+                    } as UserProfilePropsDTO
+                    
+                    StorageProfile.setUserProfile(newProfile)
                 }
             } catch (error) {
                 console.log(error)
@@ -78,6 +81,7 @@ export default function Settings(){
             }
         ])
     }
+
     let profilePhoto = userProfile?.photo_url
     if(profilePhoto != "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"){
         profilePhoto = "http://localhost:3006" + profilePhoto

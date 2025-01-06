@@ -1,7 +1,7 @@
 import { Button } from "@/src/components/Button";
-import { AuthContext } from "@/src/contexts/authContext";
 import { useContext, useRef, useState } from "react";
 import { Keyboard, Text, TextInput, TouchableWithoutFeedback, View } from "react-native";
+import { AuthContext } from "../contexts/auth/authContext";
 
 export default function ConfirmSignUp(){
     const {onConfirmSignUp} = useContext(AuthContext)

@@ -1,7 +1,7 @@
 import { useCallback, useContext } from "react";
 import { router, useFocusEffect } from "expo-router";
 import { useMMKVString } from "react-native-mmkv";
-import { AuthContext } from "../contexts/authContext";
+import { AuthContext } from "../contexts/auth/authContext";
 
 export function useValidate(){
     const [isTokenValid] = useMMKVString("ashchat.jwt")

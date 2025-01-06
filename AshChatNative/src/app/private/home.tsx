@@ -2,25 +2,20 @@ import { ChatList } from "@/src/components/ChatList";
 import { Footer } from "@/src/components/Footer";
 import { ModalAdd } from "@/src/components/ModalAdd";
 import { NoContacts } from "@/src/components/NoContacts";
-import { SocketContext } from "@/src/contexts/socketContext";
-import { LabelChatProps } from "@/src/persistence/MMKVStorage";
+import { LabelChatPropsDTO } from "@/src/persistence/MMKVStorage/DTO/LabelChatPropsDTO";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useContext, useEffect, useState } from "react";
+import {useState } from "react";
 import { Text, TouchableOpacity, View} from "react-native";
 import { useMMKVObject } from "react-native-mmkv";
 
 export default function Home(){
-    const {setUserProfile} = useContext(SocketContext)
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [chatLabels] = useMMKVObject<LabelChatProps[]>("ashchat.label.chats")
+    const [chatLabels] = useMMKVObject<LabelChatPropsDTO[]>("ashchat.label.chats")
 
     function handleOpenModal() {
         setIsModalOpen(!isModalOpen);
     }
 
-    useEffect(() => {
-        setUserProfile()
-    }, [])
     return (
         <View className="flex-1 pt-[62px] px-10" >
             {/* Header */}

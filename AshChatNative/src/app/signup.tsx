@@ -2,7 +2,6 @@ import { Button } from "@/src/components/Button";
 import { Input } from "@/src/components/Input";
 import { InputPassword } from "@/src/components/InputPassword";
 import { languages } from "@/src/constants/languages";
-import { AuthContext } from "@/src/contexts/authContext";
 import { Link } from "expo-router";
 import { useContext, useState } from "react";
 import { 
@@ -17,6 +16,7 @@ import {
     View 
 } from "react-native";
 import CountryFlag from 'react-native-country-flag';
+import { AuthContext } from "../contexts/auth/authContext";
 
 type Languages = typeof languages[0];
 

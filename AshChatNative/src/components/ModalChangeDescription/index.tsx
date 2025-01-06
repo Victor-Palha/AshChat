@@ -1,23 +1,19 @@
-import { SocketContext } from "@/src/contexts/socketContext";
-import { UserProfileProps } from "@/src/persistence/MMKVStorage";
-import { colors } from "@/src/styles/colors";
-import { MaterialIcons } from "@expo/vector-icons";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useMMKVObject } from "react-native-mmkv";
-import { Input } from "../Input";
 import { PhoenixAPIClient } from "@/src/api/phoenix-api-client";
 import SecureStoragePersistence from "@/src/persistence/SecureStorage";
-import { Button } from "../Button";
+import { UserProfilePropsDTO } from "@/src/persistence/MMKVStorage/DTO/UserProfilePropsDTO";
+import { MMKVStorageProfile } from "@/src/persistence/MMKVStorage/MMKVProfile";
 
 type ModalAddProps = {
     modalIsOpen: boolean;
     closeModal: (isOpen: boolean) => void;
 }
 export function ModalChangeDescription({modalIsOpen, closeModal}:ModalAddProps){
-    const {mmkvStorage} = useContext(SocketContext)
-    const [userProfile] = useMMKVObject<UserProfileProps>("ashchat.user_profile")
+    const [userProfile] = useMMKVObject<UserProfilePropsDTO>("ashchat.user_profile")
     const [newDescription, setNewDescription] = useState("");
+    const [mmkvStorage] = useState(new MMKVStorageProfile())
 
     useEffect(()=> {
         if(userProfile){
@@ -38,10 +34,10 @@ export function ModalChangeDescription({modalIsOpen, closeModal}:ModalAddProps){
             })
 
             if(response.status == 200){
-                const newProfile: UserProfileProps = {
+                const newProfile: UserProfilePropsDTO = {
                     ...userProfile,
                     description: newDescription
-                } as UserProfileProps
+                } as UserProfilePropsDTO
                 mmkvStorage.setUserProfile(newProfile)
                 closeModal(false)
             }else{

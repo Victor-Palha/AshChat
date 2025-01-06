@@ -2,10 +2,10 @@ import { Button } from "@/src/components/Button";
 import { Gradient } from "@/src/components/Grandient";
 import { Input } from "@/src/components/Input";
 import { InputPassword } from "@/src/components/InputPassword";
-import { AuthContext } from "@/src/contexts/authContext";
 import { Link } from "expo-router";
 import { useContext, useState } from "react";
 import { Alert, Image, Keyboard, KeyboardAvoidingView, Platform, Text, TouchableWithoutFeedback, View } from "react-native";
+import { AuthContext } from "../contexts/auth/authContext";
 
 export default function Login(){
     const {onLogin} = useContext(AuthContext)

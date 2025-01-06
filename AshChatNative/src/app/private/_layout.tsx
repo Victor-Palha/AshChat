@@ -1,17 +1,17 @@
 import { router, Stack } from 'expo-router';
 import { useContext } from 'react';
-import { AuthContext, AuthProvider } from '@/src/contexts/authContext';
 import { Loading } from '@/src/components/Loading';
 import { colors } from '@/src/styles/colors';
-import { SocketProvider } from '@/src/contexts/socketContext';
+import { AuthContext, AuthContextProvider } from '@/src/contexts/auth/authContext';
+import { ChatContextProvider } from '@/src/contexts/chat/chatContext';
 
 export default function Layout() {
   return (
-    <AuthProvider>
-      <SocketProvider>
+    <AuthContextProvider>
+      <ChatContextProvider>
         <PrivateRouter />
-      </SocketProvider>
-    </AuthProvider>
+      </ChatContextProvider>
+    </AuthContextProvider>
   )
 }
 

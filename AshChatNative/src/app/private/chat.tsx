@@ -1,6 +1,8 @@
 import { LoadMessages } from "@/src/components/LoadMessages";
-import { SocketContext } from "@/src/contexts/socketContext";
-import { AddMessageProps, MessageProps } from "@/src/persistence/MMKVStorage";
+import { ChatContext } from "@/src/contexts/chat/chatContext";
+import { AddMessagePropsDTO } from "@/src/persistence/MMKVStorage/DTO/AddMessagePropsDTO";
+import { MessagePropsDTO } from "@/src/persistence/MMKVStorage/DTO/MessagePropsDTO";
+import { MMKVChats } from "@/src/persistence/MMKVStorage/MMKVChats";
 import { colors } from "@/src/styles/colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
@@ -20,14 +22,15 @@ import {
 
 export default function Chat(): JSX.Element {
   const { chat_id, nickname } = useLocalSearchParams();
-  const { socket, mmkvStorage, user_id } = useContext(SocketContext);
+  const { socket, user_id } = useContext(ChatContext);
   // States
-  const [messages, setMessages] = useState<MessageProps[]>([]);
+  const [messages, setMessages] = useState<MessagePropsDTO[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
   const [channel, setChannel] = useState<Channel | null>(null);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [isReceiverOnline, setIsReceiverOnline] = useState<boolean>(false);
-  const [userId, setUserId] = useState<string>(user_id as string);
+  const [userId] = useState<string>(user_id as string);
+  const [mmkvStorage] = useState(new MMKVChats());
 
   // Load chat messages and divide into chunks
   useEffect(() => {
@@ -65,13 +68,13 @@ export default function Chat(): JSX.Element {
       setChannel(chatChannel);
 
       // Receive messages from the chat channel
-      const handleReceiveMessage = (message: AddMessageProps) => {
+      const handleReceiveMessage = (message: AddMessagePropsDTO) => {
         const who = message.sender_id === user_id ? "user" : "contact";
         const newMessage = mmkvStorage.addMessage({
           ...message,
           sender_id: who,
           timestamp: new Date().toISOString(),
-        }) as MessageProps;
+        }) as MessagePropsDTO;
         setMessages((prevMessages) => [newMessage, ...prevMessages]);
       };
 
@@ -103,7 +106,7 @@ export default function Chat(): JSX.Element {
     }, [chat_id, socket, user_id])
   );
   // Load more messages when reaching the end
-  function getOlderMessages(chat_id: string, offset: number): MessageProps[] {
+  function getOlderMessages(chat_id: string, offset: number): MessagePropsDTO[] {
     // Simula a obtenção de mensagens mais antigas
     const chat = mmkvStorage.getChat(chat_id);
     if (!chat || !chat.searched_chats) return [];
@@ -124,7 +127,7 @@ export default function Chat(): JSX.Element {
         content: inputMessage,
         sender_id: userId,
         timestamp: new Date().toISOString(),
-      }) as MessageProps;
+      }) as MessagePropsDTO;
       channel?.push("send_message", { mobile_ref_id: newMessage.id_message, content: inputMessage });
 
       setMessages((prevMessages) => [newMessage, ...prevMessages]);
