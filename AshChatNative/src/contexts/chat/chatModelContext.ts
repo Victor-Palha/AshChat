@@ -34,6 +34,7 @@ export class ChatModelContext {
 
     public static async getUserPreferredLanguage(){
         const MMKVProfile = new MMKVStorageProfile().getUserProfile();
+        console.log(MMKVProfile);
         return MMKVProfile?.preferred_language;
     }
 

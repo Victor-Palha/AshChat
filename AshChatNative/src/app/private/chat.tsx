@@ -42,8 +42,12 @@ export default function Chat(): JSX.Element {
       router.back();
       return;
     }
+    let profilePhoto = response.searched_chats.profile_picture;
+    if(profilePhoto != "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"){
+        profilePhoto = "http://localhost:3006" + profilePhoto
+    }
     mmkvStorage.clearNotifications(chat_id as string);
-    setProfilePicture("http://localhost:3006"+response.searched_chats.profile_picture);
+    setProfilePicture(profilePhoto);
     
     // Ordena as mensagens por timestamp
     const sortedMessages = response.searched_chats.messages.sort(

@@ -1,7 +1,8 @@
 import { Socket } from "phoenix";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useMMKVString } from "react-native-mmkv";
 import { ChatModelContext } from "./chatModelContext";
+import { AuthContext } from "../auth/authContext";
 
 type ChatProps = {
     socket: Socket | undefined;
@@ -11,9 +12,12 @@ type ChatProps = {
 export const ChatContext = createContext<ChatProps>({} as ChatProps);
 
 export function ChatContextProvider({ children }: { children: React.ReactNode }){
+    const {authState} = useContext(AuthContext);
     const [user_id] = useMMKVString("ashchat.user_id");
     const [jwtToken] = useMMKVString("ashchat.jwt");
     const [socket, setSocket] = useState<Socket | undefined>();
+    const [presenceChannel, setPresenceChannel] = useState<any>();
+    const [notificationChannel, setNotificationChannel] = useState<any>();
 
     async function connectToChatServerWebSocket(jwtToken: string | undefined) {
         const {deviceTokenId} = await ChatModelContext.getStoredTokens();
@@ -43,6 +47,8 @@ export function ChatContextProvider({ children }: { children: React.ReactNode })
             .then((newSocket) => {
                 const presenceChannel = newSocket.channel("presence:lobby", {});
                 const notificationChannel = newSocket.channel(`notifications:${user_id}`, {});
+                setPresenceChannel(presenceChannel);
+                setNotificationChannel(notificationChannel);
     
                 presenceChannel.join();
                 notificationChannel.join();
@@ -56,11 +62,19 @@ export function ChatContextProvider({ children }: { children: React.ReactNode })
                 return () => {
                     notificationChannel.off("pending_notification");
                     notificationChannel.off("new_notification");
-                    notificationChannel.leave(); 
                 };
             })
             .catch((error) => console.error("Error connecting to socket:", error));
-    }, [user_id, jwtToken]);
+    }, [user_id, jwtToken, authState]);
+
+    useEffect(() => {
+        if(authState.authenticated === false && socket) {
+            socket.disconnect();
+            notificationChannel.leave();
+            presenceChannel.leave();
+            setSocket(undefined)
+        }
+    }, [authState])
 
     const values: ChatProps = {
         socket,

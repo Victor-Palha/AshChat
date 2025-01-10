@@ -5,7 +5,6 @@ import com.ashchat.auth_service_spring.modules.user.dto.CreateTempNewUserDTO;
 import com.ashchat.auth_service_spring.modules.user.entity.UserEntity;
 import com.ashchat.auth_service_spring.modules.user.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

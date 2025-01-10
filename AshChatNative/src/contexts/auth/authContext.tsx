@@ -83,12 +83,13 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
             if(!deviceTokenId){
                 return Alert.alert('Error', "No device token found. Please try again.");
             }
-            const response = await authAPI.server.post('/user/signin', {
+            const responseAuthServer = await authAPI.server.post('/user/signin', {
                 email, 
                 password, 
                 deviceTokenId
             })
-            const {token, refresh_token, user_id} = response.data.data;
+            const {token, refresh_token, user_id} = responseAuthServer.data.data;
+            await saveUserProfile(token, deviceTokenId);
             await AuthModelContext.persistenceProfileData({
                 token, 
                 refresh_token, 
@@ -96,7 +97,6 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
                 email, 
                 platform: Platform.OS
             });
-            await saveUserProfile();
             new BackupChat().backupMessages();
             setAuthState({authenticated: true, user_id});
             router.replace('/private/home')
@@ -106,6 +106,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
                     return Alert.alert('Error', "Invalid credentials. Please try again.")
                 }
                 if(error.response?.status === 403){
+                    console.log(deviceTokenId)
                     console.log(error.response.data)
                     return Alert.alert('Error', "A new device is trying to login. Please confirm your email.")
                 }
@@ -165,12 +166,14 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
     async function onLogout(){
         await AuthModelContext.deleteStoredTokens();
         setAuthState({authenticated: false, user_id: null})
+        // Need to leave all channels and unsubscribe from all push notifications
+        
 
         router.navigate('/')
     }
 
-    async function saveUserProfile() {
-        const {chatAPI, jwt_token, deviceTokenId} = await AuthModelContext.getStoredTokens();
+    async function saveUserProfile(jwt_token: string, deviceTokenId: string){
+        const {chatAPI} = await AuthModelContext.getStoredTokens();
         if(!jwt_token || !deviceTokenId) return;
         chatAPI.setTokenAuth(jwt_token);
         chatAPI.setHeader("device_token", deviceTokenId);
@@ -178,6 +181,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
             const response = await chatAPI.server.get("/user");
             if(response.status == 200){
                 const {nickname, description, photo_url, preferred_language, tag_user_id} = response.data.user;
+                console.log(response.data.user)
                 await AuthModelContext.saveUserProfile({
                     nickname,
                     description,
@@ -186,11 +190,11 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
                     tag_user_id
                 });
             }
+            console.log(response.data)
         } catch (error) {
             console.log("getUserProfile error");
             console.log(error);
         }
-        
     }
 
     useEffect(() => {

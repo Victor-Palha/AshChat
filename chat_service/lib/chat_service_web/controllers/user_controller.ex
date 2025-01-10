@@ -90,7 +90,6 @@ defmodule ChatServiceWeb.UserController do
   end
 
   def get_contact_by_id(conn, %{"id" => user_id}) do
-    IO.puts("User ID: #{user_id}")
     case User.get_user_profile(user_id) do
       {:error, reason} ->
         conn
