@@ -58,7 +58,6 @@ export default function Chat(): JSX.Element {
     }
     mmkvStorage.clearNotifications(chat_id as string);
     setProfilePicture(profilePhoto);
-    
     // Ordena as mensagens por timestamp
     const sortedMessages = response.searched_chats.messages.sort(
       (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
@@ -125,6 +124,8 @@ export default function Chat(): JSX.Element {
     // Simula a obtenção de mensagens mais antigas
     const chat = mmkvStorage.getChat(chat_id);
     if (!chat || !chat.searched_chats) return [];
+    if (offset >= chat.searched_chats.messages.length) return [];
+    if (chat.searched_chats.messages.length <= 20) return [];
     return chat.searched_chats.messages.slice(offset, offset + 20).reverse();
   }
 
