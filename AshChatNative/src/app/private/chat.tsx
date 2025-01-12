@@ -1,3 +1,4 @@
+import { ContactProfile } from "@/src/components/ContactProfile";
 import { LoadMessages } from "@/src/components/LoadMessages";
 import { ChatContext } from "@/src/contexts/chat/chatContext";
 import { AddMessagePropsDTO } from "@/src/persistence/MMKVStorage/DTO/AddMessagePropsDTO";
@@ -20,6 +21,13 @@ import {
   Image,
 } from "react-native";
 
+type ModalDescriptionProps = {
+  nickname: string;
+  description: string;
+  preferred_language: string;
+  photo_url: string;
+}
+
 export default function Chat(): JSX.Element {
   const { chat_id, nickname } = useLocalSearchParams();
   const { socket, user_id } = useContext(ChatContext);
@@ -31,6 +39,8 @@ export default function Chat(): JSX.Element {
   const [isReceiverOnline, setIsReceiverOnline] = useState<boolean>(false);
   const [userId] = useState<string>(user_id as string);
   const [mmkvStorage] = useState(new MMKVChats());
+  const [isModalDescriptionOpen, setIsModalDescriptionOpen] = useState(false);
+  const [modalDescriptionProps, setModalDescriptionProps] = useState<ModalDescriptionProps | null>(null);
 
   // Load chat messages and divide into chunks
   useEffect(() => {
@@ -98,6 +108,7 @@ export default function Chat(): JSX.Element {
         setIsReceiverOnline(status);
       });
       chatChannel.on("receiver_info", ({description, nickname, photo_url, preferred_language})=>{
+        setModalDescriptionProps({description, nickname, photo_url, preferred_language});
         mmkvStorage.updateChatInformationProfile({description, nickname, photo_url, preferred_language}, chat_id as string, );
       });
 
@@ -147,18 +158,26 @@ export default function Chat(): JSX.Element {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
     >
+      <ContactProfile
+        imageProfile={profilePicture as string}
+        name={nickname as string}
+        description={modalDescriptionProps?.description as string}
+        preferred_language={modalDescriptionProps?.preferred_language as string}
+        modalIsOpen={isModalDescriptionOpen}
+        closeModal={setIsModalDescriptionOpen}
+      />
       {/* Header */}
       <View className="flex-row border-b-[1px] border-purple-700 p-3 items-center">
         <TouchableOpacity onPress={handleCloseChat}>
           <MaterialIcons name="keyboard-arrow-left" size={34} color={colors.purple[700]} />
         </TouchableOpacity>
-        <View className="flex-row items-center ml-3">
+        <TouchableOpacity className="flex-row items-center ml-3" onPress={() => setIsModalDescriptionOpen(true)}>
           {profilePicture && <Image source={{ uri: profilePicture }} className="w-12 h-12 rounded-full" />}
           <Text className="text-white font-bold text-2xl ml-3">{nickname}</Text>
           {/* Online? */}
           {isReceiverOnline && <View className="w-3 h-3 bg-green-500 rounded-full ml-2" />}
           {!isReceiverOnline && <View className="w-3 h-3 bg-red-500 rounded-full ml-2" />}
-        </View>
+        </TouchableOpacity>
       </View>
 
       {/* Message List */}
