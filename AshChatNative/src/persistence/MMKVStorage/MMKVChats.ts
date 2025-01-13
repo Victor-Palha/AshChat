@@ -15,7 +15,6 @@ export class MMKVChats extends MMKVStorageTemplate {
     public addChat({ chat_id, messages, nickname, profile_picture, description, preferred_language }: ChatPropsDTO): void {
         const allChatsString = this.instance.getString(this.CONSTANTS.CHAT);
 
-        // Cria o novo chat
         const newChat: ChatPropsDTO = {
             chat_id,
             nickname,
@@ -25,7 +24,6 @@ export class MMKVChats extends MMKVStorageTemplate {
             preferred_language
         };
 
-        // Última mensagem (se existir)
         const lastMessage = messages && messages.length > 0 ? messages[messages.length - 1] : null;
         const currentDate = new Date();
 
@@ -36,15 +34,13 @@ export class MMKVChats extends MMKVStorageTemplate {
             const chatExists = allChats.some(chat => chat.chat_id === chat_id);
 
             if (chatExists) {
-                return; // Não faz nada se o chat já existe
+                return;
             }
         }
 
-        // Adiciona o novo chat à lista
         allChats.push(newChat);
         this.instance.set(this.CONSTANTS.CHAT, JSON.stringify(allChats));
 
-        // Adiciona o rótulo para o chat
         this.addLabel({
             chat_id,
             nickname,
@@ -74,8 +70,8 @@ export class MMKVChats extends MMKVStorageTemplate {
             const chats = JSON.parse(chatsString) as ChatPropsDTO[];
             const searched_chats = chats.find(chat => chat.chat_id === chat_id) || null;
             return {
-            chats,
-            searched_chats, 
+                chats,
+                searched_chats, 
             }
         }
         return null;
@@ -83,16 +79,18 @@ export class MMKVChats extends MMKVStorageTemplate {
 
     public addMessage({ chat_id, content, sender_id, timestamp, isNotification = false }: AddMessagePropsDTO): MessagePropsDTO | undefined {
         const result = this.getChat(chat_id);
-        if (!result && !isNotification) return;
-        if(!result && isNotification) {
-        this.addNewChatThroughNotification({ chat_id, content, sender_id, timestamp });
-        return
+
+        if (!result) {
+            if (isNotification) {
+                this.addNewChatThroughNotification({ chat_id, content, sender_id, timestamp });
+            }
+            return;
         }
-        if(!result) return
-
+    
         const { chats, searched_chats } = result;
-
-        if (searched_chats) {
+    
+        if (!searched_chats) return;
+    
         const newMessage: MessagePropsDTO = {
             id_message: randomUUID(),
             content,
@@ -100,43 +98,54 @@ export class MMKVChats extends MMKVStorageTemplate {
             timestamp,
             status: 'PENDING',
         };
-
+        //verify if notification message is already in the chat
+        const lastMessageOnChat = searched_chats.messages[searched_chats.messages.length - 1];
+        const { content: lastContent, timestamp: lastTimestamp } = lastMessageOnChat || {};
+        if (lastContent === content && lastTimestamp === newMessage.timestamp) {
+            this.updateLabel({
+                chat_id,
+                last_message: lastMessageOnChat,
+                notification: sender_id === 'user' ? 0 : 1,
+                last_interaction: new Date(),
+            }, isNotification);
+            return
+        };
+        // add message to chat
         searched_chats.messages.push(newMessage);
         this.instance.set(this.CONSTANTS.CHAT, JSON.stringify(chats));
-
+    
         this.updateLabel({
             chat_id,
             last_message: newMessage,
             notification: sender_id === 'user' ? 0 : 1,
             last_interaction: new Date(),
         }, isNotification);
-
+    
         return newMessage;
-        }
     }
 
-      private updateLabel({
+    private updateLabel({
         chat_id,
         last_message,
         notification,
         last_interaction,
-      }: Omit<LabelChatPropsDTO, 'nickname' | 'profile_picture'>, isNotification: boolean): void {
+    }: Omit<LabelChatPropsDTO, 'nickname' | 'profile_picture'>, isNotification: boolean): void {
         const labelsString = this.instance.getString(this.CONSTANTS.LABEL_CHAT);
         if (labelsString) {
-          const labels = JSON.parse(labelsString) as LabelChatPropsDTO[];
-          const updatedLabels = labels.map(label =>
+            const labels = JSON.parse(labelsString) as LabelChatPropsDTO[];
+            const updatedLabels = labels.map(label =>
             label.chat_id === chat_id
-              ? {
-                  ...label,
-                  last_message,
-                  notification: isNotification ? label.notification + notification : 0,
-                  last_interaction,
+                ? {
+                    ...label,
+                    last_message,
+                    notification: isNotification ? label.notification + notification : 0,
+                    last_interaction,
                 }
-              : label
-          );
-          this.instance.set(this.CONSTANTS.LABEL_CHAT, JSON.stringify(updatedLabels));
+                : label
+            );
+            this.instance.set(this.CONSTANTS.LABEL_CHAT, JSON.stringify(updatedLabels));
         }
-      }
+    }
 
     private addNewChatThroughNotification({ chat_id, content, sender_id, timestamp }: AddMessagePropsDTO): void {
         const allChatsString = this.instance.getString(this.CONSTANTS.CHAT);

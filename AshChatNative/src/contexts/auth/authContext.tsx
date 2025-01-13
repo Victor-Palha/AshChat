@@ -181,7 +181,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
             const response = await chatAPI.server.get("/user");
             if(response.status == 200){
                 const {nickname, description, photo_url, preferred_language, tag_user_id} = response.data.user;
-                console.log(response.data.user)
+                // console.log(response.data.user)
                 await AuthModelContext.saveUserProfile({
                     nickname,
                     description,
@@ -190,7 +190,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
                     tag_user_id
                 });
             }
-            console.log(response.data)
+            // console.log(response.data)
         } catch (error) {
             console.log("getUserProfile error");
             console.log(error);
