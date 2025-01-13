@@ -24,7 +24,7 @@ import {
 type ModalDescriptionProps = {
   nickname: string;
   description: string;
-  preferred_language: string;
+  tag_user_id: string;
   photo_url: string;
 }
 
@@ -106,8 +106,8 @@ export default function Chat(): JSX.Element {
       chatChannel.on("receiver_online", ({ status }: { status: boolean }) => {
         setIsReceiverOnline(status);
       });
-      chatChannel.on("receiver_info", ({description, nickname, photo_url, preferred_language})=>{
-        setModalDescriptionProps({description, nickname, photo_url, preferred_language});
+      chatChannel.on("receiver_info", ({description, nickname, photo_url, preferred_language, tag_user_id})=>{
+        setModalDescriptionProps({description, nickname, photo_url, tag_user_id});
         mmkvStorage.updateChatInformationProfile({description, nickname, photo_url, preferred_language}, chat_id as string, );
       });
 
@@ -163,7 +163,7 @@ export default function Chat(): JSX.Element {
         imageProfile={profilePicture as string}
         name={nickname as string}
         description={modalDescriptionProps?.description as string}
-        preferred_language={modalDescriptionProps?.preferred_language as string}
+        tag_user_id={modalDescriptionProps?.tag_user_id as string}
         modalIsOpen={isModalDescriptionOpen}
         closeModal={setIsModalDescriptionOpen}
       />

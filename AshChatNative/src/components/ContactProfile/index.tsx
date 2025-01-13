@@ -6,7 +6,7 @@ type ContactProfileProps = {
     imageProfile?: string;
     name?: string;
     description?: string;
-    preferred_language?: string;
+    tag_user_id?: string;
     modalIsOpen: boolean;
     closeModal: (isOpen: boolean) => void;
 };
@@ -28,7 +28,7 @@ export function ContactProfile(data: ContactProfileProps){
                             <Text className="text-white font-bold text-xl mt-3">
                                 {data.name}
                             </Text>
-                            <Text className="text-white italic text-sm">{data.preferred_language}</Text>
+                            <Text className="text-white italic text-sm">{data.tag_user_id}</Text>
                     </View>
                     <View className="mt-5 p-5 rounded-2xl max-h-[100] overflow-auto">
                         <Text className="text-white">{data.description}</Text>
