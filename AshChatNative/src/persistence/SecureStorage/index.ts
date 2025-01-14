@@ -8,7 +8,8 @@ class SecureStoragePersistence {
         UNIQUEDEVICEID: "ashChat.uniqueDeviceId",
         DEVICEOS: "ashChat.deviceOS",
         USERID: "ashChat.userId",
-        NOTIFICATIONTOKEN: "ashChat.notificationToken"
+        NOTIFICATIONTOKEN: "ashChat.notificationToken",
+        TEMPORARYTOKEN: "ashChat.temporary"
     }
     static async clearTokens(){
         await SecureStore.deleteItemAsync(this.KEYS.TOKEN);
@@ -28,6 +29,14 @@ class SecureStoragePersistence {
 
     static async getJWT(): Promise<string | null>{
         return await SecureStore.getItemAsync(this.KEYS.TOKEN);
+    }
+
+    static async setTemporaryToken(value: string){
+        await SecureStore.setItemAsync(this.KEYS.TEMPORARYTOKEN, value);
+    }
+
+    static async getTemporaryToken(): Promise<string | null>{
+        return await SecureStore.getItemAsync(this.KEYS.TEMPORARYTOKEN);
     }
 
     static async setEmail(value: string){

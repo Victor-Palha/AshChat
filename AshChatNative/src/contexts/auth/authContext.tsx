@@ -15,6 +15,7 @@ interface AuthProps {
     onRegister: (email: string, password: string, nickname: string, preferredLanguage: string) => Promise<any>,
     onLogin: (email: string, password: string) => Promise<any>,
     onConfirmSignUp: (emailCode: string) => Promise<any>,
+    onNewDevice(emailCode: string): Promise<void>,
     onLogout(): Promise<void>
 }
 
@@ -108,10 +109,15 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
                 if(error.response?.status === 403){
                     console.log(deviceTokenId)
                     console.log(error.response.data)
-                    return Alert.alert('Error', "A new device is trying to login. Please confirm your email.")
+                    await AuthModelContext.newDeviceTryingToLogin(error.response.data.data.token);
+                    Alert.alert('Error', "A new device is trying to login. Please confirm your email.");
+                    router.replace('/newdevice');
+                    return
                 }
             }
-            Alert.alert('Error', "An error occurred while trying to login. Please try again.")
+            else{
+                Alert.alert('Error', "An error occurred while trying to login. Please try again.")
+            }
         }
     }
 
@@ -163,6 +169,40 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
         }
     }
 
+    async function onNewDevice(emailCode: string){
+        const temporaryToken = await AuthModelContext.getTemporaryToken();
+        if(!temporaryToken) {
+            Alert.alert('Error', "An error occurred while trying to confirm your new device. Please try again.")
+            router.replace('/login')
+            return
+        }
+        const {deviceTokenId, deviceNotificationToken, authAPI} = await AuthModelContext.getStoredTokens();
+        try{
+            const response = await authAPI.server.post('/user/confirm-new-device', {
+                emailCode, 
+                deviceOS: Platform.OS, 
+                deviceTokenId, 
+                deviceNotificationToken
+            }, {
+                headers: {
+                    Authorization: `Bearer ${temporaryToken}`
+                }
+            })
+            if(response.status === 204){
+                Alert.alert('Success', "You have successfully confirmed your new device. Please login to continue.")
+                router.replace('/login')
+            }
+        }catch(error) {
+            if(error instanceof AxiosError){
+                Alert.alert('Error', error.response?.data.message)
+            }else {
+                Alert.alert('Error', "An error occurred while trying to confirm your new device. Please try again.")
+            }
+            router.replace('/login')
+            return
+        }
+            
+    }
     async function onLogout(){
         await AuthModelContext.deleteStoredTokens();
         setAuthState({authenticated: false, user_id: null})
@@ -217,7 +257,8 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
         isLoading, 
         onRegister, 
         onLogin, 
-        onConfirmSignUp, 
+        onConfirmSignUp,
+        onNewDevice,
         onLogout
     }
 
