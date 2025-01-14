@@ -1,5 +1,4 @@
 import { Footer } from "@/src/components/Footer";
-import { MMKVStorage, UserProfileProps } from "@/src/persistence/MMKVStorage";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
@@ -8,15 +7,24 @@ import { useContext, useState } from "react";
 import { PhoenixAPIClient } from "@/src/api/phoenix-api-client";
 import SecureStoragePersistence from "@/src/persistence/SecureStorage";
 import { ModalChangeName } from "@/src/components/ModalChangeName";
-import { AuthContext } from "@/src/contexts/authContext";
+import { ModalChangeDescription } from "@/src/components/ModalChangeDescription";
+import { AuthContext } from "@/src/contexts/auth/authContext";
+import { UserProfilePropsDTO } from "@/src/persistence/MMKVStorage/DTO/UserProfilePropsDTO";
+import { MMKVStorageProfile } from "@/src/persistence/MMKVStorage/MMKVProfile";
 
 export default function Settings(){
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpenToChangeUserName, setIsModalOpenToChangeUserName] = useState(false);
+    const [isModalOpenToChangeDescription, setIsModalOpenToChangeDescription] = useState(false);
     const {onLogout} = useContext(AuthContext)
-    const [userProfile] = useMMKVObject<UserProfileProps>("ashchat.user_profile")
+    const [userProfile] = useMMKVObject<UserProfilePropsDTO>("ashchat.user_profile")
+    const [StorageProfile] = useState(new MMKVStorageProfile());
 
-    function handleOpenModal() {
-        setIsModalOpen(!isModalOpen);
+    function handleOpenModalToChangeUserName() {
+        setIsModalOpenToChangeUserName(!isModalOpenToChangeUserName);
+    }
+
+    function handleOpenModalToChangeDescription() {
+        setIsModalOpenToChangeDescription(!isModalOpenToChangeDescription);
     }
 
     async function handleSelectNewProfilePhoto(){
@@ -47,11 +55,12 @@ export default function Settings(){
                 if(responseUpload.status == 200){
                     const {url} = responseUpload.data
 
-                    const newProfile: UserProfileProps = {
+                    const newProfile: UserProfilePropsDTO = {
                         ...userProfile,
                         photo_url: url
-                    } as UserProfileProps
-                    new MMKVStorage().setUserProfile(newProfile)
+                    } as UserProfilePropsDTO
+                    
+                    StorageProfile.setUserProfile(newProfile)
                 }
             } catch (error) {
                 console.log(error)
@@ -72,6 +81,7 @@ export default function Settings(){
             }
         ])
     }
+
     let profilePhoto = userProfile?.photo_url
     if(profilePhoto != "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"){
         profilePhoto = "http://localhost:3006" + profilePhoto
@@ -84,7 +94,7 @@ export default function Settings(){
                     <Image source={{uri: profilePhoto}} style={{width: 100, height: 100, borderRadius: 50}}/>
                 </TouchableOpacity>
 
-                <TouchableOpacity className="flex-row items-center gap-2" onPress={handleOpenModal}>
+                <TouchableOpacity className="flex-row items-center gap-2" onPress={handleOpenModalToChangeUserName}>
                     <Text className="text-white font-bold text-xl mt-3">
                         {userProfile?.nickname}
                     </Text>
@@ -93,9 +103,9 @@ export default function Settings(){
 
                 <Text className="text-white italic text-sm">{userProfile?.tag_user_id}</Text>
             </View>
-            <View className="mt-5 bg-gray-800 p-5 rounded-2xl">
+            <TouchableOpacity className="mt-5 bg-gray-800 p-5 rounded-2xl max-h-[100] overflow-auto" onPress={handleOpenModalToChangeDescription}>
                 <Text className="text-white">{userProfile?.description}</Text>
-            </View>
+            </TouchableOpacity>
             <View className="mt-5 bg-gray-800 p-5 rounded-2xl">
                 <Text className="text-white">Preferred Language: {userProfile?.preferred_language}</Text>
             </View>
@@ -105,7 +115,8 @@ export default function Settings(){
             </TouchableOpacity>
 
             {/* Modal */}
-            <ModalChangeName modalIsOpen={isModalOpen} closeModal={handleOpenModal}/>
+            <ModalChangeName modalIsOpen={isModalOpenToChangeUserName} closeModal={handleOpenModalToChangeUserName}/>
+            <ModalChangeDescription modalIsOpen={isModalOpenToChangeDescription} closeModal={handleOpenModalToChangeDescription}/>
             <Footer activeTab="settings"/>
         </View>
     )

@@ -69,6 +69,14 @@ defmodule ChatService.Services.User do
     end
   end
 
+  def update_user_description(user_id, new_description) do
+    user_id = BSON.ObjectId.decode!(user_id)
+    case Mongo.update_one(:mongo, "users", %{"_id" => user_id}, %{"$set" => %{"description" => new_description}}) do
+      {:ok, result} -> {:ok, result}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
   def update_user_photo_profile(user_id, new_photo_url) do
     user_id = BSON.ObjectId.decode!(user_id)
     case Mongo.update_one(:mongo, "users", %{"_id" => user_id}, %{"$set" => %{"photo_url" => new_photo_url}}) do
@@ -79,8 +87,7 @@ defmodule ChatService.Services.User do
 
   def update_user_tokens(user_id, new_device_token, new_notification_token) do
     user_id = BSON.ObjectId.decode!(user_id)
-    hashed_device_token = HashSha256.call(new_device_token)
-    case Mongo.update_one(:mongo, "users", %{"_id" => user_id}, %{"$set" => %{"device_token" => hashed_device_token, "notification_token" => new_notification_token}}) do
+    case Mongo.update_one(:mongo, "users", %{"_id" => user_id}, %{"$set" => %{"device_token" => new_device_token, "notification_token" => new_notification_token}}) do
       {:ok, result} -> {:ok, result}
       {:error, reason} -> {:error, reason}
     end

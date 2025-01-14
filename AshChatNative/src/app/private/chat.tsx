@@ -1,6 +1,9 @@
+import { ContactProfile } from "@/src/components/ContactProfile";
 import { LoadMessages } from "@/src/components/LoadMessages";
-import { SocketContext } from "@/src/contexts/socketContext";
-import { AddMessageProps, MessageProps } from "@/src/persistence/MMKVStorage";
+import { ChatContext } from "@/src/contexts/chat/chatContext";
+import { AddMessagePropsDTO } from "@/src/persistence/MMKVStorage/DTO/AddMessagePropsDTO";
+import { MessagePropsDTO } from "@/src/persistence/MMKVStorage/DTO/MessagePropsDTO";
+import { MMKVChats } from "@/src/persistence/MMKVStorage/MMKVChats";
 import { colors } from "@/src/styles/colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
@@ -18,16 +21,26 @@ import {
   Image,
 } from "react-native";
 
+type ModalDescriptionProps = {
+  nickname: string;
+  description: string;
+  tag_user_id: string;
+  photo_url: string;
+}
+
 export default function Chat(): JSX.Element {
   const { chat_id, nickname } = useLocalSearchParams();
-  const { socket, mmkvStorage, user_id } = useContext(SocketContext);
+  const { socket, user_id } = useContext(ChatContext);
   // States
-  const [messages, setMessages] = useState<MessageProps[]>([]);
+  const [messages, setMessages] = useState<MessagePropsDTO[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
   const [channel, setChannel] = useState<Channel | null>(null);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [isReceiverOnline, setIsReceiverOnline] = useState<boolean>(false);
-  const [userId, setUserId] = useState<string>(user_id as string);
+  const [userId] = useState<string>(user_id as string);
+  const [mmkvStorage] = useState(new MMKVChats());
+  const [isModalDescriptionOpen, setIsModalDescriptionOpen] = useState(false);
+  const [modalDescriptionProps, setModalDescriptionProps] = useState<ModalDescriptionProps | null>(null);
 
   // Load chat messages and divide into chunks
   useEffect(() => {
@@ -39,9 +52,12 @@ export default function Chat(): JSX.Element {
       router.back();
       return;
     }
+    let profilePhoto = response.searched_chats.profile_picture;
+    if(profilePhoto != "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"){
+        profilePhoto = "http://localhost:3006" + profilePhoto
+    }
     mmkvStorage.clearNotifications(chat_id as string);
-    setProfilePicture("http://localhost:3006"+response.searched_chats.profile_picture);
-    
+    setProfilePicture(profilePhoto);
     // Ordena as mensagens por timestamp
     const sortedMessages = response.searched_chats.messages.sort(
       (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
@@ -65,13 +81,13 @@ export default function Chat(): JSX.Element {
       setChannel(chatChannel);
 
       // Receive messages from the chat channel
-      const handleReceiveMessage = (message: AddMessageProps) => {
+      const handleReceiveMessage = (message: AddMessagePropsDTO) => {
         const who = message.sender_id === user_id ? "user" : "contact";
         const newMessage = mmkvStorage.addMessage({
           ...message,
           sender_id: who,
           timestamp: new Date().toISOString(),
-        }) as MessageProps;
+        }) as MessagePropsDTO;
         setMessages((prevMessages) => [newMessage, ...prevMessages]);
       };
 
@@ -90,7 +106,8 @@ export default function Chat(): JSX.Element {
       chatChannel.on("receiver_online", ({ status }: { status: boolean }) => {
         setIsReceiverOnline(status);
       });
-      chatChannel.on("receiver_info", ({description, nickname, photo_url, preferred_language})=>{
+      chatChannel.on("receiver_info", ({description, nickname, photo_url, preferred_language, tag_user_id})=>{
+        setModalDescriptionProps({description, nickname, photo_url, tag_user_id});
         mmkvStorage.updateChatInformationProfile({description, nickname, photo_url, preferred_language}, chat_id as string, );
       });
 
@@ -103,10 +120,12 @@ export default function Chat(): JSX.Element {
     }, [chat_id, socket, user_id])
   );
   // Load more messages when reaching the end
-  function getOlderMessages(chat_id: string, offset: number): MessageProps[] {
+  function getOlderMessages(chat_id: string, offset: number): MessagePropsDTO[] {
     // Simula a obtenção de mensagens mais antigas
     const chat = mmkvStorage.getChat(chat_id);
     if (!chat || !chat.searched_chats) return [];
+    if (offset >= chat.searched_chats.messages.length) return [];
+    if (chat.searched_chats.messages.length <= 20) return [];
     return chat.searched_chats.messages.slice(offset, offset + 20).reverse();
   }
 
@@ -124,7 +143,7 @@ export default function Chat(): JSX.Element {
         content: inputMessage,
         sender_id: userId,
         timestamp: new Date().toISOString(),
-      }) as MessageProps;
+      }) as MessagePropsDTO;
       channel?.push("send_message", { mobile_ref_id: newMessage.id_message, content: inputMessage });
 
       setMessages((prevMessages) => [newMessage, ...prevMessages]);
@@ -140,18 +159,26 @@ export default function Chat(): JSX.Element {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
     >
+      <ContactProfile
+        imageProfile={profilePicture as string}
+        name={nickname as string}
+        description={modalDescriptionProps?.description as string}
+        tag_user_id={modalDescriptionProps?.tag_user_id as string}
+        modalIsOpen={isModalDescriptionOpen}
+        closeModal={setIsModalDescriptionOpen}
+      />
       {/* Header */}
       <View className="flex-row border-b-[1px] border-purple-700 p-3 items-center">
         <TouchableOpacity onPress={handleCloseChat}>
           <MaterialIcons name="keyboard-arrow-left" size={34} color={colors.purple[700]} />
         </TouchableOpacity>
-        <View className="flex-row items-center ml-3">
+        <TouchableOpacity className="flex-row items-center ml-3" onPress={() => setIsModalDescriptionOpen(true)}>
           {profilePicture && <Image source={{ uri: profilePicture }} className="w-12 h-12 rounded-full" />}
           <Text className="text-white font-bold text-2xl ml-3">{nickname}</Text>
           {/* Online? */}
           {isReceiverOnline && <View className="w-3 h-3 bg-green-500 rounded-full ml-2" />}
           {!isReceiverOnline && <View className="w-3 h-3 bg-red-500 rounded-full ml-2" />}
-        </View>
+        </TouchableOpacity>
       </View>
 
       {/* Message List */}

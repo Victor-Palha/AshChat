@@ -1,12 +1,12 @@
 import { Alert, Modal, TouchableOpacity, View } from "react-native";
 import { Input } from "../Input";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Button } from "../Button";
 import { MaterialIcons } from "@expo/vector-icons";
 import { colors } from "@/src/styles/colors";
-import { SocketContext } from "@/src/contexts/socketContext";
 import { PhoenixAPIClient } from "@/src/api/phoenix-api-client";
 import SecureStoragePersistence from "@/src/persistence/SecureStorage";
+import { MMKVChats } from "@/src/persistence/MMKVStorage/MMKVChats";
 type ModalAddProps = {
     modalIsOpen: boolean;
     closeModal: (isOpen: boolean) => void;
@@ -22,8 +22,8 @@ type ResponseDataModalAdd = {
 }
 
 export function ModalAdd({modalIsOpen, closeModal}: ModalAddProps) {
-    const {mmkvStorage} = useContext(SocketContext)
     const [userTag, setUserTag] = useState("");
+    const [mmkvStorage] = useState(new MMKVChats())
 
     async function handleCreateChat() {
         const api = PhoenixAPIClient

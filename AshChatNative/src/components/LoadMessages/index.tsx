@@ -1,9 +1,9 @@
-import { MessageProps } from "@/src/persistence/MMKVStorage";
+import { MessagePropsDTO } from "@/src/persistence/MMKVStorage/DTO/MessagePropsDTO";
 import { getHoursFromDate } from "@/src/utils/getHoursFromDate";
 import { Text, View } from "react-native";
 
 type LoadMessagesProps = {
-    item: MessageProps;
+    item: MessagePropsDTO;
     user_id: string;
 }
 export function LoadMessages({ item, user_id }: LoadMessagesProps): JSX.Element {

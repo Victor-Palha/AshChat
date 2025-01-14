@@ -1,4 +1,4 @@
-import { TextInput, TextInputProps, TouchableOpacity, View } from "react-native"
+import { TextInput, TextInputProps, View } from "react-native"
 import { MaterialIcons } from "@expo/vector-icons";
 
 type InputProps = TextInputProps & {
