@@ -93,4 +93,12 @@ export class AuthModelContext {
         const MMKVProfile = new MMKVStorageProfile();
         MMKVProfile.setUserProfile(data);
     }
+
+    public static async newDeviceTryingToLogin(temporatyToken: string){
+        await SecureStoragePersistence.setTemporaryToken(temporatyToken);
+    }
+
+    public static async getTemporaryToken(): Promise<string | null>{
+        return await SecureStoragePersistence.getTemporaryToken();
+    }
 }
