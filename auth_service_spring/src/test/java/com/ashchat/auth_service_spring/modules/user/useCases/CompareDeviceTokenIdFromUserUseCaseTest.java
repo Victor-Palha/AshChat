@@ -79,19 +79,6 @@ public class CompareDeviceTokenIdFromUserUseCaseTest {
 
     @Test
     public void should_not_be_able_to_validate_user_device_id_the_id_are_incorrect() throws Exception{
-        String hashDeviceId = HashDeviceToken.hash("some_random_token");
-        String userId = UUID.randomUUID().toString();
-        UserEntity userToBeSearched = UserEntity
-                .builder()
-                .id(userId)
-                .email("john.doe@example.com")
-                .name("John Doe")
-                .password("password123")
-                .deviceTokenId(hashDeviceId)
-                .deviceNotificationToken("some_random_token")
-                .deviceOS("Windows 10")
-                .build();
-
         when(userRepository.findById("banana")).thenReturn(Optional.empty());
 
         try{

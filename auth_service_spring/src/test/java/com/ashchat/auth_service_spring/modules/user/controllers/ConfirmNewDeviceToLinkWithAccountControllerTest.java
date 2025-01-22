@@ -1,7 +1,6 @@
 package com.ashchat.auth_service_spring.modules.user.controllers;
 
 import com.ashchat.auth_service_spring.constants.JWTTypes;
-import com.ashchat.auth_service_spring.modules.user.dto.ConfirmNewDeviceAuthDTO;
 import com.ashchat.auth_service_spring.modules.user.entity.UserEntity;
 import com.ashchat.auth_service_spring.providers.JWTProvider;
 import com.rabbitmq.client.AMQP;
@@ -143,7 +142,7 @@ public class ConfirmNewDeviceToLinkWithAccountControllerTest {
         userToBeCreated.setDeviceOS("Windows 10");
         userToBeCreated.setDeviceTokenId(userDeviceToken);
         userToBeCreated.setDeviceNotificationToken(userNotificationToken);
-        UserEntity userCreated = mongoTemplate.save(userToBeCreated, "user_profile");
+        mongoTemplate.save(userToBeCreated, "user_profile");
 
         String requestPayload = """
             {

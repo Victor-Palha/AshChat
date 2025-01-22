@@ -8,9 +8,6 @@ import com.ashchat.auth_service_spring.modules.user.repository.UserRepository;
 import com.ashchat.auth_service_spring.providers.HashDeviceToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
 @Service
