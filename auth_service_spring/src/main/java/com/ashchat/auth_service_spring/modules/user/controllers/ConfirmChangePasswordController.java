@@ -52,7 +52,7 @@ public class ConfirmChangePasswordController {
             return buildResponse(200, "Password Changed", null);
 
         } catch (UserNotFoundError e) {
-            return buildResponse(400, e.getMessage(), null);
+            return buildResponse(404, e.getMessage(), null);
         } catch (Exception e) {
             return buildResponse(500, e.getMessage(), null);
         }
