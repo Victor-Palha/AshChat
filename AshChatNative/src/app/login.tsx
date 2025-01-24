@@ -52,7 +52,7 @@ export default function Login(){
                     onChangeText={setPassword}
                 />
 
-                <Text className="text-sm font-semibold text-purple-700 mb-4">Forgot you password? Click here!</Text>
+                <Link href="/forgotpassword" className="text-sm font-semibold text-purple-700 mb-4">Forgot you password? Click here!</Link>
                 <Button title="Sign in" onPress={handleLogin}/>
 
                 <View className="text-center items-center mt-2">
