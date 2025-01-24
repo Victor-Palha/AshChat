@@ -32,6 +32,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/api/user/signup").permitAll();
                     auth.requestMatchers("/api/user/confirm-email").permitAll();
                     auth.requestMatchers("/api/user/signin").permitAll();
+                    auth.requestMatchers("/api/user/password").permitAll();
                     // Swagger
                     auth.requestMatchers(SWAGGER_WHITELIST).permitAll();
                     // Add auth process to all others

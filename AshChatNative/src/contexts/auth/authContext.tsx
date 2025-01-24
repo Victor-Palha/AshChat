@@ -16,7 +16,9 @@ interface AuthProps {
     onLogin: (email: string, password: string) => Promise<any>,
     onConfirmSignUp: (emailCode: string) => Promise<any>,
     onNewDevice(emailCode: string): Promise<void>,
-    onLogout(): Promise<void>
+    onLogout(): Promise<void>,
+    onForgotPassword(email: string): Promise<void>,
+    onResetPassword(emailCode: string, newPassword: string): Promise<void>
 }
 
 export const AuthContext = createContext<AuthProps>({} as AuthProps);
@@ -203,6 +205,57 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
         }
             
     }
+    async function onForgotPassword(email: string){
+        const {authAPI} = await AuthModelContext.getStoredTokens();
+        try{
+            const response = await authAPI.server.post("/user/password", {
+                email
+            })
+            if(response.status == 202){
+                const {token} = response.data.data;
+                await AuthModelContext.newDeviceTryingToLogin(token);
+                Alert.alert('Success', "An email has been sent to you with instructions to reset your password.")
+                return router.push("/resetpassword");
+            }
+        }
+        catch(error){
+            if(error instanceof AxiosError){
+                if(error.status == 404){
+                    return Alert.alert('Error', "Email not found. Please try again.")
+                }
+            }
+            return Alert.alert('Error', "An error occurred while trying to send the email. Please try again.")
+        }
+    }
+    async function onResetPassword(emailCode: string, newPassword: string){
+        const {authAPI} = await AuthModelContext.getStoredTokens();
+        const temporaryToken = await AuthModelContext.getTemporaryToken();
+        try{
+            const response = await authAPI.server.patch("/user/password", {
+                emailCode,
+                newPassword
+            }, {
+                headers: {
+                    Authorization: `Bearer ${temporaryToken}`
+                }
+            })
+            if (response.status == 200){
+                Alert.alert('Success', "Your password has been successfully reset. Please login to continue.")
+                return router.replace("/login");
+            }
+        }
+        catch(error){
+            if(error instanceof AxiosError){
+                if(error.status == 404){
+                    return Alert.alert('Error', "Email not found. Please try again.")
+                }
+                if(error.status == 400){
+                    return Alert.alert('Error', "Invalid code. Please try again.")
+                }
+            }
+            return Alert.alert('Error', "An error occurred while trying to reset your password. Please try again.")
+        }
+    }
     async function onLogout(){
         await AuthModelContext.deleteStoredTokens();
         setAuthState({authenticated: false, user_id: null})
@@ -259,7 +312,9 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
         onLogin, 
         onConfirmSignUp,
         onNewDevice,
-        onLogout
+        onLogout,
+        onForgotPassword,
+        onResetPassword
     }
 
     return (

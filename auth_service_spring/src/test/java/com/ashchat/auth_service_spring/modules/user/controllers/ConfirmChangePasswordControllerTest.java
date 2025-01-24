@@ -25,12 +25,14 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.time.Instant;
 import java.util.UUID;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Testcontainers
-public class ConfirmNewDeviceToLinkWithAccountControllerTest {
+public class ConfirmChangePasswordControllerTest {
+
     @Container
     static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:latest");
 
@@ -47,46 +49,42 @@ public class ConfirmNewDeviceToLinkWithAccountControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private MongoTemplate mongoTemplate;
+    private RabbitTemplate rabbitTemplate;
 
     @Autowired
-    private RabbitTemplate rabbitTemplate;
+    private MongoTemplate mongoTemplate;
 
     @Autowired
     private JWTProvider jwtProvider;
 
     @BeforeEach
     void setupQueue() {
-        // Declare and configure the queue where the requests will go
         rabbitTemplate.execute(channel -> {
-            channel.queueDeclare("confirm_new_device_reply_queue", true, false, false, null); // Durable queue
+            channel.queueDeclare("confirm_change_password_queue", true, false, false, null);
             return null;
         });
 
         new Thread(() -> rabbitTemplate.execute(channel -> {
-            // Listen for messages on the queue
-            String queue = "confirm_new_device_reply_queue";
+            String queue = "confirm_change_password_queue";
             channel.basicConsume(queue, true, (consumerTag, message) -> {
                 String replyQueue = message.getProperties().getReplyTo();
                 String correlationId = message.getProperties().getCorrelationId();
 
-                // Prepare the response message
                 String response = """
                     {
                         "success": true,
-                        "message": "Device successfully confirmed"
+                        "message": "Password change code validated"
                     }
                     """;
 
-                // Send the response
                 AMQP.BasicProperties replyProps = new AMQP.BasicProperties
                         .Builder()
                         .correlationId(correlationId)
                         .build();
 
-                // Publish response to the reply queue
                 channel.basicPublish("", replyQueue, replyProps, response.getBytes());
-            }, consumerTag -> { });
+            }, consumerTag -> {
+            });
             return null;
         })).start();
     }
@@ -97,7 +95,7 @@ public class ConfirmNewDeviceToLinkWithAccountControllerTest {
     }
 
     @Test
-    public void should_be_able_to_confirm_a_new_device_to_link_with_an_account() throws Exception {
+    public void should_change_password_if_code_is_valid() throws Exception {
         String userDeviceToken = UUID.randomUUID().toString();
         String userNotificationToken = UUID.randomUUID().toString();
         UserEntity userToBeCreated = new UserEntity();
@@ -108,15 +106,6 @@ public class ConfirmNewDeviceToLinkWithAccountControllerTest {
         userToBeCreated.setDeviceTokenId(userDeviceToken);
         userToBeCreated.setDeviceNotificationToken(userNotificationToken);
         UserEntity userCreated = mongoTemplate.save(userToBeCreated, "user_profile");
-
-        String requestPayload = """
-            {
-                "emailCode": "123456",
-                "deviceTokenId": "device123",
-                "deviceNotificationToken": "notif123",
-                "deviceOS": "ANDROID"
-            }
-        """;
         Instant expiryTime = Instant.now().plusSeconds(300);
         String JWTTemporaryToken = jwtProvider.generateJWTToken(
                 userCreated.getId(),
@@ -124,45 +113,18 @@ public class ConfirmNewDeviceToLinkWithAccountControllerTest {
                 expiryTime
         );
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/user/confirm-new-device")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + JWTTemporaryToken)
-                        .content(requestPayload))
-                .andExpect(status().isNoContent());
-    }
-
-    @Test
-    public void should_not_be_able_to_confirm_a_new_device_to_link_with_an_account_if_jwt_token_is_invalid() throws Exception {
-        String userDeviceToken = UUID.randomUUID().toString();
-        String userNotificationToken = UUID.randomUUID().toString();
-        UserEntity userToBeCreated = new UserEntity();
-        userToBeCreated.setName("John Doe");
-        userToBeCreated.setEmail("john.doe@example.com");
-        userToBeCreated.setPassword("password");
-        userToBeCreated.setDeviceOS("Windows 10");
-        userToBeCreated.setDeviceTokenId(userDeviceToken);
-        userToBeCreated.setDeviceNotificationToken(userNotificationToken);
-        mongoTemplate.save(userToBeCreated, "user_profile");
-
         String requestPayload = """
             {
                 "emailCode": "123456",
-                "deviceTokenId": "device123",
-                "deviceNotificationToken": "notif123",
-                "deviceOS": "ANDROID"
+                "newPassword": "new_secure_password"
             }
-        """;
-        Instant expiryTime = Instant.now().plusSeconds(300);
-        String JWTTemporaryToken = jwtProvider.generateJWTToken(
-                "banana",
-                JWTTypes.TEMPORARY,
-                expiryTime
-        );
+            """;
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/user/confirm-new-device")
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/user/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + JWTTemporaryToken)
                         .content(requestPayload))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(200));
     }
 }
