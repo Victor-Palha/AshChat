@@ -44,7 +44,7 @@ export default function ResetPassword(){
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View className="flex-1 pt-[62px] items-center justify-center">
                 <View className="items-center justify-center px-[45] mb-10">
-                    <Text className="text-white font-bold text-lg mb-5">Get your Code to allow new device</Text>
+                    <Text className="text-white font-bold text-lg mb-5">Get your Code to reset your password</Text>
                     <Text className="text-white italic">Please, enter the 6 digit code that send to your email address.</Text>
                 </View>
     
