@@ -9,6 +9,13 @@ import com.ashchat.auth_service_spring.modules.user.entity.UserEntity;
 import com.ashchat.auth_service_spring.modules.user.services.FindUserByEmailUseCase;
 import com.ashchat.auth_service_spring.providers.CreateValidateCode;
 import com.ashchat.auth_service_spring.providers.JWTProvider;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -25,6 +32,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/user")
+@Tag(name = "User Account Security", description = "User Account Security related endpoints")
 public class RequestForChangePasswordController {
     // broker queue
     @Value("${broker.queue.email.password.change}")
@@ -43,6 +51,11 @@ public class RequestForChangePasswordController {
     }
 
     @PostMapping("/password")
+    @Operation(summary = "Request to change user password", description = "Receives the email code and token to reset the user password", responses = {
+    @ApiResponse(responseCode = "202", description = "Verification email is being processed", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "Success", value = "{ \"status\": 202, \"message\": \"Verification email is being processed\", \"data\": { \"token\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...\" } }"),schema = @Schema(implementation = EndpointResponse.class))),
+    @ApiResponse(responseCode = "400", description = "Invalid Email Code", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "InvalidEmailCode", value = "{ \"status\": 400, \"message\": \"Invalid Email Code\", \"data\": null }"),schema = @Schema(implementation = EndpointResponse.class))),
+    @ApiResponse(responseCode = "404", description = "User Not Found", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "UserNotFound", value = "{ \"status\": 404, \"message\": \"User not found\", \"data\": null }"), schema = @Schema(implementation = EndpointResponse.class))),
+    @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "ServerError", value = "{ \"status\": 500, \"message\": \"Internal server error\", \"data\": null }"),schema = @Schema(implementation = EndpointResponse.class)))})
     public ResponseEntity<Object> execute(@Valid @RequestBody RequestForChangePasswordDTO requestForChangePasswordDTO) {
         try {
             Optional<UserEntity> user = findUserByEmailUseCase.execute(requestForChangePasswordDTO.getEmail());
