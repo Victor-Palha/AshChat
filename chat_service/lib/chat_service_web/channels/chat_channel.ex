@@ -78,6 +78,13 @@ defmodule ChatServiceWeb.ChatChannel do
     push(socket, "receiver_online", %{status: status})
   end
 
+  def handle_in("typing", _payload, socket) do
+    broadcast_from(socket, "typing", %{
+      user_id: socket.assigns.user_id
+    })
+    {:noreply, socket}
+  end
+
   def handle_in("send_message", %{"content" => content, "mobile_ref_id" => mobile_ref_id}, socket) do
     message = build_message(content, mobile_ref_id, socket)
     handle_message_delivery(message, socket)
