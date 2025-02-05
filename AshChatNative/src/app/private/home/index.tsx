@@ -2,11 +2,8 @@ import { ChatList } from "@/src/components/ChatList";
 import { Footer } from "@/src/components/Footer";
 import { ModalAdd } from "@/src/components/ModalAdd";
 import { NoContacts } from "@/src/components/NoContacts";
-import { LabelChatPropsDTO } from "@/src/persistence/MMKVStorage/DTO/LabelChatPropsDTO";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import {useEffect, useState } from "react";
 import { Text, TouchableOpacity, View} from "react-native";
-import { useMMKVObject } from "react-native-mmkv";
 import { HomeViewModel } from "./home-view-model";
 
 export default function index(){
