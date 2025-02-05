@@ -32,6 +32,7 @@ export default function Chat(): JSX.Element {
   const { chat_id, nickname } = useLocalSearchParams();
   const { socket, user_id } = useContext(ChatContext);
   // States
+  const [isUserTyping, setIsUserTyping] = useState<boolean>(false);
   const [messages, setMessages] = useState<MessagePropsDTO[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
   const [channel, setChannel] = useState<Channel | null>(null);
@@ -100,9 +101,14 @@ export default function Chat(): JSX.Element {
         });
       };
 
+      const handleTyping = ({is_typing}: any) => {
+        setIsUserTyping(is_typing);
+      };
+
       // events listeners
       chatChannel.on("receive_message", handleReceiveMessage);
       chatChannel.on("message_sent", handleMessageSent);
+      chatChannel.on("typing", handleTyping);
       chatChannel.on("receiver_online", ({ status }: { status: boolean }) => {
         setIsReceiverOnline(status);
       });
@@ -148,9 +154,16 @@ export default function Chat(): JSX.Element {
 
       setMessages((prevMessages) => [newMessage, ...prevMessages]);
       setInputMessage("");
+      handleTyping(false);
     }
   }
 
+  // send event if the user is typing
+  function handleTyping(isTyping: boolean) {
+    channel?.push("typing", {
+      "is_typing": isTyping,
+    });
+  }
   const flatListRef = useRef<FlatList>(null);
 
   return (
@@ -202,7 +215,12 @@ export default function Chat(): JSX.Element {
         }}
         removeClippedSubviews={true}
       />
-
+      {/* Typing */}
+      {isUserTyping && (
+        <View className="px-4 pb-2">
+          <Text className="text-purple-400 text-sm font-medium">Typing...</Text>
+        </View>
+      )}
       {/* Keyboard Area */}
       <View className="bg-gray-900 p-3 pb-12">
         <View className="bg-gray-200 rounded-full flex-row items-center">
@@ -210,7 +228,11 @@ export default function Chat(): JSX.Element {
             className="flex-1 rounded-full bg-gray-200 px-4 py-2 text-gray-800"
             placeholder="Message..."
             value={inputMessage}
-            onChangeText={setInputMessage}
+            onChangeText={(value)=> {
+              handleTyping(true);
+              setInputMessage(value);
+              if (value.length === 0) handleTyping(false);
+            }}
             keyboardType="default"
           />
           <TouchableOpacity

@@ -78,9 +78,9 @@ defmodule ChatServiceWeb.ChatChannel do
     push(socket, "receiver_online", %{status: status})
   end
 
-  def handle_in("typing", _payload, socket) do
+  def handle_in("typing", %{"is_typing" => is_typing}, socket) do
     broadcast_from(socket, "typing", %{
-      user_id: socket.assigns.user_id
+      is_typing: is_typing
     })
     {:noreply, socket}
   end
