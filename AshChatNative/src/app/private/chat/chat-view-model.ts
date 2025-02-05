@@ -140,6 +140,29 @@ export function ChatViewModel({chat_id}: ChatViewModelProps){
         channel?.leave();
         router.back();
     }
+
+    function handleNormalizeDate(timestamp: number | string): string {
+        const date = new Date(timestamp);
+        date.setHours(0, 0, 0, 0);
+        return date.toLocaleDateString();
+    }
+    
+    function handleGroupMessages(messages: MessagePropsDTO[]): MessagePropsDTO[] {
+        const groupedMessages: MessagePropsDTO[] = [];
+        let lastDate: string | null = null;
+    
+        messages.forEach((message) => {
+            const messageDate = handleNormalizeDate(message.timestamp);
+    
+            if (messageDate !== lastDate) {
+                lastDate = messageDate;
+            }
+    
+            groupedMessages.push(message);
+        });
+    
+        return groupedMessages;
+    }
     // Load chat messages and divide into chunks
     useEffect(() => {
         const response = mmkvStorage.getChat(chat_id as string);
@@ -152,7 +175,7 @@ export function ChatViewModel({chat_id}: ChatViewModelProps){
         }
 
         let profilePhoto = response.searched_chats.profile_picture;
-        if(profilePhoto != "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"){
+        if(profilePhoto != "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" && !profilePhoto.startsWith("http")){
             profilePhoto = "http://localhost:3006" + profilePhoto
         }
 
@@ -205,7 +228,9 @@ export function ChatViewModel({chat_id}: ChatViewModelProps){
         handleWriteMessage,
         handleSendMessage,
         handleTypingTrack,
-        handleOpenAndCloseModalDescription
+        handleOpenAndCloseModalDescription,
+        handleGroupMessages,
+        handleNormalizeDate
     }
 
     return values;

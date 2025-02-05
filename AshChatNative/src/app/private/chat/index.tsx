@@ -15,6 +15,7 @@ import {
   Platform,
   Image,
 } from "react-native";
+import { MessagePropsDTO } from "@/src/persistence/MMKVStorage/DTO/MessagePropsDTO";
 
 export default function index(){
   const { chat_id, nickname } = useLocalSearchParams();
@@ -32,9 +33,11 @@ export default function index(){
     handleOpenAndCloseModalDescription,
     handleWriteMessage,
     handleSendMessage,
+    handleGroupMessages,
+    handleNormalizeDate
   } = ChatViewModel({ chat_id });
 
-
+  const groupedMessages = handleGroupMessages(messages);
   const flatListRef = useRef<FlatList>(null);
 
   return (
@@ -67,20 +70,24 @@ export default function index(){
 
       {/* Message List */}
       <FlatList
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={(item) => item.id_message}
-        renderItem={({ item }) => <LoadMessages item={item} user_id={userId} />}
-        className="flex-1 px-4 py-2"
-        contentContainerStyle={{ flexGrow: 1 }}
-        inverted={true}
-        initialNumToRender={20}
-        maxToRenderPerBatch={10}
-        windowSize={5}
-        onEndReachedThreshold={0.1} 
-        onEndReached={()=> handleGetOlderMessages}
-        removeClippedSubviews={true}
-      />
+      ref={flatListRef}
+      data={groupedMessages}
+      keyExtractor={(item) => ("id_message" in item ? item.id_message : item.id)}
+      renderItem={({ item, index }) => {
+        const lastMessageDate =
+            index < groupedMessages.length - 1 ? handleNormalizeDate(groupedMessages[index + 1].timestamp) : undefined;
+        return <LoadMessages item={item} user_id={userId} lastMessageDate={lastMessageDate} />;
+    }}
+      className="flex-1 px-4 py-2"
+      contentContainerStyle={{ flexGrow: 1 }}
+      inverted={true} // Mantemos invertido
+      initialNumToRender={20}
+      maxToRenderPerBatch={10}
+      windowSize={5}
+      onEndReachedThreshold={0.1}
+      onEndReached={() => handleGetOlderMessages}
+      removeClippedSubviews={true}
+    />
       {/* Typing */}
       {isUserTyping && (
         <View className="px-4 pb-2">

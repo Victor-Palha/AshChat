@@ -90,7 +90,7 @@ export function SettingsViewModel() {
 
     useFocusEffect(useCallback(()=>{
         handleSelectPhotoProfile()
-    }, []))
+    }, [userProfile]))
 
     return {
         handleOpenModalToChangeUserName,
