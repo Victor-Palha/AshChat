@@ -1,35 +1,22 @@
-import Versions from './components/Versions'
-import electronLogo from './assets/electron.svg'
+import ashChatLogo from './assets/logo.png'
 
-function App(): JSX.Element {
-  const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
-
+export function App(){
   return (
-    <>
-      <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">Powered by electron-vite</div>
+    <main className='body h-screen w-screen flex flex-col'>
+      <img alt="logo" className="logo" src={ashChatLogo} />
+      <p className="text-5xl text-white font-kenia">AshChat</p>
+
       <div className="text">
-        Build an Electron app with <span className="react">React</span>
-        &nbsp;and <span className="ts">TypeScript</span>
+        A real-time chat app <span className="react">powered by AI</span> to facilitate communication <br /><span className="ts">around the world!</span>
       </div>
-      <p className="tip">
-        Please try pressing <code>F12</code> to open the devTool
-      </p>
+
       <div className="actions">
         <div className="action">
-          <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">
-            Documentation
-          </a>
-        </div>
-        <div className="action">
-          <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
-            Send IPC
-          </a>
+          <button>
+              Get Started
+          </button>
         </div>
       </div>
-      <Versions></Versions>
-    </>
+    </main>
   )
 }
-
-export default App
