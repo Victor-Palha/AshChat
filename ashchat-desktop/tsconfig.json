@@ -21,16 +21,20 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
+      "*": [
+        "./src/*"
+      ],
       "~/*": [
         "./*"
       ],
-      "@*": ["./src/*"],
     }
   },
   "include": [
     "src",
-    "src/preload/index.d.ts",
-    "electron.vite.config.*"
+    "electron.vite.config.*",
+    "index.d.ts",
+    "tailwind.config.ts",
+    "postcss.config.mjs",
   ],
   "exclude": [
     "node_modules"

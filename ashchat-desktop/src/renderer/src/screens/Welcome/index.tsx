@@ -1,6 +1,6 @@
-import ashChatLogo from './assets/logo.png'
+import ashChatLogo from '../../assets/logo.png'
 
-export function App(){
+export function Welcome(){
   return (
     <main className='body h-screen w-screen flex flex-col'>
       <img alt="logo" className="logo" src={ashChatLogo} />
