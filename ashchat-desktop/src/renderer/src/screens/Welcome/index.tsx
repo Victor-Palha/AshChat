@@ -1,6 +1,12 @@
+import { Button } from '../../components/Button'
 import ashChatLogo from '../../assets/logo.png'
+import { useNavigate } from 'react-router-dom'
 
 export function Welcome(){
+  const navigate = useNavigate()
+  function handleStart(){
+    navigate('/login')
+  }
   return (
     <main className='body h-screen w-screen flex flex-col'>
       <img alt="logo" className="logo" src={ashChatLogo} />
@@ -12,9 +18,7 @@ export function Welcome(){
 
       <div className="actions">
         <div className="action">
-          <button>
-              Get Started
-          </button>
+            <Button title='Get Started' onClick={handleStart}/>
         </div>
       </div>
     </main>
