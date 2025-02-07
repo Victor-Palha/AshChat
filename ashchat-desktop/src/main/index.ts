@@ -1,6 +1,8 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
-import { join } from 'path'
+import { join } from 'node:path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+// the ?asset is a special query parameter that tells vite to use the asset
+// @ts-ignore
 import icon from '../../resources/icon.png?asset'
 
 function createWindow(): void {
@@ -35,6 +37,9 @@ function createWindow(): void {
   }
 }
 
+if(process.platform === 'darwin') {
+  app.dock.setIcon(icon)
+}
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
