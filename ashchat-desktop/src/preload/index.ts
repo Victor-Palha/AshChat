@@ -1,8 +1,20 @@
 import { contextBridge } from 'electron'
-import { electronAPI } from '@electron-toolkit/preload'
+import { ElectronAPI, electronAPI } from '@electron-toolkit/preload'
+
+declare global {
+  interface Window {
+    electron: ElectronAPI
+    api: typeof api
+  }
+}
+
 
 // Custom APIs for renderer
-const api = {}
+const api = {
+  test(){
+    console.log('test')
+  }
+}
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
