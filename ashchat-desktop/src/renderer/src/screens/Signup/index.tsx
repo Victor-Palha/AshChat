@@ -27,7 +27,7 @@ export function Signup(){
 
     return (
         <div
-            className="flex flex-col pt-[62px] items-center justify-center text-white"
+            className="body flex flex-col items-center justify-center text-white"
         >
             <div className="gap-2">
                 <p className="font-bold text-white text-lg">Create an account!</p>
@@ -74,7 +74,7 @@ export function Signup(){
                 </div>
             </div>
             <Button title="Sign up"  onClick={handleRegister}/>
-            <div className="text-center items-center mt-2">
+            <div className="text-center items-center mt-3">
                 <Link to="/login" className="text-sm font-semibold text-purple-700 mb-4">
                     Already have a account? Sign in
                 </Link>

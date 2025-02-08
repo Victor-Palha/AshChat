@@ -17,7 +17,7 @@ export function Login(){
 
     return (
         <main
-            className="flex flex-col pt-[62px] items-center justify-center text-white"
+            className="body flex flex-col items-center justify-center text-white"
         >
             <div className="items-center justify-center mb-[25px]">
                 <img alt="logo" className="logo" src={ashChatLogo} />
