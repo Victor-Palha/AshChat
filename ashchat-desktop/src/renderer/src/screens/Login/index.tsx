@@ -12,7 +12,7 @@ export function Login(){
     const [password, setPassword] = useState("");
 
     function handleLogin(){
-        console.log(email, password);
+        window.api.test()
     }
 
     return (
