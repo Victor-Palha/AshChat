@@ -11,6 +11,7 @@ declare global {
     chatApi: typeof chatApi
     messageApi: typeof messageApi
     labelApi: typeof labelApi
+    utilsApi: typeof utilsApi
   }
 }
 
@@ -33,6 +34,10 @@ const labelApi = {
   clearNotifications: (chat_id: string) => ipcRenderer.invoke('clearNotifications', chat_id),
 }
 
+const utilsApi = {
+  getPlataform: () => ipcRenderer.invoke('getPlatform'),
+}
+
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -42,6 +47,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('chatAPI', chatApi);
     contextBridge.exposeInMainWorld('messageAPI', messageApi);
     contextBridge.exposeInMainWorld('labelAPI', labelApi);
+    contextBridge.exposeInMainWorld('utilsAPI', utilsApi);
 
   } catch (error) {
     console.error(error)

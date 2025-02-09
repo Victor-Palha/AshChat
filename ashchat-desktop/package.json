@@ -27,7 +27,8 @@
     "axios": "^1.7.9",
     "better-sqlite3": "^11.8.1",
     "electron-router-dom": "^2.1.0",
-    "react-router-dom": "^7.1.5"
+    "react-router-dom": "^7.1.5",
+    "uuid": "^11.0.5"
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",

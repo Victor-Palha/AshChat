@@ -1,6 +1,6 @@
 import { useContext, useRef, useState } from "react";
-import { Button } from "renderer/src/components/Button";
-import { AuthContext } from "renderer/src/contexts/auth/authContext";
+import { Button } from "../../components/Button";
+import { AuthContext } from "../../contexts/auth/authContext";
 
 
 export function ConfirmSignUp(){

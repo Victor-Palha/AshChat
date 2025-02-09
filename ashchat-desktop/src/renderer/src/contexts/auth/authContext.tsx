@@ -1,8 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { AxiosError } from "axios";
 import { AuthModelContext } from "./auth-model-context";
-import { platform } from "os";
-import { useNavigate } from "react-router-dom";
 
 type AuthState = {
     user_id: string | null,
@@ -23,10 +21,14 @@ interface AuthProps {
 export const AuthContext = createContext<AuthProps>({} as AuthProps);
 
 export function AuthContextProvider({children}: {children: React.ReactNode}){
-    const router = useNavigate();
     const [authState, setAuthState] = useState<AuthState>({authenticated: null, user_id: null});
     const [isLoading, setIsLoading] = useState(true);
     const [isCheckingUserIdentity, setIsCheckingUserIdentity] = useState(false);
+
+    function router(path: string){
+        history.pushState({}, '', path)
+        window.dispatchEvent(new Event('popstate'))
+    }
 
     async function validateRefreshTokenToken(refresh_token: string): Promise<boolean> {
         const {deviceTokenId, authAPI} = AuthModelContext.getStoredTokens();
@@ -62,6 +64,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
 
     async function checkingUserIdentifyByRefreshToken(): Promise<void> {
         const {refresh_token, user_id} = AuthModelContext.getStoredTokens();
+        console.log(refresh_token)
         if (isCheckingUserIdentity) return;
         if (authState.authenticated === false) return;
         setIsCheckingUserIdentity(true);
@@ -93,12 +96,13 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
             })
             const {token, refresh_token, user_id} = responseAuthServer.data.data;
             await saveUserProfile(token, deviceTokenId);
+            const os = await window.utilsApi.getPlataform();
             AuthModelContext.persistenceProfileData({
                 token, 
                 refresh_token, 
                 user_id, 
                 email, 
-                platform: platform()
+                platform: os
             });
             // new BackupChat().backupMessages();
             setAuthState({authenticated: true, user_id});
@@ -153,11 +157,11 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
             if(!user_email || !deviceTokenId){
                 alert("An error occurred while trying to confirm your account. Please try again.")
             }
-
+            const os = await window.utilsApi.getPlataform();
             const response = await authAPI.server.post('/user/confirm-email', {
                 user_email, 
                 emailCode, 
-                deviceOS: platform(), 
+                deviceOS: os, 
                 deviceTokenId, 
                 deviceNotificationToken
             })
@@ -180,9 +184,10 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
         }
         const {deviceTokenId, deviceNotificationToken, authAPI} = AuthModelContext.getStoredTokens();
         try{
+            const os = await window.utilsApi.getPlataform();
             const response = await authAPI.server.post('/user/confirm-new-device', {
                 emailCode, 
-                deviceOS: platform(), 
+                deviceOS: os, 
                 deviceTokenId, 
                 deviceNotificationToken
             }, {

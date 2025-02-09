@@ -1,5 +1,4 @@
-import { randomUUID } from "node:crypto"
-import { platform } from "node:os"
+import { v4 as randomUUID } from "uuid";
 import { AuthAPIClient } from "../../lib/api/auth-api-client"
 import { PhoenixAPIClient } from "../../lib/api/phoenix-api-client"
 import LocalStoragePersistence from "../../lib/local-storage-persistence"
@@ -68,10 +67,11 @@ export class AuthModelContext {
         // MMKVProfile.setToken(data.token);
     }
 
-    public static persistenceAfterRegister(data: PersistenceAfterRegisterDTO){
+    public static async persistenceAfterRegister(data: PersistenceAfterRegisterDTO){
         const deviceTokenId = data.deviceTokenId || randomUUID();
         LocalStoragePersistence.setEmail(data.email);
-        LocalStoragePersistence.setDeviceOS(platform());
+        const os = await window.utilsApi.getPlataform()
+        LocalStoragePersistence.setDeviceOS(os);
         LocalStoragePersistence.setUniqueDeviceId(deviceTokenId);
     }
 

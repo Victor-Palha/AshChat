@@ -28,9 +28,14 @@ export function setupLabelHandlers() {
     ipcMain.handle('clearNotifications', async (_, chat_id: string) => prismaChats.clearNotifications(chat_id));
 }
 
+export function setupUtilsHandlers() {
+    ipcMain.handle("getPlatform", async () => process.platform);
+}
+
 // Inicializa todos os handlers
 export function setupIpcHandlers() {
     setupChatHandlers();
     setupMessageHandlers();
     setupLabelHandlers();
+    setupUtilsHandlers();
 }

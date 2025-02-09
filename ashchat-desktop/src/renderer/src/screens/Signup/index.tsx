@@ -1,14 +1,17 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Input } from "../../components/Input";
 import { InputPassword } from "../../components/InputPassword";
 import { languages } from '../../constants/languages';
 import { Button } from '../../components/Button';
 import { Link } from 'react-router-dom';
 import { EnvelopeSimple, User } from "@phosphor-icons/react";
+import { AuthContext } from "../../contexts/auth/authContext";
 
 type Languages = typeof languages[0];
 
 export function Signup(){
+    const {onRegister} = useContext(AuthContext);
+
     const [nickname, setNickname] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -20,9 +23,26 @@ export function Signup(){
         setSelectedLanguage(selected || null);
     };
 
-    function handleRegister(){
-        console.log("Registering...");
-        alert(nickname);
+    async function handleRegister(){
+        if(password !== confirmPassword){
+            alert("Passwords do not match")
+            return
+        }
+        if(!selectedLanguage){
+            alert("Please select a language")
+            return
+        }
+        if(!nickname || !email || !password){
+            alert("Please fill all the fields")
+            return
+        }
+
+        try {
+            await onRegister(email, password, nickname, selectedLanguage.value)
+        } catch (error) {
+            console.log(error)
+            alert("An error occurred")
+        }
     }
 
     return (
