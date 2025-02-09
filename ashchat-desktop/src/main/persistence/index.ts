@@ -11,20 +11,16 @@ const db = new DatabaseManager();
 
 // Migrations
 // User information
-db.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-        id TEXT PRIMARY KEY NOT NULL,
-        email VARCHAR(100) NOT NULL,
-        nickname VARCHAR(100),
-        jwt_token TEXT,
-        jwt_refresh_token TEXT,
-        unique_device_id TEXT,
-        device_os TEXT,
-        notification_token TEXT,
-        user_id TEXT,
-        temporary_token TEXT
-    );
-`);
+// db.exec(`
+//     CREATE TABLE IF NOT EXISTS users (
+//         id TEXT PRIMARY KEY NOT NULL,
+//         nickname VARCHAR(100),
+//         description VARCHAR(100) NOT NULL,
+//         photo_url TEXT,
+//         preferred_language VARCHAR(10),
+//         tag_user_id VARCHAR(100)
+//     );
+// `);
 
 db.exec(`
     CREATE TABLE IF NOT EXISTS chats_labels (
