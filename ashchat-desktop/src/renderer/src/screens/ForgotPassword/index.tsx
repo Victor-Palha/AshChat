@@ -1,8 +1,9 @@
-import { Input } from "renderer/src/components/Input";
+import { Input } from "../../components/Input";
 import { Button } from "../../components/Button";
-import { EnvelopeSimple } from "@phosphor-icons/react";
+import { CaretLeft, EnvelopeSimple } from "@phosphor-icons/react";
 import { useContext, useState } from "react";
-import { AuthContext } from "renderer/src/contexts/auth/authContext";
+import { AuthContext } from "../../contexts/auth/authContext";
+import { Link } from "react-router-dom";
 
 export function ForgotPassword(){
     const [email, setEmail] = useState("");
@@ -14,7 +15,11 @@ export function ForgotPassword(){
         await onForgotPassword(email);
     }
     return ( 
-        <div className="flex flex-col flex-1 items-center justify-center">
+        <div className="body flex flex-col flex-1 items-center justify-center">
+            <Link to="/login" className="flex flex-row items-center gap-2 mb-10 text-purple-700">
+                <CaretLeft size={24} className="text-purple-700" />
+                <span>Back</span>
+            </Link>
             <div className="items-center justify-center px-[45] mb-10">
                 <p className="text-white font-bold text-lg mb-5">Forgot your password?</p>
                 <p className="text-white italic">We’ll send a code to your email address to recover your account.</p>
