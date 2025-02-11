@@ -159,7 +159,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
             }
             const os = "Electron";
             const data = {
-                user_email, 
+                email: user_email, 
                 emailCode, 
                 deviceOS: os, 
                 deviceTokenId, 
