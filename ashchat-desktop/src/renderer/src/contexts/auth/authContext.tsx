@@ -89,7 +89,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
             }
             const responseAuthServer = await authAPI.server.post('/user/signin', {
                 email, 
-                password, 
+                password,
                 deviceTokenId
             })
             const {token, refresh_token, user_id} = responseAuthServer.data.data;

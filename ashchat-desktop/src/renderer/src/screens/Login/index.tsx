@@ -1,18 +1,25 @@
 import { EnvelopeSimple } from '@phosphor-icons/react';
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useContext, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { Input } from '../../components/Input'
 import ashChatLogo from '../../assets/logo.png'
 import { InputPassword } from '../../components/InputPassword';
 import { Button } from '../../components/Button';
+import { AuthContext } from '../../contexts/auth/authContext';
 
 export function Login(){
+    const navigate = useNavigate();
+    const {onLogin} = useContext(AuthContext);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    function handleLogin(){
-        // window.api.test()
+    async function handleLogin(){
+       const response = await onLogin(email, password);
+       if(response){
+            const [_, url] = response;
+            navigate(url);
+       }
     }
 
     return (
