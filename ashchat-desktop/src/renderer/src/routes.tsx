@@ -1,16 +1,18 @@
-import { BrowserRouter } from 'react-router-dom'
-import { Router } from '../../lib/electron-router-dom'
-import { Route } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom';
+import { Router } from '../../lib/electron-router-dom';
+import { Route } from 'react-router-dom';
 
-import { Welcome } from './screens/Welcome'
-import { Login } from './screens/Login'
-import { Signup } from './screens/Signup'
-import { ConfirmSignUp } from './screens/ConfirmSignup'
-import { ForgotPassword } from './screens/ForgotPassword'
-import { ResetPassword } from './screens/ResetPassword'
+import { Welcome } from './screens/Welcome';
+import { Login } from './screens/Login';
+import { Signup } from './screens/Signup';
+import { ConfirmSignUp } from './screens/ConfirmSignup';
+import { ForgotPassword } from './screens/ForgotPassword';
+import { ResetPassword } from './screens/ResetPassword';
+import { AuthContextProvider } from './contexts/auth/authContext';
 
 export function AppRoutes() {
   return (
+    <AuthContextProvider>
       <Router
         main={
             <>
@@ -23,5 +25,6 @@ export function AppRoutes() {
             </>
         }
       />
-  )
+    </AuthContextProvider>
+  );
 }

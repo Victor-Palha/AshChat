@@ -3,13 +3,14 @@ import { Input } from "../../components/Input";
 import { InputPassword } from "../../components/InputPassword";
 import { languages } from '../../constants/languages';
 import { Button } from '../../components/Button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { EnvelopeSimple, User } from "@phosphor-icons/react";
 import { AuthContext } from "../../contexts/auth/authContext";
 
 type Languages = typeof languages[0];
 
 export function Signup(){
+    const navigate = useNavigate()
     const {onRegister} = useContext(AuthContext);
 
     const [nickname, setNickname] = useState("");
@@ -38,7 +39,11 @@ export function Signup(){
         }
 
         try {
-            await onRegister(email, password, nickname, selectedLanguage.value)
+            const response = await onRegister(email, password, nickname, selectedLanguage.value)
+            if(response){
+                const [_, url] = response
+                navigate(url)
+            }
         } catch (error) {
             console.log(error)
             alert("An error occurred")

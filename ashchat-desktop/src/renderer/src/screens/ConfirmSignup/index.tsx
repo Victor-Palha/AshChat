@@ -1,9 +1,11 @@
 import { useContext, useRef, useState } from "react";
 import { Button } from "../../components/Button";
 import { AuthContext } from "../../contexts/auth/authContext";
+import { useNavigate } from "react-router-dom";
 
 
 export function ConfirmSignUp(){
+    const navigate = useNavigate()
     const {onConfirmSignUp} = useContext(AuthContext)
 
     const [code, setCode] = useState(['', '', '', '', '', '']);
@@ -29,25 +31,29 @@ export function ConfirmSignUp(){
     async function handleConfirmSignUp(){
         const codeValue = code.join('');
         try {
-            await onConfirmSignUp(codeValue);
+            const response = await onConfirmSignUp(codeValue);
+            if(response){
+                const [_, url] = response
+                navigate(url)
+            }
         } catch (error) {
             return
         }
     }
 
     return (
-        <div className="flex-1 pt-[62px] items-center justify-center">
+        <div className="body flex flex-col flex-1 pt-[62px] items-center justify-center">
             <div className="items-center justify-center px-[45] mb-10">
                 <p className="text-white font-bold text-lg mb-5">Get your Code</p>
                 <p className="text-white italic">Please, enter the 6 digit code that send to your email address.</p>
             </div>
 
-            <div className="flex-row justify-between px-5 gap-2 mb-10">
+            <div className="flex flex-row justify-between px-5 gap-2 mb-10">
                 {code.map((digit, index) => (
                     <input
                         key={index}
                         ref={(input) => (inputs.current[index] = input)}
-                        className="w-12 h-12 border border-gray-300 rounded-lg text-3xl text-center bg-white"
+                        className="w-12 h-12 border border-gray-300 rounded-lg text-3xl text-center bg-white text-gray-800"
                         value={digit}
                         onChange={(e) => handleChange(e.target.value, index)}
                         type="number"

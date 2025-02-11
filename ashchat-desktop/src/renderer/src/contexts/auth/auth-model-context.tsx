@@ -33,14 +33,18 @@ export class AuthModelContext {
     public static getStoredTokens(){
         const refresh_token = LocalStoragePersistence.getRefreshToken();
         let deviceTokenId = LocalStoragePersistence.getUniqueDeviceId();
+        let deviceNotificationToken = LocalStoragePersistence.getNotificationToken();
         if(!deviceTokenId) {
             deviceTokenId = randomUUID();
             LocalStoragePersistence.setUniqueDeviceId(deviceTokenId)
         };
+        if(!deviceNotificationToken) {
+            deviceNotificationToken = randomUUID();
+            LocalStoragePersistence.setNotificationToken(deviceNotificationToken);
+        }
         const jwt_token = LocalStoragePersistence.getJWT();
         const user_id = LocalStoragePersistence.getUserId();
         const user_email = LocalStoragePersistence.getEmail();
-        const deviceNotificationToken = LocalStoragePersistence.getNotificationToken();
         const authAPI = AuthAPIClient;
         const chatAPI = PhoenixAPIClient;
 
@@ -70,7 +74,7 @@ export class AuthModelContext {
     public static async persistenceAfterRegister(data: PersistenceAfterRegisterDTO){
         const deviceTokenId = data.deviceTokenId || randomUUID();
         LocalStoragePersistence.setEmail(data.email);
-        const os = await window.utilsApi.getPlataform()
+        const os = "Electron"
         LocalStoragePersistence.setDeviceOS(os);
         LocalStoragePersistence.setUniqueDeviceId(deviceTokenId);
     }

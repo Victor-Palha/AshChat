@@ -1,6 +1,9 @@
 import { createContext, useEffect, useState } from "react";
 import { AxiosError } from "axios";
 import { AuthModelContext } from "./auth-model-context";
+import { useNavigate } from "react-router-dom";
+
+type RedirectProps = [boolean, string];
 
 type AuthState = {
     user_id: string | null,
@@ -9,13 +12,13 @@ type AuthState = {
 interface AuthProps {
     authState: AuthState,
     isLoading: boolean,
-    onRegister: (email: string, password: string, nickname: string, preferredLanguage: string) => Promise<any>,
-    onLogin: (email: string, password: string) => Promise<any>,
-    onConfirmSignUp: (emailCode: string) => Promise<any>,
-    onNewDevice(emailCode: string): Promise<void>,
-    onLogout(): Promise<void>,
-    onForgotPassword(email: string): Promise<void>,
-    onResetPassword(emailCode: string, newPassword: string): Promise<void>
+    onRegister: (email: string, password: string, nickname: string, preferredLanguage: string) => Promise<RedirectProps | void>,
+    onLogin: (email: string, password: string) => Promise<RedirectProps | void>,
+    onConfirmSignUp: (emailCode: string) => Promise<RedirectProps | void>,
+    onNewDevice(emailCode: string): Promise<RedirectProps | void>,
+    onLogout(): Promise<RedirectProps>,
+    onForgotPassword(email: string): Promise<RedirectProps | void>,
+    onResetPassword(emailCode: string, newPassword: string): Promise<RedirectProps | void>
 }
 
 export const AuthContext = createContext<AuthProps>({} as AuthProps);
@@ -24,11 +27,6 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
     const [authState, setAuthState] = useState<AuthState>({authenticated: null, user_id: null});
     const [isLoading, setIsLoading] = useState(true);
     const [isCheckingUserIdentity, setIsCheckingUserIdentity] = useState(false);
-
-    function router(path: string){
-        history.pushState({}, '', path)
-        window.dispatchEvent(new Event('popstate'))
-    }
 
     async function validateRefreshTokenToken(refresh_token: string): Promise<boolean> {
         const {deviceTokenId, authAPI} = AuthModelContext.getStoredTokens();
@@ -83,7 +81,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
         setIsCheckingUserIdentity(false);
     }
 
-    async function onLogin(email: string, password: string){
+    async function onLogin(email: string, password: string): Promise<RedirectProps | void> {
         const {deviceTokenId, authAPI} = AuthModelContext.getStoredTokens();
         try {
             if(!deviceTokenId){
@@ -96,7 +94,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
             })
             const {token, refresh_token, user_id} = responseAuthServer.data.data;
             await saveUserProfile(token, deviceTokenId);
-            const os = await window.utilsApi.getPlataform();
+            const os = "Electron";
             AuthModelContext.persistenceProfileData({
                 token, 
                 refresh_token, 
@@ -106,7 +104,8 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
             });
             // new BackupChat().backupMessages();
             setAuthState({authenticated: true, user_id});
-            router('/private/home')
+            // router('/private/home')
+            return [true, '/home'];
         } catch (error) {
             if(error instanceof AxiosError){
                 if(error.response?.status === 401){
@@ -117,8 +116,8 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
                     console.log(error.response.data)
                     await AuthModelContext.newDeviceTryingToLogin(error.response.data.data.token);
                     alert("A new device is trying to login. Please confirm your email.");
-                    router('/newdevice');
-                    return
+                    // navigate('/newdevice');
+                    return [false, '/newdevice'];
                 }
             }
             else{
@@ -127,7 +126,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
         }
     }
 
-    async function onRegister(email: string, password: string, nickname: string, preferredLanguage: string){
+    async function onRegister(email: string, password: string, nickname: string, preferredLanguage: string): Promise<RedirectProps | void> {
         const {deviceTokenId, authAPI} = AuthModelContext.getStoredTokens();
         try {
             if(!deviceTokenId){
@@ -142,7 +141,8 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
             if(response.status === 202){
                 alert("You have successfully registered. Please check your email to confirm your account.")
                 AuthModelContext.persistenceAfterRegister({email, deviceTokenId})
-                router('/confirmsignup')
+                // navigate('/confirmsignup')
+                return [true, '/confirmsignup'];
             }
             
         } catch (error) {
@@ -151,40 +151,43 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
 
     }
 
-    async function onConfirmSignUp(emailCode: string){
+    async function onConfirmSignUp(emailCode: string): Promise<RedirectProps | void> {
         const {deviceTokenId, user_email, deviceNotificationToken, authAPI} = AuthModelContext.getStoredTokens();
         try {
             if(!user_email || !deviceTokenId){
                 alert("An error occurred while trying to confirm your account. Please try again.")
             }
-            const os = await window.utilsApi.getPlataform();
-            const response = await authAPI.server.post('/user/confirm-email', {
+            const os = "Electron";
+            const data = {
                 user_email, 
                 emailCode, 
                 deviceOS: os, 
                 deviceTokenId, 
                 deviceNotificationToken
-            })
+            }
+            console.log(data)
+            const response = await authAPI.server.post('/user/confirm-email', data)
 
             if(response.status === 201){
                 alert("You have successfully confirmed your account. Please login to continue.")
-                router('/login')
+                // navigate('/login')
+                return [true, '/login'];
             }
         } catch (error) {
             alert("An error occurred while trying to confirm your account. Please try again.")
         }
     }
 
-    async function onNewDevice(emailCode: string){
+    async function onNewDevice(emailCode: string):  Promise<RedirectProps | void> {
         const temporaryToken = AuthModelContext.getTemporaryToken();
         if(!temporaryToken) {
             alert("An error occurred while trying to confirm your new device. Please try again.")
-            router('/login')
-            return
+            // navigate('/login')
+            return [false, '/login'];
         }
         const {deviceTokenId, deviceNotificationToken, authAPI} = AuthModelContext.getStoredTokens();
         try{
-            const os = await window.utilsApi.getPlataform();
+            const os = "Electron";
             const response = await authAPI.server.post('/user/confirm-new-device', {
                 emailCode, 
                 deviceOS: os, 
@@ -197,7 +200,8 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
             })
             if(response.status === 204){
                 alert("You have successfully confirmed your new device. Please login to continue.")
-                router('/login')
+                // navigate('/login')
+                return [true, '/login'];
             }
         }catch(error) {
             if(error instanceof AxiosError){
@@ -205,13 +209,13 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
             }else {
                 alert("An error occurred while trying to confirm your new device. Please try again.")
             }
-            router('/login')
-            return
+            // navigate('/login')
+            return [false, '/login'];
         }
             
     }
 
-    async function onForgotPassword(email: string){
+    async function onForgotPassword(email: string):  Promise<RedirectProps | void> {
         const {authAPI} = AuthModelContext.getStoredTokens();
         try{
             const response = await authAPI.server.post("/user/password", {
@@ -221,7 +225,9 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
                 const {token} = response.data.data;
                 AuthModelContext.newDeviceTryingToLogin(token);
                 alert("An email has been sent to you with instructions to reset your password.")
-                return router("/resetpassword");
+                return [true, '/resetpassword'];
+                // navigate("/resetpassword");
+
             }
         }
         catch(error){
@@ -234,7 +240,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
         }
     }
 
-    async function onResetPassword(emailCode: string, newPassword: string){
+    async function onResetPassword(emailCode: string, newPassword: string): Promise<RedirectProps | void> {
         const {authAPI} = AuthModelContext.getStoredTokens();
         const temporaryToken = AuthModelContext.getTemporaryToken();
         try{
@@ -248,7 +254,8 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
             })
             if (response.status == 200){
                 alert("Your password has been successfully reset. Please login to continue.")
-                return router("/login");
+                // navigate("/login");
+                return [true, '/login'];
             }
         }
         catch(error){
@@ -264,11 +271,12 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
         }
     }
     
-    async function onLogout(){
+    async function onLogout(): Promise<RedirectProps> {
         await AuthModelContext.deleteStoredTokens();
         setAuthState({authenticated: false, user_id: null})
         // Need to leave all channels and unsubscribe from all push notifications
-        router('/')
+        // navigate('/')
+        return [true, '/'];
     }
 
     async function saveUserProfile(jwt_token: string, deviceTokenId: string){
