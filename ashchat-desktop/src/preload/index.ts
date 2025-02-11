@@ -4,6 +4,7 @@ import { ChatPropsDTO } from 'main/persistence/DTO/ChatPropsDTO'
 import { AddMessagePropsDTO } from 'main/persistence/DTO/AddMessagePropsDTO'
 import { UpdateMessageStatusPropsDTO } from 'main/persistence/DTO/UpdateMessageStatusPropsDTO'
 import { UpdateChatInformationDTO } from 'main/persistence/DTO/UpdateChatInformationDTO'
+import { LabelChatPropsDTO } from 'main/persistence/DTO/LabelChatPropsDTO'
 
 declare global {
   interface Window {
@@ -14,7 +15,6 @@ declare global {
     utilsApi: typeof utilsApi
   }
 }
-
 
 // Custom APIs for renderer
 const chatApi = {
@@ -30,7 +30,7 @@ const messageApi = {
 }
 
 const labelApi = {
-  getLabels: () => ipcRenderer.invoke('getLabels'),
+  getLabels: (): Promise<LabelChatPropsDTO[] | null> => ipcRenderer.invoke('getLabels'),
   clearNotifications: (chat_id: string) => ipcRenderer.invoke('clearNotifications', chat_id),
 }
 
@@ -44,17 +44,18 @@ const utilsApi = {
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('chatAPI', chatApi);
-    contextBridge.exposeInMainWorld('messageAPI', messageApi);
-    contextBridge.exposeInMainWorld('labelAPI', labelApi);
-    contextBridge.exposeInMainWorld('utilsAPI', utilsApi);
-
+    contextBridge.exposeInMainWorld('chatApi', chatApi);
+    contextBridge.exposeInMainWorld('messageApi', messageApi);
+    contextBridge.exposeInMainWorld('labelApi', labelApi);
+    contextBridge.exposeInMainWorld('utilsApi', utilsApi);
   } catch (error) {
     console.error(error)
   }
 } else {
   // @ts-ignore (define in dts)
   window.electron = electronAPI
-  // @ts-ignore (define in dts)
-  window.api = api
+  window.chatApi = chatApi;
+  window.messageApi = messageApi;
+  window.labelApi = labelApi;
+  window.utilsApi = utilsApi;
 }

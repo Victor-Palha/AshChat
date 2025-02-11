@@ -47,21 +47,19 @@ export class PrismaChatRepository {
         // const labels = await prisma.chatLabel.findMany();
         const labels = await prisma.chatLabel.findMany({
             include: {
-                chat: {
-                    select: {
-                        nickname: true,
-                        profile_picture: true,
+              chat: {
+                select: {
+                  nickname: true,
+                  profile_picture: true,
+                  messages: {
+                    orderBy: {
+                      timestamp: "desc"
                     },
-                    include: {
-                        messages: {
-                            orderBy: {
-                                timestamp: 'desc',
-                            },
-                            take: 1,
-                        },
-                    }
+                    take: 1
+                  }
                 }
-            },
+              }
+            }
         });
 
         const labelsJoinned = labels.map(label => ({

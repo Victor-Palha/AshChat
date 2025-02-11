@@ -8,34 +8,20 @@ import { UpdateMessageStatusPropsDTO } from './persistence/DTO/UpdateMessageStat
 
 const prismaChats = new PrismaChatRepository();
 
-// Funções IPC para manipulação de chats
-export function setupChatHandlers() {
-    ipcMain.handle('addChat', async (_, payload: ChatPropsDTO) => prismaChats.addChat(payload));
-    ipcMain.handle('getChat', async (_, chat_id: string) => prismaChats.getChat(chat_id));
-    ipcMain.handle('getAllChats', async () => prismaChats.getAllChats());
-    ipcMain.handle('updateChatInformationProfile', async (_, payload: UpdateChatInformationDTO) => prismaChats.updateChatInformationProfile(payload));
-}
+ipcMain.handle('addChat', async (_, payload: ChatPropsDTO) => prismaChats.addChat(payload));
+ipcMain.handle('getChat', async (_, chat_id: string) => prismaChats.getChat(chat_id));
+ipcMain.handle('getAllChats', async () => prismaChats.getAllChats());
+ipcMain.handle('updateChatInformationProfile', async (_, payload: UpdateChatInformationDTO) => prismaChats.updateChatInformationProfile(payload));
 
-// Funções IPC para manipulação de mensagens
-export function setupMessageHandlers() {
-    ipcMain.handle('addMessage', async (_, payload: AddMessagePropsDTO) => prismaChats.addMessage(payload));
-    ipcMain.handle('updateMessageStatus', async (_, payload: UpdateMessageStatusPropsDTO) => prismaChats.updateMessageStatus(payload));
-}
 
-// Funções IPC para manipulação de labels
-export function setupLabelHandlers() {
-    ipcMain.handle('getLabels', async () => prismaChats.getLabels());
-    ipcMain.handle('clearNotifications', async (_, chat_id: string) => prismaChats.clearNotifications(chat_id));
-}
+ipcMain.handle('addMessage', async (_, payload: AddMessagePropsDTO) => prismaChats.addMessage(payload));
+ipcMain.handle('updateMessageStatus', async (_, payload: UpdateMessageStatusPropsDTO) => prismaChats.updateMessageStatus(payload));
 
-export function setupUtilsHandlers() {
-    ipcMain.handle("getPlatform", async () => process.platform);
-}
 
-// Inicializa todos os handlers
-export function setupIpcHandlers() {
-    setupChatHandlers();
-    setupMessageHandlers();
-    setupLabelHandlers();
-    setupUtilsHandlers();
-}
+
+ipcMain.handle('getLabels', async (_) => prismaChats.getLabels());
+ipcMain.handle('clearNotifications', async (_, chat_id: string) => prismaChats.clearNotifications(chat_id));
+
+
+
+ipcMain.handle("getPlatform", async (_) => process.platform);

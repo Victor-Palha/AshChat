@@ -9,6 +9,7 @@ import { ConfirmSignUp } from './screens/ConfirmSignup';
 import { ForgotPassword } from './screens/ForgotPassword';
 import { ResetPassword } from './screens/ResetPassword';
 import { AuthContextProvider } from './contexts/auth/authContext';
+import { Home } from './screens/Home';
 
 export function AppRoutes() {
   return (
@@ -22,6 +23,8 @@ export function AppRoutes() {
               <Route path="/confirmsignup" element={<ConfirmSignUp />} />
               <Route path="/forgotpassword" element={<ForgotPassword />} />
               <Route path="/resetpassword" element={<ResetPassword />} />
+              {/* Private Routes */}
+              <Route path="/home" element={<Home />} />
             </>
         }
       />
