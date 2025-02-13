@@ -1,8 +1,10 @@
 import { Button } from '../../components/Button'
 import ashChatLogo from '../../assets/logo.png'
 import { useNavigate } from 'react-router-dom'
+import { useValidate } from '../../hooks/useValidate'
 
 export function Welcome(){
+  useValidate();
   const navigate = useNavigate()
   function handleStart(){
     navigate('/login')

@@ -7,8 +7,10 @@ import ashChatLogo from '../../assets/logo.png'
 import { InputPassword } from '../../components/InputPassword';
 import { Button } from '../../components/Button';
 import { AuthContext } from '../../contexts/auth/authContext';
+import { useValidate } from '../../hooks/useValidate'
 
 export function Login(){
+    useValidate();
     const navigate = useNavigate();
     const {onLogin} = useContext(AuthContext);
     const [email, setEmail] = useState("");

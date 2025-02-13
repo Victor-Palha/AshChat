@@ -2,8 +2,10 @@ import { useContext, useRef, useState } from "react";
 import { Button } from "../../components/Button";
 import { InputPassword } from "../../components/InputPassword";
 import { AuthContext } from "../../contexts/auth/authContext";
+import { useValidate } from '../../hooks/useValidate'
 
 export function ResetPassword(){
+    useValidate();
     const {onResetPassword} = useContext(AuthContext)
 
     const [code, setCode] = useState(['', '', '', '', '', '']);

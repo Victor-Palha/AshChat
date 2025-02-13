@@ -4,8 +4,10 @@ import { CaretLeft, EnvelopeSimple } from "@phosphor-icons/react";
 import { useContext, useState } from "react";
 import { AuthContext } from "../../contexts/auth/authContext";
 import { Link } from "react-router-dom";
+import { useValidate } from '../../hooks/useValidate'
 
 export function ForgotPassword(){
+    useValidate();
     const [email, setEmail] = useState("");
     const {onForgotPassword} = useContext(AuthContext)
     async function handleSendCodeToEmail(){

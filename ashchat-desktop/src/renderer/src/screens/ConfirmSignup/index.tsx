@@ -2,9 +2,11 @@ import { useContext, useRef, useState } from "react";
 import { Button } from "../../components/Button";
 import { AuthContext } from "../../contexts/auth/authContext";
 import { useNavigate } from "react-router-dom";
+import { useValidate } from '../../hooks/useValidate'
 
 
 export function ConfirmSignUp(){
+    useValidate();
     const navigate = useNavigate()
     const {onConfirmSignUp} = useContext(AuthContext)
 

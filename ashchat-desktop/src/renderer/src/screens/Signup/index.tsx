@@ -6,10 +6,12 @@ import { Button } from '../../components/Button';
 import { Link, useNavigate } from 'react-router-dom';
 import { EnvelopeSimple, User } from "@phosphor-icons/react";
 import { AuthContext } from "../../contexts/auth/authContext";
+import { useValidate } from '../../hooks/useValidate'
 
 type Languages = typeof languages[0];
 
 export function Signup(){
+    useValidate();
     const navigate = useNavigate()
     const {onRegister} = useContext(AuthContext);
 
