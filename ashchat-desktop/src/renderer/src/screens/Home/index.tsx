@@ -26,6 +26,8 @@ export function Home(){
                     <ChatLabels
                         chats={chatLabelsToShow}
                         handleSelectChat={handleSelectChat}
+                        handleSetTypeOfLabelToShow={handleSetTypeOfLabelToShow}
+                        typeOfLabelToShow={typeOfLabelToShow}
                     />
                 )}
 
