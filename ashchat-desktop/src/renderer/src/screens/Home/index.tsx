@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChatLabels } from "./ChatLabels";
 import { HomeViewModel } from "./home-view-model";
 import { NoContacts } from "./NoContacts";
+import { SideBar } from "./SideBar";
 
 export function Home(){
     const {
@@ -21,7 +22,8 @@ export function Home(){
     return (
         <div>
             {/* ChatLabels */}
-            <main className="grid grid-cols-[35%_65%]">
+            <main className="grid grid-cols-[10%_35%_55%] lg:grid-cols-[8%_25%_66%]">
+                <SideBar handleOpenModal={handleOpenModal} />
                 {chatLabelsToShow && (
                     <ChatLabels
                         chats={chatLabelsToShow}
