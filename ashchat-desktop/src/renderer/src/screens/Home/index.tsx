@@ -12,7 +12,6 @@ export function Home(){
         chatLabelsToShow,
         isModalOpen,
         typeOfLabelToShow,
-        handleOpenModal,
         handleSetTypeOfLabelToShow
         
     } = HomeViewModel();
@@ -26,8 +25,7 @@ export function Home(){
         <div>
             {/* ChatLabels */}
             <main className="grid grid-cols-[10%_35%_55%] lg:grid-cols-[8%_25%_66%]">
-                <SideBar 
-                    handleOpenModal={handleOpenModal} 
+                <SideBar
                     userPhotoProfile={userProfile?.photo_url}
                 />
                 {chatLabelsToShow && (
@@ -43,7 +41,7 @@ export function Home(){
                 {chatSelected ? (
                     <div className="flex flex-1 flex-col gap-4">
                         <h1>{chatSelected}</h1>
-                        <button onClick={handleOpenModal}>Add Contact</button>
+                        <button onClick={()=>{}}>Add Contact</button>
                     </div>
                 ) : (
                     <NoContacts/>
