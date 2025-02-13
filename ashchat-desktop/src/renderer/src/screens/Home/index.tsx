@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ChatLabels } from "./ChatLabels";
 import { HomeViewModel } from "./home-view-model";
 import { NoContacts } from "./NoContacts";
@@ -11,28 +12,33 @@ export function Home(){
         handleSetTypeOfLabelToShow
         
     } = HomeViewModel();
+    const [chatSelected, setChatSelected] = useState<string | null>(null);
     console.log(chatLabelsToShow)
+
+    function handleSelectChat(chat: string){
+        setChatSelected(chat);
+    }
     return (
-        <main className="flex flex-1 px-10" >
-            <h1>CHATS</h1>
+        <div>
             {/* ChatLabels */}
-            {chatLabelsToShow && chatLabelsToShow?.length > 0 ? (
-                <div>
-                    {chatLabelsToShow.map((chat) => (
-                        <ChatLabels
-                            chat_id={chat.chat_id}
-                            profile_picture={chat.profile_picture}
-                            nickname={chat.nickname}
-                            notification={chat.notification}
-                            last_message={chat.last_message}
-                            last_interaction={chat.last_interaction}
-                            key={chat.chat_id}
-                        />
-                    ))}
-                </div>
-            ) :
-                <NoContacts/>
-            }
-        </main>   
+            <main className="grid grid-cols-[40%_60%]">
+                {chatLabelsToShow && (
+                    <ChatLabels
+                        chats={chatLabelsToShow}
+                        handleSelectChat={handleSelectChat}
+                    />
+                )}
+
+                {/* Chat */}
+                {chatSelected ? (
+                    <div className="flex flex-1 flex-col gap-4">
+                        <h1>{chatSelected}</h1>
+                        <button onClick={handleOpenModal}>Add Contact</button>
+                    </div>
+                ) : (
+                    <NoContacts/>
+                )}
+            </main>
+        </div>   
     )
 }
