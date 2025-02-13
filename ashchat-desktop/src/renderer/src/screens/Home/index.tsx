@@ -21,7 +21,7 @@ export function Home(){
     return (
         <div>
             {/* ChatLabels */}
-            <main className="grid grid-cols-[40%_60%]">
+            <main className="grid grid-cols-[35%_65%]">
                 {chatLabelsToShow && (
                     <ChatLabels
                         chats={chatLabelsToShow}
