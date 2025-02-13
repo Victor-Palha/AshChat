@@ -1,3 +1,4 @@
+import { User } from "@prisma/client";
 import { LabelChatPropsDTO } from "../../../../main/persistence/DTO/LabelChatPropsDTO";
 import { useEffect, useState } from "react";
 
@@ -6,6 +7,7 @@ export function HomeViewModel(){
     const [chatLabels, setChatLabels] = useState<LabelChatPropsDTO[]>([]);
     const [typeOfLabelToShow, setTypeOfLabelToShow] = useState("all");
     const [chatLabelsToShow, setChatLabelsToShow] = useState<LabelChatPropsDTO[] | undefined>(undefined);
+    const [userProfile, setUserProfile] = useState<User | null>(null);
 
     function handleOpenModal() {
         setIsModalOpen(!isModalOpen);
@@ -30,7 +32,17 @@ export function HomeViewModel(){
         setChatLabels([]);
     }
 
+    async function getUserProfile() {
+        const user = await window.userApi.getUser();
+        if(user){
+            setUserProfile(user);
+            return;
+        }
+        setUserProfile(null);
+    }
+
     useEffect(()=>{
+        getUserProfile();
         getAllLabels();
     }, [])
 
@@ -39,6 +51,7 @@ export function HomeViewModel(){
     }, [chatLabels, typeOfLabelToShow]);
 
     return {
+        userProfile,
         isModalOpen,
         chatLabelsToShow,
         typeOfLabelToShow,

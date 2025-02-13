@@ -6,6 +6,7 @@ import { UpdateMessageStatusPropsDTO } from 'main/persistence/DTO/UpdateMessageS
 import { UpdateChatInformationDTO } from 'main/persistence/DTO/UpdateChatInformationDTO'
 import { LabelChatPropsDTO } from 'main/persistence/DTO/LabelChatPropsDTO'
 import { UserProfilePropsDTO } from 'main/persistence/DTO/UserProfilePropsDTO'
+import { User } from '@prisma/client'
 
 declare global {
   interface Window {
@@ -43,6 +44,7 @@ const utilsApi = {
 const userApi = {
   addUser: (payload: UserProfilePropsDTO) => ipcRenderer.invoke('addUser', payload),
   updateUser: (payload: UserProfilePropsDTO) => ipcRenderer.invoke('updateUser', payload),
+  getUser: (): Promise<User | null> => ipcRenderer.invoke('getUser'),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

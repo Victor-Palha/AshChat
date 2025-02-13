@@ -31,3 +31,4 @@ ipcMain.handle("getPlatform", async (_) => process.platform);
 
 ipcMain.handle("addUser", async (_, payload: UserProfilePropsDTO) => prismaUsers.addUser(payload));
 ipcMain.handle("updateUser", async (_, payload: UserProfilePropsDTO) => prismaUsers.updateUser(payload));
+ipcMain.handle("getUser", async (_) => prismaUsers.getUser());

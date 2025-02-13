@@ -7,7 +7,6 @@ import * as ImagePicker from 'expo-image-picker';
 import { PhoenixAPIClient } from "@/src/api/phoenix-api-client";
 import SecureStoragePersistence from "@/src/persistence/SecureStorage";
 import { Alert } from "react-native";
-import { useFocusEffect } from "expo-router";
 
 export function SettingsViewModel() {
     const {onLogout} = useContext(AuthContext)
@@ -15,7 +14,6 @@ export function SettingsViewModel() {
     const [StorageProfile] = useState(new MMKVStorageProfile());
     const [isModalOpenToChangeUserName, setIsModalOpenToChangeUserName] = useState(false);
     const [isModalOpenToChangeDescription, setIsModalOpenToChangeDescription] = useState(false);
-    const [profilePicture, setProfilePicture] = useState<string | undefined>(undefined);
 
     function handleOpenModalToChangeUserName() {
         setIsModalOpenToChangeUserName(!isModalOpenToChangeUserName);
@@ -80,18 +78,6 @@ export function SettingsViewModel() {
         ])
     }
 
-    function handleSelectPhotoProfile(){
-        let profilePhoto = userProfile?.photo_url
-        if(profilePhoto != "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"){
-            profilePhoto = "http://localhost:3006" + profilePhoto
-        }
-        setProfilePicture(profilePhoto)
-    }
-
-    useFocusEffect(useCallback(()=>{
-        handleSelectPhotoProfile()
-    }, [userProfile]))
-
     return {
         handleOpenModalToChangeUserName,
         handleOpenModalToChangeDescription,
@@ -100,6 +86,6 @@ export function SettingsViewModel() {
         userProfile,
         isModalOpenToChangeUserName,
         isModalOpenToChangeDescription,
-        profilePicture
+        profilePicture: userProfile?.photo_url
     }
 }

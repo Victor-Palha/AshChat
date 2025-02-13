@@ -1,7 +1,6 @@
 defmodule ChatService.Services.User do
   alias ChatService.Models.User, as: User
   alias ChatService.Repo, as: Repo
-  alias ChatService.Utils.HashSha256
 
   def get_user_by_id(user_id) do
     user_id = BSON.ObjectId.decode!(user_id)

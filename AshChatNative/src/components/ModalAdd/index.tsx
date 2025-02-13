@@ -39,13 +39,7 @@ export function ModalAdd({modalIsOpen, closeModal}: ModalAddProps) {
         })
 
         if(response.status == 201){
-            let profile_url = ""
             const {chat_id, messages, nickname, profile_picture, description, preferred_language} = response.data as ResponseDataModalAdd
-            if(profile_picture.startsWith("https")){
-                profile_url = profile_picture
-            }  else {
-                profile_url = `http://localhost:3006/${profile_picture}`
-            }
             mmkvStorage.addChat({
                 chat_id,
                 messages,

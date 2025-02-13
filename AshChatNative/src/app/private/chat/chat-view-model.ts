@@ -173,10 +173,7 @@ export function ChatViewModel({chat_id}: ChatViewModelProps){
             return;
         }
 
-        let profilePhoto = response.searched_chats.profile_picture;
-        if(profilePhoto != "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg" && !profilePhoto.startsWith("http")){
-            profilePhoto = "http://localhost:3006" + profilePhoto
-        }
+        const profilePhoto = response.searched_chats.profile_picture;
 
         mmkvStorage.clearNotifications(chat_id as string);
         setProfilePicture(profilePhoto);

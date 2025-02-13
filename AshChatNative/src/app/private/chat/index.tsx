@@ -15,7 +15,6 @@ import {
   Platform,
   Image,
 } from "react-native";
-import { MessagePropsDTO } from "@/src/persistence/MMKVStorage/DTO/MessagePropsDTO";
 
 export default function index(){
   const { chat_id, nickname } = useLocalSearchParams();

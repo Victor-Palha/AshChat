@@ -8,6 +8,7 @@ import { useValidate } from "../../hooks/useValidate";
 export function Home(){
     useValidate
     const {
+        userProfile,
         chatLabelsToShow,
         isModalOpen,
         typeOfLabelToShow,
@@ -25,7 +26,10 @@ export function Home(){
         <div>
             {/* ChatLabels */}
             <main className="grid grid-cols-[10%_35%_55%] lg:grid-cols-[8%_25%_66%]">
-                <SideBar handleOpenModal={handleOpenModal} />
+                <SideBar 
+                    handleOpenModal={handleOpenModal} 
+                    userPhotoProfile={userProfile?.photo_url}
+                />
                 {chatLabelsToShow && (
                     <ChatLabels
                         chats={chatLabelsToShow}

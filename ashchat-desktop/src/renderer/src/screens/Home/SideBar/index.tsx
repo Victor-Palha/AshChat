@@ -2,6 +2,7 @@ import { Plus } from "@phosphor-icons/react"
 
 type SideBarProps = {
     handleOpenModal: () => void
+    userPhotoProfile: string | undefined
 }
 export function SideBar(data: SideBarProps){
     return (
@@ -14,7 +15,7 @@ export function SideBar(data: SideBarProps){
             </button>
             <div>
                 <img 
-                    src="http://localhost:3006/files/04a76336-3571-4680-a55a-ad6ee5dfff62.jpg" 
+                    src={data.userPhotoProfile}
                     className="cursor-pointer rounded-full w-[50px] h-[50px] hover:scale-105 transition"
                 />
             </div>
