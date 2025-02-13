@@ -3,8 +3,10 @@ import { ChatLabels } from "./ChatLabels";
 import { HomeViewModel } from "./home-view-model";
 import { NoContacts } from "./NoContacts";
 import { SideBar } from "./SideBar";
+import { useValidate } from "../../hooks/useValidate";
 
 export function Home(){
+    useValidate
     const {
         chatLabelsToShow,
         isModalOpen,

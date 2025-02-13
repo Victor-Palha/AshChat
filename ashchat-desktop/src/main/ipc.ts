@@ -5,8 +5,11 @@ import { ChatPropsDTO } from './persistence/DTO/ChatPropsDTO';
 import { UpdateChatInformationDTO } from './persistence/DTO/UpdateChatInformationDTO';
 import { AddMessagePropsDTO } from './persistence/DTO/AddMessagePropsDTO';
 import { UpdateMessageStatusPropsDTO } from './persistence/DTO/UpdateMessageStatusPropsDTO';
+import { PrismaUserRepository } from './persistence/prisma-user-repository';
+import { UserProfilePropsDTO } from './persistence/DTO/UserProfilePropsDTO';
 
 const prismaChats = new PrismaChatRepository();
+const prismaUsers = new PrismaUserRepository();
 
 ipcMain.handle('addChat', async (_, payload: ChatPropsDTO) => prismaChats.addChat(payload));
 ipcMain.handle('getChat', async (_, chat_id: string) => prismaChats.getChat(chat_id));
@@ -25,3 +28,6 @@ ipcMain.handle('clearNotifications', async (_, chat_id: string) => prismaChats.c
 
 
 ipcMain.handle("getPlatform", async (_) => process.platform);
+
+ipcMain.handle("addUser", async (_, payload: UserProfilePropsDTO) => prismaUsers.addUser(payload));
+ipcMain.handle("updateUser", async (_, payload: UserProfilePropsDTO) => prismaUsers.updateUser(payload));

@@ -5,6 +5,7 @@ import { AddMessagePropsDTO } from 'main/persistence/DTO/AddMessagePropsDTO'
 import { UpdateMessageStatusPropsDTO } from 'main/persistence/DTO/UpdateMessageStatusPropsDTO'
 import { UpdateChatInformationDTO } from 'main/persistence/DTO/UpdateChatInformationDTO'
 import { LabelChatPropsDTO } from 'main/persistence/DTO/LabelChatPropsDTO'
+import { UserProfilePropsDTO } from 'main/persistence/DTO/UserProfilePropsDTO'
 
 declare global {
   interface Window {
@@ -13,6 +14,7 @@ declare global {
     messageApi: typeof messageApi
     labelApi: typeof labelApi
     utilsApi: typeof utilsApi
+    userApi: typeof userApi
   }
 }
 
@@ -38,6 +40,11 @@ const utilsApi = {
   getPlataform: () => ipcRenderer.invoke('getPlatform'),
 }
 
+const userApi = {
+  addUser: (payload: UserProfilePropsDTO) => ipcRenderer.invoke('addUser', payload),
+  updateUser: (payload: UserProfilePropsDTO) => ipcRenderer.invoke('updateUser', payload),
+}
+
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -48,6 +55,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('messageApi', messageApi);
     contextBridge.exposeInMainWorld('labelApi', labelApi);
     contextBridge.exposeInMainWorld('utilsApi', utilsApi);
+    contextBridge.exposeInMainWorld('userApi', userApi);
   } catch (error) {
     console.error(error)
   }

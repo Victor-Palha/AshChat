@@ -5,7 +5,6 @@ import { LabelChatPropsDTO } from './DTO/LabelChatPropsDTO';
 import { MessagePropsDTO } from './DTO/MessagePropsDTO';
 import { AddMessagePropsDTO } from './DTO/AddMessagePropsDTO';
 import { UpdateMessageStatusPropsDTO } from './DTO/UpdateMessageStatusPropsDTO';
-import { UserProfilePropsDTO } from './DTO/UserProfilePropsDTO';
 import { UpdateChatInformationDTO } from './DTO/UpdateChatInformationDTO';
 
 

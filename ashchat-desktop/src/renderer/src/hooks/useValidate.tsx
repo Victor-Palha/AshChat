@@ -5,9 +5,10 @@ import LocalStoragePersistence from "../lib/local-storage-persistence";
 
 export function useValidate(){
     const navigate = useNavigate()
-    const isTokenValid = LocalStoragePersistence.getJWT();
     const {authState} = useContext(AuthContext)
-    useEffect(useCallback(()=> {
+    const isTokenValid = LocalStoragePersistence.getJWT();
+
+    useEffect(()=> {
         if(!isTokenValid || !authState.authenticated){
             console.log('Not Authenticated')
             return
@@ -16,5 +17,5 @@ export function useValidate(){
             console.log('Authenticated')
             navigate('/home')
         }
-    }, [isTokenValid, authState]))
+    }, [isTokenValid, authState])
 }
