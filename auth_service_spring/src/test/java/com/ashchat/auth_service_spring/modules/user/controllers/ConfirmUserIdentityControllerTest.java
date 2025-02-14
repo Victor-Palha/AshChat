@@ -62,7 +62,7 @@ public class ConfirmUserIdentityControllerTest {
         new Thread(() -> rabbitTemplate.execute(channel -> {
             // Listen for messages on the queue
             String queue = "confirm_email_code_queue";
-            channel.basicConsume(queue, true, (consumerTag, message) -> {
+            channel.basicConsume(queue, true, (_, message) -> {
                 String replyQueue = message.getProperties().getReplyTo();
                 String correlationId = message.getProperties().getCorrelationId();
 
@@ -87,7 +87,7 @@ public class ConfirmUserIdentityControllerTest {
 
                 // Publish response to the reply queue
                 channel.basicPublish("", replyQueue, replyProps, response.getBytes());
-            }, consumerTag -> { });
+            }, _ -> { });
             return null;
         })).start();
     }

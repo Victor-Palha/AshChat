@@ -1,6 +1,5 @@
 package com.ashchat.auth_service_spring.modules.user.controllers;
 
-import com.ashchat.auth_service_spring.modules.user.dto.CreateTempNewUserDTO;
 import com.ashchat.auth_service_spring.modules.user.entity.UserEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,13 +45,6 @@ public class SignupUserControllerTest {
 
     @Test
     public void should_be_able_to_register_a_new_user() throws Exception {
-        CreateTempNewUserDTO request = new CreateTempNewUserDTO(
-                "test@example.com",
-                "TestUser",
-                "password123",
-                "en"
-        );
-
         mockMvc.perform(MockMvcRequestBuilders.post("/api/user/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""

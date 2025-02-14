@@ -66,7 +66,7 @@ public class ConfirmChangePasswordControllerTest {
 
         new Thread(() -> rabbitTemplate.execute(channel -> {
             String queue = "confirm_change_password_queue";
-            channel.basicConsume(queue, true, (consumerTag, message) -> {
+            channel.basicConsume(queue, true, (_, message) -> {
                 String replyQueue = message.getProperties().getReplyTo();
                 String correlationId = message.getProperties().getCorrelationId();
 
@@ -83,7 +83,7 @@ public class ConfirmChangePasswordControllerTest {
                         .build();
 
                 channel.basicPublish("", replyQueue, replyProps, response.getBytes());
-            }, consumerTag -> {
+            }, _ -> {
             });
             return null;
         })).start();
