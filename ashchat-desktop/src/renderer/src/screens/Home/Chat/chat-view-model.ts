@@ -186,8 +186,7 @@ export function ChatViewModel({chat_id}: ChatViewModelProps){
     }, [chat_id]);
 
     // Event listeners
-    useEffect(
-        useCallback(() => {
+    useEffect(() => {
             const chatChannel = handleChannelsConnections(socket)
             if (!chatChannel) return;
             // events listeners
@@ -206,8 +205,7 @@ export function ChatViewModel({chat_id}: ChatViewModelProps){
                 // chatChannel.off("receiver_online");
                 // chatChannel.off("receiver_info");
             };
-        }, [chat_id, socket, user_id])
-    );
+    }, [chat_id, socket, user_id]);
 
     const values = {
         isUserTyping,

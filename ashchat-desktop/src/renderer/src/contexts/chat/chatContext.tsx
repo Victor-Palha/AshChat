@@ -32,11 +32,13 @@ export function ChatContextProvider({ children }: { children: React.ReactNode })
                 device_unique_id: deviceTokenId,
                 preferred_language: user_preferred_language
             },
-            transport: global.WebSocket,
+            transport: window.WebSocket,
         });
 
         newSocket.connect();
         setSocket(newSocket);
+        // console.log("Connected to chat server");
+        // console.log("Socket", newSocket);
         return newSocket;
     }
 
