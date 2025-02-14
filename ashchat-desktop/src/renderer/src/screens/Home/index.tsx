@@ -22,7 +22,7 @@ export function Home(){
         
     } = HomeViewModel();
     const [chatSelected, setChatSelected] = useState<ChatLabelsProps | null>(null);
-    console.log(chatLabelsToShow)
+    // console.log(chatLabelsToShow)
 
     function handleSelectChat(chat: string){
         const nickname = chatLabelsToShow?.find((chatSelected) => chatSelected.chat_id === chat)?.nickname || "";

@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { ChatViewModel } from "./chat-view-model";
 import { LoadMessages } from "./LoadMessages";
 
@@ -32,6 +32,10 @@ export function Chat({ chat_id, nickname }: ChatProps) {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  useEffect(()=>{
+    scrollToBottom();
+  }, [messages])
 
   return (
     <div className="flex flex-col h-screen bg-gray-700">

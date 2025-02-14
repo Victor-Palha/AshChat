@@ -131,7 +131,6 @@ export class PrismaChatRepository {
 
     // Atualiza o status de uma mensagem
     public async updateMessageStatus({ id_message, status }: UpdateMessageStatusPropsDTO): Promise<void> {
-        console.log(id_message, status);
         await prisma.message.update({
             where: { id: id_message },
             data: { status },
@@ -202,7 +201,7 @@ export class PrismaChatRepository {
             where: { id: chat_id },
             data: {
                 nickname,
-                profile_picture: `http://localhost:3006${profile_picture}`,
+                profile_picture: `${profile_picture}`,
             },
         });
     }
