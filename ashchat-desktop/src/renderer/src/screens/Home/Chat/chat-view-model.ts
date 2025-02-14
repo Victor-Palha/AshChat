@@ -16,7 +16,7 @@ type ModalDescriptionProps = {
 type MessageWasSendProps = {
     chat_id: string;
     status: string;
-    message_id: string;
+    mobile_ref_id: string;
 }
 
 type OtherSideChatInformationProps = {
@@ -68,8 +68,8 @@ export function ChatViewModel({chat_id}: ChatViewModelProps){
         setMessages((prevMessages) => [newMessage, ...prevMessages]);
     }
 
-    async function handleVerifyIfMessageWasSend({ chat_id, status, message_id }: MessageWasSendProps){
-        await window.messageApi.updateMessageStatus({ chat_id, id_message: message_id, status });
+    async function handleVerifyIfMessageWasSend({ status, mobile_ref_id }: MessageWasSendProps){
+        await window.messageApi.updateMessageStatus({ id_message: mobile_ref_id, status });
     }
 
     function handleVerificationIfOtherSideIsTyping({is_typing}: any) {
@@ -166,7 +166,7 @@ export function ChatViewModel({chat_id}: ChatViewModelProps){
     // Load chat messages and divide into chunks
     async function loadChatMessages() {
         const response = await window.chatApi.getChat(chat_id as string);
-        console.log(response);
+        // console.log(response);
         if (!response) return;
 
         const profilePhoto = response.profile_picture;

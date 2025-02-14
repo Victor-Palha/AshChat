@@ -62,7 +62,6 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
 
     async function checkingUserIdentifyByRefreshToken(): Promise<void> {
         const {refresh_token, user_id} = AuthModelContext.getStoredTokens();
-        console.log(refresh_token)
         if (isCheckingUserIdentity) return;
         if (authState.authenticated === false) return;
         setIsCheckingUserIdentity(true);
@@ -112,7 +111,6 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
                     return alert("Invalid credentials. Please try again.")
                 }
                 if(error.response?.status === 403){
-                    console.log(deviceTokenId)
                     console.log(error.response.data)
                     await AuthModelContext.newDeviceTryingToLogin(error.response.data.data.token);
                     alert("A new device is trying to login. Please confirm your email.");
@@ -165,7 +163,6 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
                 deviceTokenId, 
                 deviceNotificationToken
             }
-            console.log(data)
             const response = await authAPI.server.post('/user/confirm-email', data)
 
             if(response.status === 201){
