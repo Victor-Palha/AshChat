@@ -1,5 +1,6 @@
 import { ChatCircle, ChatCircleSlash } from "@phosphor-icons/react"
 import { LabelChatPropsDTO } from "../../../../../main/persistence/DTO/LabelChatPropsDTO"
+import { API_URLS } from "../../../constants/api-urls"
 
 type LabelChatProps = {
     chats: LabelChatPropsDTO[]
@@ -32,13 +33,17 @@ export function ChatLabels(data: LabelChatProps){
             {/* Chat labels */}
             <>
                 {data.chats.map((chat) => (
-                    <button onClick={() => data.handleSelectChat(chat.chat_id)} key={chat.chat_id} className="flex gap-4">
-                        <img src={chat.profile_picture} alt={chat.nickname+" photo"} />
+                    <button onClick={() => data.handleSelectChat(chat.chat_id)} key={chat.chat_id} className="flex gap-4 cursor-pointer border-b-[0.5px] border-gray-800 p-2">
+                        <img
+                            className="w-14 h-14 rounded-full"
+                            src={API_URLS.STATIC_SERVICE + chat.profile_picture} 
+                            alt={chat.nickname+" photo"} 
+                        />
                         <div className="flex flex-col gap-4">
-                            <h1>{chat.nickname}</h1>
-                            <p>{chat?.last_message?.content}</p>
+                            <p>{chat.nickname}</p>
+                            <span>{chat?.last_message?.content}</span>
                         </div>
-                        <span>{chat.last_interaction.getTime()}</span>
+                        <span>{chat.last_interaction?.getTime()}</span>
                     </button>
                 ))}
             </>

@@ -72,7 +72,7 @@ export class PrismaChatRepository {
                 status: label.chat.messages[0].status,
             } : null,
             notification: label.notifications,
-            last_interaction: label.chat.messages[0].timestamp || new Date(), 
+            last_interaction: label.chat.messages[0] ? label.chat.messages[0].timestamp || new Date() : null, 
             profile_picture: label.chat.profile_picture || 'https://default-profile-picture.com'
         }));
 
