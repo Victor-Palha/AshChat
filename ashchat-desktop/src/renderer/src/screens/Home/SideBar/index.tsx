@@ -11,7 +11,7 @@ export function SideBar(data: SideBarProps){
             <div>
                 <img 
                     src={data.userPhotoProfile}
-                    className="cursor-pointer rounded-full w-[50px] h-[50px] hover:scale-105 transition"
+                    className="cursor-pointer rounded-full w-[30px] h-[30px] hover:scale-105 transition"
                 />
             </div>
         </aside>

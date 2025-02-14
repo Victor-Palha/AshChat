@@ -24,7 +24,7 @@ export function Home(){
     return (
         <div>
             {/* ChatLabels */}
-            <main className="grid grid-cols-[10%_35%_55%] lg:grid-cols-[8%_25%_66%]">
+            <main className="grid grid-cols-[8%_30%_62%] lg:grid-cols-[7%_30%_63%] xl:grid-cols-[6%_30%_64%] h-screen">
                 <SideBar
                     userPhotoProfile={userProfile?.photo_url}
                 />

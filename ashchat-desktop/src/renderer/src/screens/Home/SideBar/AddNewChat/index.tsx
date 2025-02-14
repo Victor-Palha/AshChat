@@ -58,7 +58,7 @@ export function AddNewChat() {
 
 		<Dialog.Trigger asChild>
             <button
-                className="flex bg-purple-700 rounded-full w-[50px] h-[50px] items-center justify-center"
+                className="flex bg-purple-700 rounded-full w-[35px] h-[35px] items-center justify-center"
             >
                 <Plus size={24} color="white" />
             </button>
