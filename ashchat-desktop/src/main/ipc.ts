@@ -7,17 +7,18 @@ import { AddMessagePropsDTO } from './persistence/DTO/AddMessagePropsDTO';
 import { UpdateMessageStatusPropsDTO } from './persistence/DTO/UpdateMessageStatusPropsDTO';
 import { PrismaUserRepository } from './persistence/prisma-user-repository';
 import { UserProfilePropsDTO } from './persistence/DTO/UserProfilePropsDTO';
+import { MessagePropsDTO } from './persistence/DTO/MessagePropsDTO';
 
 const prismaChats = new PrismaChatRepository();
 const prismaUsers = new PrismaUserRepository();
 
 ipcMain.handle('addChat', async (_, payload: ChatPropsDTO) => prismaChats.addChat(payload));
-ipcMain.handle('getChat', async (_, chat_id: string) => prismaChats.getChat(chat_id));
+ipcMain.handle('getChat', async (_, chat_id: string): Promise<ChatPropsDTO | null> => prismaChats.getChat(chat_id));
 ipcMain.handle('getAllChats', async () => prismaChats.getAllChats());
 ipcMain.handle('updateChatInformationProfile', async (_, payload: UpdateChatInformationDTO) => prismaChats.updateChatInformationProfile(payload));
 
 
-ipcMain.handle('addMessage', async (_, payload: AddMessagePropsDTO) => prismaChats.addMessage(payload));
+ipcMain.handle('addMessage', async (_, payload: AddMessagePropsDTO): Promise<MessagePropsDTO | undefined> => prismaChats.addMessage(payload));
 ipcMain.handle('updateMessageStatus', async (_, payload: UpdateMessageStatusPropsDTO) => prismaChats.updateMessageStatus(payload));
 
 

@@ -4,7 +4,13 @@ import { HomeViewModel } from "./home-view-model";
 import { NoContacts } from "./NoContacts";
 import { SideBar } from "./SideBar";
 import { useValidate } from "../../hooks/useValidate";
+import { Chat } from "./Chat";
 
+type ChatLabelsProps = {
+    id: string;
+    nickname: string;
+    photo_url: string;
+}
 export function Home(){
     useValidate
     const {
@@ -15,11 +21,17 @@ export function Home(){
         handleSetTypeOfLabelToShow
         
     } = HomeViewModel();
-    const [chatSelected, setChatSelected] = useState<string | null>(null);
+    const [chatSelected, setChatSelected] = useState<ChatLabelsProps | null>(null);
     console.log(chatLabelsToShow)
 
     function handleSelectChat(chat: string){
-        setChatSelected(chat);
+        const nickname = chatLabelsToShow?.find((chatSelected) => chatSelected.chat_id === chat)?.nickname || "";
+        const photo_url = chatLabelsToShow?.find((chatSelected) => chatSelected.chat_id === chat)?.profile_picture || "";
+        setChatSelected({
+            id: chat,
+            nickname: nickname || "",
+            photo_url: photo_url || ""
+        });
     }
     return (
         <div>
@@ -39,10 +51,10 @@ export function Home(){
 
                 {/* Chat */}
                 {chatSelected ? (
-                    <div className="flex flex-1 flex-col gap-4">
-                        <h1>{chatSelected}</h1>
-                        <button onClick={()=>{}}>Add Contact</button>
-                    </div>
+                    <Chat
+                        chat_id={chatSelected.id}
+                        nickname={chatSelected.nickname}
+                    />
                 ) : (
                     <NoContacts/>
                 )}

@@ -7,6 +7,7 @@ import { UpdateChatInformationDTO } from 'main/persistence/DTO/UpdateChatInforma
 import { LabelChatPropsDTO } from 'main/persistence/DTO/LabelChatPropsDTO'
 import { UserProfilePropsDTO } from 'main/persistence/DTO/UserProfilePropsDTO'
 import { User } from '@prisma/client'
+import { MessagePropsDTO } from 'main/persistence/DTO/MessagePropsDTO'
 
 declare global {
   interface Window {
@@ -22,9 +23,10 @@ declare global {
 // Custom APIs for renderer
 const chatApi = {
   addChat: (chat: ChatPropsDTO) => ipcRenderer.invoke('addChat', chat),
-  getChat: (chat_id: string) => ipcRenderer.invoke('getChat', chat_id),
+  getChat: (chat_id: string): Promise<ChatPropsDTO | null> => ipcRenderer.invoke('getChat', chat_id),
   getAllChats: () => ipcRenderer.invoke('getAllChats'),
   updateChatInformationProfile: (payload: UpdateChatInformationDTO) => ipcRenderer.invoke('updateChatInformationProfile', payload),
+  addMessage: (payload: AddMessagePropsDTO): Promise<MessagePropsDTO> => ipcRenderer.invoke('addMessage', payload),
 }
 
 const messageApi = {
