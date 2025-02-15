@@ -3,7 +3,7 @@ defmodule ChatServiceWeb.Endpoint do
 
   plug CORSPlug,
     origin: ["http://localhost:5173"],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     headers: ["Authorization", "Content-Type", "device_token"]
 
   # The session will be stored in the cookie and signed,
