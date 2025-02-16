@@ -30,8 +30,12 @@ ipcMain.handle('updateMessageStatus', async (_, payload: UpdateMessageStatusProp
 
 
 ipcMain.handle('getLabels', async (_) => prismaChats.getLabels());
-ipcMain.handle('clearNotifications', async (_, chat_id: string) => prismaChats.clearNotifications(chat_id));
-
+ipcMain.handle('clearNotifications', async (_, chat_id: string) => {
+    prismaChats.clearNotifications(chat_id)
+    BrowserWindow.getAllWindows().forEach(window => {
+        window.webContents.send('new-message', undefined);
+    });
+});
 
 
 ipcMain.handle("getPlatform", async (_) => process.platform);

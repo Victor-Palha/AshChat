@@ -41,7 +41,7 @@ const messageApi = {
 
 const labelApi = {
   getLabels: (): Promise<LabelChatPropsDTO[] | null> => ipcRenderer.invoke('getLabels'),
-  clearNotifications: (chat_id: string) => ipcRenderer.invoke('clearNotifications', chat_id),
+  clearNotifications: (chat_id: string) => {ipcRenderer.invoke('clearNotifications', chat_id)},
 }
 
 const utilsApi = {

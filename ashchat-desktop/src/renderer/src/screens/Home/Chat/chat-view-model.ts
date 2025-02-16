@@ -199,11 +199,11 @@ export function ChatViewModel({chat_id}: ChatViewModelProps){
             // Remove event listeners when the screen is unfocused
             return () => {
                 chatChannel.leave();
-                // chatChannel.off("receive_message");
-                // chatChannel.off("message_sent");
-                // chatChannel.off("typing");
-                // chatChannel.off("receiver_online");
-                // chatChannel.off("receiver_info");
+                chatChannel.off("receive_message");
+                chatChannel.off("message_sent");
+                chatChannel.off("typing");
+                chatChannel.off("receiver_online");
+                chatChannel.off("receiver_info");
             };
     }, [chat_id, socket, user_id]);
 
