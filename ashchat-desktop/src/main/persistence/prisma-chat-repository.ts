@@ -174,7 +174,7 @@ export class PrismaChatRepository {
             data: {
                 id: chat_id,
                 nickname: "Unknown",
-                profile_picture: 'https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg',
+                profile_picture: "http://localhost:3006/files/default.jpg",
                 description: '',
                 preferred_language: '',
                 messages: {
