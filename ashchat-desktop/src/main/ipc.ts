@@ -12,6 +12,8 @@ import { MessagePropsDTO } from './persistence/DTO/MessagePropsDTO';
 const prismaChats = new PrismaChatRepository();
 const prismaUsers = new PrismaUserRepository();
 
+ipcMain.handle('backup', async (_, payload: BackupMessagesDTO[]) => prismaChats.backupMessages(payload))
+
 ipcMain.handle('addChat', async (_, payload: ChatPropsDTO) => prismaChats.addChat(payload));
 ipcMain.handle('getChat', async (_, chat_id: string): Promise<ChatPropsDTO | null> => prismaChats.getChat(chat_id));
 ipcMain.handle('getAllChats', async () => prismaChats.getAllChats());
@@ -43,3 +45,9 @@ ipcMain.handle("getPlatform", async (_) => process.platform);
 ipcMain.handle("addUser", async (_, payload: UserProfilePropsDTO) => prismaUsers.addUser(payload));
 ipcMain.handle("updateUser", async (_, payload: UserProfilePropsDTO) => prismaUsers.updateUser(payload));
 ipcMain.handle("getUser", async (_) => prismaUsers.getUser());
+ipcMain.handle('logout', async (_) => logout())
+
+async function logout(){
+    await prismaChats.deleteAll()
+    await prismaUsers.deleteAll()
+}

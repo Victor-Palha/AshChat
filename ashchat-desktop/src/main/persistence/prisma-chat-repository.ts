@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { Chat, Message, PrismaClient } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { ChatPropsDTO } from './DTO/ChatPropsDTO';
 import { LabelChatPropsDTO } from './DTO/LabelChatPropsDTO';
@@ -204,5 +204,50 @@ export class PrismaChatRepository {
                 profile_picture: `${profile_picture}`,
             },
         });
+    }
+
+    public async backupMessages(chats: BackupMessagesDTO[]): Promise<void> {
+        try {
+            for (const chatData of chats) {
+                await prisma.chat.create({
+                    data: {
+                        id: chatData.id,
+                        nickname: chatData.receiver.nickname,
+                        description: chatData.receiver.description,
+                        profile_picture: chatData.receiver.photo_url,
+                        preferred_language: chatData.receiver.preferred_language,
+                    },
+                });
+    
+                await prisma.chatLabel.create({
+                    data: {
+                        chat_id: chatData.id,
+                        notifications: 0,
+                    },
+                });
+
+                for (const messageData of chatData.messages) {
+                    await prisma.message.create({
+                        data: {
+                            id: messageData.id,
+                            chat_id: chatData.id,
+                            content: messageData.content,
+                            sender_id: messageData.sender_id,
+                            status: messageData.status,
+                            timestamp: new Date(messageData.timestamp),
+                        },
+                    });
+                }
+            }
+        } catch (error) {
+            console.error("Erro ao salvar backup das mensagens:", error);
+            throw error;
+        }
+    }
+
+    public async deleteAll(){
+        await prisma.message.deleteMany()
+        await prisma.chatLabel.deleteMany()
+        await prisma.chat.deleteMany()
     }
 }

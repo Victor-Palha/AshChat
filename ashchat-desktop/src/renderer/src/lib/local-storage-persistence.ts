@@ -82,6 +82,7 @@ class LocalStoragePersistence {
         localStorage.removeItem(this.KEYS.REFRESH);
         localStorage.removeItem(this.KEYS.EMAIL);
         localStorage.removeItem(this.KEYS.DEVICEOS);
+        localStorage.removeItem(this.KEYS.USERID);
     }
 
     static clearUserId(){

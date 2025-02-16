@@ -2,6 +2,7 @@ import { createContext, useEffect, useState } from "react";
 import { AxiosError } from "axios";
 import { AuthModelContext } from "./auth-model-context";
 import { useNavigate } from "react-router-dom";
+import { API_URLS } from "../../constants/api-urls";
 
 type RedirectProps = [boolean, string];
 
@@ -80,6 +81,16 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
         setIsCheckingUserIdentity(false);
     }
 
+    async function getBackupFromServer(jwtToken: string, deviceToken: string){
+        const {chatAPI} = AuthModelContext.getStoredTokens();
+        chatAPI.setTokenAuth(jwtToken);
+        chatAPI.setHeader('device_token', deviceToken);
+        const response = await chatAPI.server.get("/chats")
+        const {chats} = response.data as {chats: BackupMessagesDTO[] | []}
+        if(chats.length === 0) return null
+        await window.chatApi.backup(chats)
+    }
+
     async function onLogin(email: string, password: string): Promise<RedirectProps | void> {
         const {deviceTokenId, authAPI} = AuthModelContext.getStoredTokens();
         try {
@@ -101,7 +112,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
                 email, 
                 platform: os
             });
-            // new BackupChat().backupMessages();
+            await getBackupFromServer(token, deviceTokenId)
             setAuthState({authenticated: true, user_id});
             // router('/private/home')
             return [true, '/home'];
@@ -270,6 +281,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
     
     async function onLogout(): Promise<RedirectProps> {
         await AuthModelContext.deleteStoredTokens();
+        await window.userApi.logout()
         setAuthState({authenticated: false, user_id: null})
         // Need to leave all channels and unsubscribe from all push notifications
         // navigate('/')
@@ -289,7 +301,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
                 await window.userApi.addUser({
                     nickname,
                     description,
-                    photo_url,
+                    photo_url: API_URLS.STATIC_SERVICE+photo_url,
                     preferred_language,
                     tag_user_id
                 })

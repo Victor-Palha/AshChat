@@ -22,6 +22,7 @@ declare global {
 
 // Custom APIs for renderer
 const chatApi = {
+  backup: (chats: BackupMessagesDTO[]) =>  ipcRenderer.invoke('backup', chats),
   addChat: (chat: ChatPropsDTO) => ipcRenderer.invoke('addChat', chat),
   getChat: (chat_id: string): Promise<ChatPropsDTO | null> => ipcRenderer.invoke('getChat', chat_id),
   getAllChats: () => ipcRenderer.invoke('getAllChats'),
@@ -52,6 +53,7 @@ const userApi = {
   addUser: (payload: UserProfilePropsDTO) => ipcRenderer.invoke('addUser', payload),
   updateUser: (payload: UserProfilePropsDTO) => ipcRenderer.invoke('updateUser', payload),
   getUser: (): Promise<User | null> => ipcRenderer.invoke('getUser'),
+  logout: () => ipcRenderer.invoke('logout')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

@@ -32,4 +32,8 @@ export class PrismaUserRepository {
     public async getUser() {
         return await prisma.user.findFirst();
     }
+
+    public async deleteAll() {
+        await prisma.user.deleteMany()
+    }
 }

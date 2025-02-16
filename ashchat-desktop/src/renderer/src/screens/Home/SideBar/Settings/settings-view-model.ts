@@ -4,8 +4,10 @@ import { UserProfilePropsDTO } from "main/persistence/DTO/UserProfilePropsDTO";
 import { PhoenixAPIClient } from "../../../../lib/api/phoenix-api-client";
 import LocalStoragePersistence from "../../../../lib/local-storage-persistence";
 import { API_URLS } from "../../../../constants/api-urls";
+import { useNavigate } from "react-router-dom";
 
 export function SettingsViewModel() {
+    const navigate = useNavigate()
     const {onLogout} = useContext(AuthContext)
     const [userProfile, setUserProfile] = useState<UserProfilePropsDTO | null>(null)
 
@@ -111,7 +113,8 @@ export function SettingsViewModel() {
     async function handleLogout() {
         const logout = confirm("Are you sure you want to logout?")
         if(logout){
-            onLogout()
+            const [_, url] = await onLogout()
+            navigate(url)
         }
     }
 
