@@ -58,9 +58,6 @@ export function ChatContextProvider({ children }: { children: React.ReactNode })
     
                 presenceChannel.join();
                 notificationChannel.join();
-
-                notificationChannel.off("pending_notification");
-                notificationChannel.off("new_notification");
     
                 notificationChannel.on("pending_notification", ChatModelContext.handleIncomingNotification);
                 notificationChannel.on("new_notification", ChatModelContext.handleIncomingNotification);

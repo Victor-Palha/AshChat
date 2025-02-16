@@ -27,6 +27,11 @@ const chatApi = {
   getAllChats: () => ipcRenderer.invoke('getAllChats'),
   updateChatInformationProfile: (payload: UpdateChatInformationDTO) => ipcRenderer.invoke('updateChatInformationProfile', payload),
   addMessage: (payload: AddMessagePropsDTO): Promise<MessagePropsDTO> => ipcRenderer.invoke('addMessage', payload),
+  onNewMessage: (callback: (newMessage: MessagePropsDTO) => void) => {
+    ipcRenderer.on('new-message', (_, newMessage: MessagePropsDTO) => {
+      callback(newMessage);
+    });
+  },
 }
 
 const messageApi = {

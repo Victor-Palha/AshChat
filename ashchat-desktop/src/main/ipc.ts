@@ -1,5 +1,5 @@
 // src/main/ipcMainHandlers.ts
-import { ipcMain } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
 import { PrismaChatRepository } from './persistence/prisma-chat-repository';
 import { ChatPropsDTO } from './persistence/DTO/ChatPropsDTO';
 import { UpdateChatInformationDTO } from './persistence/DTO/UpdateChatInformationDTO';
@@ -18,7 +18,13 @@ ipcMain.handle('getAllChats', async () => prismaChats.getAllChats());
 ipcMain.handle('updateChatInformationProfile', async (_, payload: UpdateChatInformationDTO) => prismaChats.updateChatInformationProfile(payload));
 
 
-ipcMain.handle('addMessage', async (_, payload: AddMessagePropsDTO): Promise<MessagePropsDTO | undefined> => prismaChats.addMessage(payload));
+ipcMain.handle('addMessage', async (event, payload: AddMessagePropsDTO): Promise<MessagePropsDTO | undefined> => {
+    const newMessage = await prismaChats.addMessage(payload)
+    BrowserWindow.getAllWindows().forEach(window => {
+        window.webContents.send('new-message', newMessage);
+    });
+    return newMessage;
+});
 ipcMain.handle('updateMessageStatus', async (_, payload: UpdateMessageStatusPropsDTO) => prismaChats.updateMessageStatus(payload));
 
 

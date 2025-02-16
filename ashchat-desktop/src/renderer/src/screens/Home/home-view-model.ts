@@ -1,8 +1,10 @@
 import { User } from "@prisma/client";
 import { LabelChatPropsDTO } from "../../../../main/persistence/DTO/LabelChatPropsDTO";
 import { useEffect, useState } from "react";
-
+import { MessagePropsDTO } from "main/persistence/DTO/MessagePropsDTO";
+import { ipcRenderer } from "electron";
 export function HomeViewModel(){
+    const [notifications, setNotifications] = useState<MessagePropsDTO | undefined>(undefined);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [chatLabels, setChatLabels] = useState<LabelChatPropsDTO[]>([]);
     const [typeOfLabelToShow, setTypeOfLabelToShow] = useState("all");
@@ -41,10 +43,14 @@ export function HomeViewModel(){
         setUserProfile(null);
     }
 
-    useEffect(()=>{
+    useEffect(()=>{  
+        window.chatApi.onNewMessage((message: MessagePropsDTO) => {
+            setNotifications(message);
+        })
+
         getUserProfile();
         getAllLabels();
-    }, [])
+    }, [notifications])
 
     useEffect(() => {
         filterChatsToShow(typeOfLabelToShow);
