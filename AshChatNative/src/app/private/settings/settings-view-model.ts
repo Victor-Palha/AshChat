@@ -7,6 +7,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { PhoenixAPIClient } from "@/src/api/phoenix-api-client";
 import SecureStoragePersistence from "@/src/persistence/SecureStorage";
 import { Alert } from "react-native";
+import { API_URLS } from "@/src/constants/api-urls";
 
 export function SettingsViewModel() {
     const {onLogout} = useContext(AuthContext)
@@ -53,7 +54,7 @@ export function SettingsViewModel() {
 
                     const newProfile: UserProfilePropsDTO = {
                         ...userProfile,
-                        photo_url: url
+                        photo_url: API_URLS.STATIC_SERVICE+url
                     } as UserProfilePropsDTO
                     
                     StorageProfile.setUserProfile(newProfile)

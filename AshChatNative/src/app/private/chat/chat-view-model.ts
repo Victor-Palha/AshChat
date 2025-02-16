@@ -1,3 +1,4 @@
+import { API_URLS } from "@/src/constants/api-urls";
 import { ChatContext } from "@/src/contexts/chat/chatContext";
 import { AddMessagePropsDTO } from "@/src/persistence/MMKVStorage/DTO/AddMessagePropsDTO";
 import { MessagePropsDTO } from "@/src/persistence/MMKVStorage/DTO/MessagePropsDTO";
@@ -87,8 +88,8 @@ export function ChatViewModel({chat_id}: ChatViewModelProps){
     }
 
     function handleRecoverOtherSideInformation({description, nickname, photo_url, preferred_language, tag_user_id}: OtherSideChatInformationProps){
-        setModalDescriptionProps({description, nickname, photo_url, tag_user_id});
-        mmkvStorage.updateChatInformationProfile({description, nickname, photo_url, preferred_language}, chat_id as string);
+        setModalDescriptionProps({description, nickname, photo_url: API_URLS.STATIC_SERVICE+photo_url, tag_user_id});
+        mmkvStorage.updateChatInformationProfile({description, nickname, photo_url: API_URLS.STATIC_SERVICE+photo_url, preferred_language}, chat_id as string);
     }
     // handle local states
     function handleGetOlderMessages(chat_id: string, offset: number){

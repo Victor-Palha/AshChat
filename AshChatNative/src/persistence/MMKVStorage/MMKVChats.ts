@@ -6,6 +6,7 @@ import { MessagePropsDTO } from "./DTO/MessagePropsDTO";
 import { MMKVStorageTemplate } from "./MMKVStorageTemplate";
 import { UpdateMessageStatusPropsDTO } from "./DTO/UpdateMessageStatusPropsDTO";
 import { UserProfilePropsDTO } from "./DTO/UserProfilePropsDTO";
+import { API_URLS } from "@/src/constants/api-urls";
 
 export class MMKVChats extends MMKVStorageTemplate {
     constructor(){
@@ -224,7 +225,7 @@ export class MMKVChats extends MMKVStorageTemplate {
         return {
           ...chat,
           nickname: chat.nickname !== nickname ? nickname : chat.nickname,
-          profile_picture: chat.profile_picture !== photo_url ? "http://localhost:3006"+photo_url : chat.profile_picture,
+          profile_picture: chat.profile_picture !== photo_url ? photo_url : chat.profile_picture,
           description: chat.description !== description ? description : chat.description,
           preferred_language: chat.preferred_language !== preferred_language ? preferred_language : chat.preferred_language,
         };
@@ -248,7 +249,7 @@ export class MMKVChats extends MMKVStorageTemplate {
         const labelsString = this.instance.getString(this.CONSTANTS.LABEL_CHAT);
         if (labelsString) {
           const labels = JSON.parse(labelsString) as LabelChatPropsDTO[];
-          const newProfilePicture = `http://localhost:3006${profile_picture}`;
+          const newProfilePicture = profile_picture;
           const updatedLabels = labels.map(label =>
             label.chat_id === chat_id
               ? { ...label, nickname, profile_picture: newProfilePicture }

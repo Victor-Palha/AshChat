@@ -11,6 +11,7 @@ type ContactProfileProps = {
     closeModal: (isOpen: boolean) => void;
 };
 export function ContactProfile(data: ContactProfileProps){
+
     return (
         <Modal transparent visible={data.modalIsOpen} animationType="fade">
             <View className="flex-1 h-full justify-start">
