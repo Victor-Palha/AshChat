@@ -51,8 +51,15 @@ export function ChatLabels(data: LabelChatProps){
                                 {chat.last_interaction && formatTimeOrDate(chat.last_interaction.toISOString())}
                             </span>
                         </div>
-                        <div className="text-sm text-gray-400 block overflow-hidden overflow-ellipsis max-w-full max-h-5 mt-2">
-                            <span>{chat?.last_message?.content}</span>
+                        <div className="text-sm text-gray-400 flex max-w-full max-h-5 mt-2 justify-between items-center">
+                            <span className="overflow-hidden overflow-ellipsis">{chat?.last_message?.content}</span>
+                            {chat.notification >= 1 && (
+                                <div className="bg-purple-700 w-5 h-5 rounded-full justify-center items-center">
+                                    <span className="text-white text-[12px] font-semibold">
+                                        {chat.notification}
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </button>
