@@ -60,7 +60,7 @@ export class AuthModelContext {
         }
     }
 
-    public static async persistenceProfileData(data: PersistenceProfileDataDTO){
+    public static persistenceProfileData(data: PersistenceProfileDataDTO){
         // const MMKVProfile = new MMKVStorageProfile();
         LocalStoragePersistence.setJWT(data.token);
         LocalStoragePersistence.setRefreshToken(data.refresh_token);
@@ -71,7 +71,7 @@ export class AuthModelContext {
         // MMKVProfile.setToken(data.token);
     }
 
-    public static async persistenceAfterRegister(data: PersistenceAfterRegisterDTO){
+    public static persistenceAfterRegister(data: PersistenceAfterRegisterDTO){
         const deviceTokenId = data.deviceTokenId || randomUUID();
         LocalStoragePersistence.setEmail(data.email);
         const os = "Electron"
@@ -79,13 +79,13 @@ export class AuthModelContext {
         LocalStoragePersistence.setUniqueDeviceId(deviceTokenId);
     }
 
-    public static async deleteStoredTokens(){
+    public static deleteStoredTokens(){
         // const MMKVProfile = new MMKVStorageProfile();
         LocalStoragePersistence.clearAll();
         // MMKVProfile.cleanAll();
     }
 
-    public static async validatedRefreshToken(data: ValidatedRefreshTokenDTO){
+    public static validatedRefreshToken(data: ValidatedRefreshTokenDTO){
         // const MMKVProfile = new MMKVStorageProfile();
         LocalStoragePersistence.setJWT(data.token);
         LocalStoragePersistence.setRefreshToken(data.refresh_token);
@@ -97,11 +97,11 @@ export class AuthModelContext {
         // MMKVProfile.setUserProfile(data);
     }
 
-    public static async newDeviceTryingToLogin(temporatyToken: string){
+    public static newDeviceTryingToLogin(temporatyToken: string){
         LocalStoragePersistence.setTemporaryToken(temporatyToken);
     }
 
-    public static async getTemporaryToken(): Promise<string | null>{
+    public static getTemporaryToken(): string | null{
         return LocalStoragePersistence.getTemporaryToken();
     }
 }

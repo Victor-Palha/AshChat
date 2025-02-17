@@ -123,7 +123,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
                 }
                 if(error.response?.status === 403){
                     console.log(error.response.data)
-                    await AuthModelContext.newDeviceTryingToLogin(error.response.data.data.token);
+                    AuthModelContext.newDeviceTryingToLogin(error.response.data.data.token);
                     alert("A new device is trying to login. Please confirm your email.");
                     // navigate('/newdevice');
                     return [false, '/newdevice'];
@@ -234,7 +234,6 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
                 AuthModelContext.newDeviceTryingToLogin(token);
                 alert("An email has been sent to you with instructions to reset your password.")
                 return [true, '/resetpassword'];
-                // navigate("/resetpassword");
 
             }
         }
@@ -280,7 +279,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
     }
     
     async function onLogout(): Promise<RedirectProps> {
-        await AuthModelContext.deleteStoredTokens();
+        AuthModelContext.deleteStoredTokens();
         await window.userApi.logout()
         setAuthState({authenticated: false, user_id: null})
         // Need to leave all channels and unsubscribe from all push notifications

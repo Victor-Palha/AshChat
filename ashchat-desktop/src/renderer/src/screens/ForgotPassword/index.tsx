@@ -3,10 +3,11 @@ import { Button } from "../../components/Button";
 import { CaretLeft, EnvelopeSimple } from "@phosphor-icons/react";
 import { useContext, useState } from "react";
 import { AuthContext } from "../../contexts/auth/authContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useValidate } from '../../hooks/useValidate'
 
 export function ForgotPassword(){
+    const navigate = useNavigate();
     useValidate();
     const [email, setEmail] = useState("");
     const {onForgotPassword} = useContext(AuthContext)
@@ -14,11 +15,15 @@ export function ForgotPassword(){
         if (email.length < 3){
             return alert("Please enter a valid email address");
         }
-        await onForgotPassword(email);
+        const response = await onForgotPassword(email);
+        if(response){
+            const [_, url] = response
+            navigate(url)
+        }
     }
     return ( 
         <div className="body flex flex-col flex-1 items-center justify-center">
-            <Link to="/login" className="flex flex-row items-center gap-2 mb-10 text-purple-700">
+            <Link to="/login" className="flex flex-row items-center gap-2 mb-10 text-purple-700 justify-between">
                 <CaretLeft size={24} className="text-purple-700" />
                 <span>Back</span>
             </Link>

@@ -32,15 +32,13 @@ export function ConfirmSignUp(){
 
     async function handleConfirmSignUp(){
         const codeValue = code.join('');
-        try {
-            const response = await onConfirmSignUp(codeValue);
-            if(response){
-                const [_, url] = response
-                navigate(url)
-            }
-        } catch (error) {
-            return
+        
+        const response = await onConfirmSignUp(codeValue);
+        if(response){
+            const [_, url] = response
+            navigate(url)
         }
+       
     }
 
     return (

@@ -3,8 +3,10 @@ import { Button } from "../../components/Button";
 import { InputPassword } from "../../components/InputPassword";
 import { AuthContext } from "../../contexts/auth/authContext";
 import { useValidate } from '../../hooks/useValidate'
+import { useNavigate } from "react-router-dom";
 
 export function ResetPassword(){
+    const navigate = useNavigate();
     useValidate();
     const {onResetPassword} = useContext(AuthContext)
 
@@ -38,11 +40,16 @@ export function ResetPassword(){
         if (newPassword !== confirmPassword){
             return alert("Passwords do not match");
         }
-        await onResetPassword(codeValue, newPassword);
+        const response = await onResetPassword(codeValue, newPassword);
+        if(response){
+            const [_, url] = response
+            navigate(url)
+
+        }
     }
 
     return (
-        <div className="flex flex-col flex-1 pt-[62px] items-center justify-center">
+        <div className="body flex flex-col items-center justify-center">
         <div className="items-center justify-center px-[45] mb-10">
             <p className="text-white font-bold text-lg mb-5">Get your Code to reset your password</p>
             <p className="text-white italic">Please, enter the 6 digit code that send to your email address.</p>
@@ -53,7 +60,7 @@ export function ResetPassword(){
                 <input
                     key={index}
                     ref={(input) => (inputs.current[index] = input)}
-                    className="w-12 h-12 border border-gray-300 rounded-lg text-3xl text-center bg-white"
+                    className="w-12 h-12 border border-gray-300 rounded-lg text-3xl text-center bg-white text-gray-800"
                     value={digit}
                     onChange={(e) => handleChange(e.target.value, index)}
                     type="number"
@@ -61,7 +68,7 @@ export function ResetPassword(){
                 />
             ))}
         </div>
-        <div className="px-5 gap-2 mb-10">
+        <div className="flex flex-col px-5 gap-2 mb-10">
             <InputPassword
                 placeholder="New password"
                 autoCapitalize="none"
