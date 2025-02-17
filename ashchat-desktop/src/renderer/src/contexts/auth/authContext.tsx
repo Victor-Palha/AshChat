@@ -190,7 +190,6 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
         const temporaryToken = AuthModelContext.getTemporaryToken();
         if(!temporaryToken) {
             alert("An error occurred while trying to confirm your new device. Please try again.")
-            // navigate('/login')
             return [false, '/login'];
         }
         const {deviceTokenId, deviceNotificationToken, authAPI} = AuthModelContext.getStoredTokens();
@@ -208,7 +207,6 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
             })
             if(response.status === 204){
                 alert("You have successfully confirmed your new device. Please login to continue.")
-                // navigate('/login')
                 return [true, '/login'];
             }
         }catch(error) {
@@ -217,7 +215,6 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
             }else {
                 alert("An error occurred while trying to confirm your new device. Please try again.")
             }
-            // navigate('/login')
             return [false, '/login'];
         }
             
