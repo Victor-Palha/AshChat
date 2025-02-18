@@ -45,12 +45,10 @@ class RabbitMQRPCServer:
                 )
             )
             print(f"[x] Resposta enviada: {response}")
-
-            # Confirma o processamento da mensagem
-            ch.basic_ack(delivery_tag=method.delivery_tag)
-
         except Exception as e:
             print(f"[!] Erro ao processar mensagem: {str(e)}")
+        finally:
+            # Confirma o processamento da mensagem para evitar bloqueios na fila
             ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def start(self):

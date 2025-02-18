@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Define the directory and file paths
-AUTH_SERVICE_DIR="../auth_service_spring/src/main/resources"
-PUBLIC_KEY_DIR="../chat_service/priv/keys"
+AUTH_SERVICE_DIR="../../services/auth_service_spring/src/main/resources"
+PUBLIC_KEY_DIR="../../services/chat_service/priv/keys"
 
 PRIVATE_KEY_FILE="$AUTH_SERVICE_DIR/private_key.pem"
 PUBLIC_KEY_FILE_SPRING="$AUTH_SERVICE_DIR/public_key.pem"

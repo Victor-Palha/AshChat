@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Caminhos para os serviços
-AUTH_SERVICE="$PWD/../auth_service_spring"
-EMAIL_SERVICE="$PWD/../email_service"
-TRANSLATE_SERVICE="$PWD/../translate_service"
-CHAT_SERVICE="$PWD/../chat_service"
-STATIC_SERVICE="$PWD/../static_service"
+AUTH_SERVICE="$PWD/../../services/auth_service_spring"
+EMAIL_SERVICE="$PWD/../../services/email_service"
+TRANSLATE_SERVICE="$PWD/../../services/translate_service"
+CHAT_SERVICE="$PWD/../../services/chat_service"
+STATIC_SERVICE="$PWD/../../services/static_service"
 
 # Função para abrir um novo terminal e executar um comando
 start_service() {

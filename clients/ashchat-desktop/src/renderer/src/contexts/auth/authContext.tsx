@@ -297,7 +297,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
                 await window.userApi.addUser({
                     nickname,
                     description,
-                    photo_url: API_URLS.STATIC_SERVICE+photo_url,
+                    photo_url: photo_url,
                     preferred_language,
                     tag_user_id
                 })

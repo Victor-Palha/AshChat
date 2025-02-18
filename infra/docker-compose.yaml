@@ -1,0 +1,127 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_container_dev
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+      - ashchat_network
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq_container_dev
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: root
+      RABBITMQ_DEFAULT_PASS: randompassword
+    networks:
+      - ashchat_network
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  redis:
+    image: redis:latest
+    container_name: redis_container_dev
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=yourpassword 
+    command: ["redis-server", "--requirepass", "yourpassword"]
+    networks:
+      - ashchat_network
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "yourpassword", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  auth_service:
+    build: ../services/auth_service_spring
+    ports:
+      - "3005:3005"
+    networks:
+      - ashchat_network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  email_service:
+    build: ../services/email_service
+    environment:
+      - SMTP_EMAIL=${SMTP_EMAIL}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+    networks:
+      - ashchat_network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  translate_service:
+    build: ../services/translate_service
+    networks:
+      - ashchat_network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  chat_service:
+    build: ../services/chat_service
+    ports:
+      - "4000:4000"
+    networks:
+      - ashchat_network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  static_service:
+    build: ../services/static_service
+    ports:
+      - "3006:3006"
+    volumes:
+      - ashchat_static_volume:/app/uploads
+    networks:
+      - ashchat_network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+networks:
+  ashchat_network:
+    external: true
+
+volumes:
+  mongo-data:
+    driver: local
+  redis_data:
+    driver: local
+  ashchat_static_volume:
+    driver: local
