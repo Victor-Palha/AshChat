@@ -1,4 +1,64 @@
 services:
+  kong:
+    container_name: ashchat_kong
+    image: kong:3.7
+    restart: on-failure
+    ports:
+      - "8000:8000"
+      - "8443:8443"
+      - "8001:8001"
+      - "8444:8444"
+      - "8002:8002"
+      - "8445:8445"
+      - "8003:8003"
+      - "8004:8004"
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong_db
+      KONG_PG_DATABASE: kong
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yaml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_ADMIN_GUI_URL: http://localhost:8002
+    volumes:
+      - ./kong/declarative:/kong/declarative
+    depends_on:
+      - kong_migrations
+    networks:
+      - ashchat_network
+
+  kong_db:
+    container_name: ashchat_kong_db
+    image: bitnami/postgresql:latest
+    environment:
+      POSTGRESQL_USERNAME: kong
+      POSTGRESQL_PASSWORD: kong
+      POSTGRESQL_DATABASE: kong
+    ports:
+      - "5432:5432"
+    networks:
+      - ashchat_network
+
+  kong_migrations:
+    container_name: ashchat_kong_migration
+    image: kong:3.7
+    command: "kong migrations bootstrap"
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong_db
+      KONG_PG_DATABASE: kong
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong
+    depends_on:
+      - kong_db
+    networks:
+      - ashchat_network
+
   mongodb:
     image: mongo:latest
     container_name: mongodb_container_dev
@@ -56,6 +116,7 @@ services:
       start_period: 5s
 
   auth_service:
+    container_name: ashchatAuthService
     build: ../services/auth_service_spring
     ports:
       - "3005:3005"
@@ -70,6 +131,7 @@ services:
         condition: service_healthy
 
   email_service:
+    container_name: ashchatEmailService
     build: ../services/email_service
     environment:
       - SMTP_EMAIL=${SMTP_EMAIL}
@@ -81,6 +143,7 @@ services:
         condition: service_healthy
 
   translate_service:
+    container_name: ashchatTranslateService
     build: ../services/translate_service
     networks:
       - ashchat_network
@@ -89,6 +152,7 @@ services:
         condition: service_healthy
 
   chat_service:
+    container_name: ashchatChatService
     build: ../services/chat_service
     ports:
       - "4000:4000"
@@ -103,6 +167,7 @@ services:
         condition: service_healthy
 
   static_service:
+    container_name: ashchatStaticService
     build: ../services/static_service
     ports:
       - "3006:3006"

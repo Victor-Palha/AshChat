@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from 'axios'
 
 export class AuthAPIClient {
     static server: AxiosInstance = axios.create({
-        baseURL: 'http://localhost:3005/api'
+        baseURL: 'http://localhost:8000/auth/api'
     })
 
     static setTokenAuth(token: string){

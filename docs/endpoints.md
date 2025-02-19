@@ -10,7 +10,7 @@ This document provides detailed information about the API endpoints available in
 5. [Change User Password](#change-user-password)
 6. [Confirm Change User Password](#confirm-change-user-password) -->
 
-# Authentication Service Endpoints - http://localhost:3005/swagger-ui/index.htm
+# Authentication Service Endpoints - http://localhost:3005/swagger-ui/index.html
 All endpoints related to user authentication are available in the Authentication Service Swagger UI.
 Just run the service and navigate to the Swagger UI to view the endpoints.
 1. [User Registration]()

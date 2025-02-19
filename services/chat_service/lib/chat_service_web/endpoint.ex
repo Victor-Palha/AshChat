@@ -1,10 +1,10 @@
 defmodule ChatServiceWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :chat_service
 
-  plug CORSPlug,
-    origin: ["http://localhost:5173", "http://localhost:8081"],
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    headers: ["Authorization", "Content-Type", "device_token"]
+  # plug CORSPlug,
+  #   origin: ["http://localhost:8000"],
+  #   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  #   headers: ["Authorization", "Content-Type", "device_token"]
 
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
