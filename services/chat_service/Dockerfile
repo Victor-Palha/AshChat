@@ -39,7 +39,7 @@ ENV PORT=4000 \
     PHX_RABBITMQ_PASSWORD=randompassword \
     PHX_MONGODB_URI=mongodb://root:example@mongodb_container_dev:27017/chats?authSource=admin \
     SECRET_KEY_BASE=xBqBuYe1ksjA9BkkAcVzhgsAFdWqm4fxagKNO8YWyI5Q6erOIU4ox/S/imLOGaYb \
-    STATIC_SERVER_URL=http://ashchat-static_service-1:3006
+    STATIC_SERVER_URL=http://ashchatStaticService:3006
 
 # install mix dependencies
 COPY mix.exs mix.lock ./
@@ -93,7 +93,7 @@ ENV PORT=4000 \
     PHX_RABBITMQ_PASSWORD=randompassword \
     PHX_MONGODB_URI=mongodb://root:example@mongodb_container_dev:27017/chats?authSource=admin \
     SECRET_KEY_BASE=xBqBuYe1ksjA9BkkAcVzhgsAFdWqm4fxagKNO8YWyI5Q6erOIU4ox/S/imLOGaYb \
-    STATIC_SERVER_URL=http://ashchat-static_service-1:3006
+    STATIC_SERVER_URL=http://ashchatStaticService:3006
 # Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/chat_service ./
 
