@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from 'axios'
 
 export class PhoenixAPIClient {
     static server: AxiosInstance = axios.create({
-        baseURL: 'http://localhost:4000/api',
+        baseURL: 'http://localhost:8000/chat/api',
     })
 
     static setTokenAuth(token: string){
