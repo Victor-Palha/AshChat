@@ -172,7 +172,7 @@ export function ChatViewModel({chat_id}: ChatViewModelProps){
         const profilePhoto = response.profile_picture;
 
         window.labelApi.clearNotifications(chat_id as string);
-        setProfilePicture(API_URLS.STATIC_SERVICE+profilePhoto);
+        setProfilePicture(profilePhoto);
             // Ordena as mensagens por timestamp
         const sortedMessages = response.messages.sort(
             //@ts-ignore
