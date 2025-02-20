@@ -155,7 +155,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
             }
 
             const response = await authAPI.server.post('/user/confirm-email', {
-                user_email, 
+                email: user_email, 
                 emailCode, 
                 deviceOS: Platform.OS, 
                 deviceTokenId, 
