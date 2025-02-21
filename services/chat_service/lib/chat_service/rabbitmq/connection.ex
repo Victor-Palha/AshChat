@@ -3,8 +3,6 @@ defmodule ChatService.Rabbitmq.Connection do
 
   require Logger
 
-  @config Application.compile_env(:chat_service, :rabbitmq)
-
   def start_link(_) do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
@@ -23,7 +21,8 @@ defmodule ChatService.Rabbitmq.Connection do
   end
 
   defp connect() do
-    case AMQP.Connection.open(@config) do
+    config = Application.get_env(:chat_service, :rabbitmq)
+    case AMQP.Connection.open(config) do
       {:ok, conn} ->
         case AMQP.Channel.open(conn) do
           {:ok, chan} ->

@@ -4,8 +4,12 @@ defmodule ChatService.Handlers.QueueConfirmNewAccount do
   alias ChatService.Models.User
   alias ChatService.Repo
 
-  @default_photo_url "http://localhost:3006/files/default.jpg"
+  @default_photo_url "https://static.victor-palha.com/default.jpg"
 
+  @spec handle_message(map(), any()) ::
+          {:conflict, %{status: <<_::280>>}}
+          | {:error, %{status: <<_::136>>}}
+          | {:ok, %{status: <<_::200>>}}
   def handle_message(%{
         "id" => id,
         "nickname" => nickname,
