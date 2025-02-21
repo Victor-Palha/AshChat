@@ -45,7 +45,11 @@ defmodule ChatService.MixProject do
       {:amqp, "~> 4.0"},
       {:dotenv, "~> 3.1.0"},
       {:httpoison, "~> 2.0"},
-      {:cors_plug, "~> 3.0"}
+      {:cors_plug, "~> 3.0"},
+      {:ex_aws, "~> 2.5"},
+      {:ex_aws_s3, "~> 2.4"},
+      {:hackney, "~> 1.18"},
+      {:sweet_xml, "~> 0.7"}
     ]
   end
 
