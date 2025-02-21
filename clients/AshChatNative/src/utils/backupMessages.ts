@@ -1,5 +1,4 @@
 import { PhoenixAPIClient } from "../api/phoenix-api-client"
-import { API_URLS } from "../constants/api-urls"
 import { ChatPropsDTO } from "../persistence/MMKVStorage/DTO/ChatPropsDTO"
 import { MessagePropsDTO } from "../persistence/MMKVStorage/DTO/MessagePropsDTO"
 import { MMKVChats } from "../persistence/MMKVStorage/MMKVChats"

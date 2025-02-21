@@ -6,7 +6,6 @@ import { MessagePropsDTO } from "./DTO/MessagePropsDTO";
 import { MMKVStorageTemplate } from "./MMKVStorageTemplate";
 import { UpdateMessageStatusPropsDTO } from "./DTO/UpdateMessageStatusPropsDTO";
 import { UserProfilePropsDTO } from "./DTO/UserProfilePropsDTO";
-import { API_URLS } from "@/src/constants/api-urls";
 
 export class MMKVChats extends MMKVStorageTemplate {
     constructor(){

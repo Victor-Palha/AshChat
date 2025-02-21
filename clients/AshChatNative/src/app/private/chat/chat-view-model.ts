@@ -1,4 +1,3 @@
-import { API_URLS } from "@/src/constants/api-urls";
 import { ChatContext } from "@/src/contexts/chat/chatContext";
 import { AddMessagePropsDTO } from "@/src/persistence/MMKVStorage/DTO/AddMessagePropsDTO";
 import { MessagePropsDTO } from "@/src/persistence/MMKVStorage/DTO/MessagePropsDTO";
