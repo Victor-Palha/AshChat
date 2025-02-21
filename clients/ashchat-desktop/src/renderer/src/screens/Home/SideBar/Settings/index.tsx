@@ -1,4 +1,4 @@
-import { PencilSimpleLine, Plus, X, Check } from "@phosphor-icons/react";
+import { PencilSimpleLine, X, Check } from "@phosphor-icons/react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { SettingsViewModel } from "./settings-view-model";
 import { useEffect, useRef, useState } from "react";

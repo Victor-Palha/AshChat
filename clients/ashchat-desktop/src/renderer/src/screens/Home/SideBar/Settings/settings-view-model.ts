@@ -3,7 +3,6 @@ import { AuthContext } from "../../../../contexts/auth/authContext";
 import { UserProfilePropsDTO } from "main/persistence/DTO/UserProfilePropsDTO";
 import { PhoenixAPIClient } from "../../../../lib/api/phoenix-api-client";
 import LocalStoragePersistence from "../../../../lib/local-storage-persistence";
-import { API_URLS } from "../../../../constants/api-urls";
 import { useNavigate } from "react-router-dom";
 
 export function SettingsViewModel() {
@@ -51,7 +50,7 @@ export function SettingsViewModel() {
                 const {url} = responseUpload.data
                 const newProfile: UserProfilePropsDTO = {
                     ...userProfile,
-                    photo_url: API_URLS.STATIC_SERVICE + url
+                    photo_url: url
                 } as UserProfilePropsDTO
                 console.log(newProfile)
                 handleUpdateUserProfile(newProfile)

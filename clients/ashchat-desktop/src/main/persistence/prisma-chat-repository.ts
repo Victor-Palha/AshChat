@@ -73,7 +73,7 @@ export class PrismaChatRepository {
             } : null,
             notification: label.notifications,
             last_interaction: label.chat.messages[0] ? label.chat.messages[0].timestamp || new Date() : null, 
-            profile_picture: label.chat.profile_picture || 'https://default-profile-picture.com'
+            profile_picture: label.chat.profile_picture || 'https://static.victor-palha.com/default.jpg'
         }));
 
         return labelsJoinned;
@@ -174,7 +174,7 @@ export class PrismaChatRepository {
             data: {
                 id: chat_id,
                 nickname: "Unknown",
-                profile_picture: "http://localhost:3006/files/default.jpg",
+                profile_picture: "https://static.victor-palha.com/default.jpg",
                 description: '',
                 preferred_language: '',
                 messages: {

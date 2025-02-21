@@ -1,6 +1,5 @@
 import { ChatCircle, ChatCircleSlash } from "@phosphor-icons/react"
 import { LabelChatPropsDTO } from "../../../../../main/persistence/DTO/LabelChatPropsDTO"
-import { API_URLS } from "../../../constants/api-urls"
 import { formatTimeOrDate } from "../../../lib/getDateAndTimeFromDate"
 
 type LabelChatProps = {
@@ -41,7 +40,7 @@ export function ChatLabels(data: LabelChatProps){
                 >
                     <img
                         className="w-10 h-10 rounded-full"
-                        src={API_URLS.STATIC_SERVICE + chat.profile_picture}
+                        src={chat.profile_picture}
                         alt={chat.nickname + " photo"}
                     />
                     <div className="flex flex-col w-full">

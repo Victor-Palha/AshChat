@@ -3,7 +3,6 @@ import { FormEvent, useCallback, useContext, useEffect, useState } from "react";
 import { ChatContext } from "../../../contexts/chat/chatContext";
 import { MessagePropsDTO } from "main/persistence/DTO/MessagePropsDTO";
 import { AddMessagePropsDTO } from "main/persistence/DTO/AddMessagePropsDTO";
-import { API_URLS } from "../../../constants/api-urls";
 import LocalStoragePersistence from "../../../lib/local-storage-persistence";
 
 type ModalDescriptionProps = {

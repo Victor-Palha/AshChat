@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { ChatViewModel } from "./chat-view-model";
 import { LoadMessages } from "./LoadMessages";
 

@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { AuthContext } from "../contexts/auth/authContext";
 import { useNavigate } from "react-router-dom";
 import LocalStoragePersistence from "../lib/local-storage-persistence";

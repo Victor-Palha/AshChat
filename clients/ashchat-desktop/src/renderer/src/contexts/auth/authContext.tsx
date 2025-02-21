@@ -1,8 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { AxiosError } from "axios";
 import { AuthModelContext } from "./auth-model-context";
-import { useNavigate } from "react-router-dom";
-import { API_URLS } from "../../constants/api-urls";
 
 type RedirectProps = [boolean, string];
 

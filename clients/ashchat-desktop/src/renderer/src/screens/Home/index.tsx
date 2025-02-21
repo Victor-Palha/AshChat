@@ -37,9 +37,7 @@ export function Home(){
         <div>
             {/* ChatLabels */}
             <main className="grid grid-cols-[8%_30%_62%] lg:grid-cols-[7%_30%_63%] xl:grid-cols-[6%_30%_64%] h-screen">
-                <SideBar
-                    userPhotoProfile={userProfile?.photo_url}
-                />
+                <SideBar />
                 {chatLabelsToShow && (
                     <ChatLabels
                         chats={chatLabelsToShow}
