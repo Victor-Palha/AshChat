@@ -17,7 +17,7 @@ import Config
 # Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
 # script that automatically sets the env var above.
 if System.get_env("PHX_SERVER") do
-  config :chat_service, ChatServiceWeb.Endpoint, server: true, static_server_url: System.get_env("STATIC_SERVER_URL")
+  config :chat_service, ChatServiceWeb.Endpoint, server: true
 end
 
 if config_env() == :prod do
@@ -35,8 +35,19 @@ if config_env() == :prod do
     port: 5672,
     virtual_host: "/"
 
-  config :chat_service, ChatServiceWeb.Endpoint,
-    static_server_url: System.get_env("STATIC_SERVER_URL")
+    config :ex_aws,
+    json_codec: Jason,
+    http_client: ExAws.Request.Hackney,
+    s3: [
+      scheme: "https://",
+      host: System.get_env("R2_ENDPOINT_URL"),
+      region: "auto"
+    ]
+
+  config :ex_aws, :s3,
+    access_key_id: System.get_env("R2_ACCESS_KEY"),
+    secret_access_key: System.get_env("R2_SECRET_KEY")
+
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
   # want to use a different value for prod and you most likely don't want

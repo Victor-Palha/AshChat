@@ -19,8 +19,7 @@ config :chat_service, ChatServiceWeb.Endpoint,
     layout: false
   ],
   pubsub_server: ChatService.PubSub,
-  live_view: [signing_salt: "oorrvuVO"],
-  static_server_url: System.get_env("STATIC_SERVER_URL") || "http://localhost:3000"
+  live_view: [signing_salt: "oorrvuVO"]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -33,19 +32,20 @@ config :joken,
     key_pem: File.read!("priv/keys/public_key.pem")
   ]
 
-config :chat_service, ChatService.Repo,
-  url: System.get_env("PHX_MONGODB_URI"),
-  timeout: 60_000,
-  idle_interval: 10_000,
-  queue_target: 5_000,
-  pool_size: 10
-
 config :chat_service, :rabbitmq,
-  host: System.get_env("PHX_RABBITMQ_HOST"),
-  username: System.get_env("PHX_RABBITMQ_USER"),
-  password: System.get_env("PHX_RABBITMQ_PASSWORD"),
-  port: 5672,
-  virtual_host: "/"
+host: System.get_env("PHX_RABBITMQ_HOST") || "localhost",
+username: System.get_env("PHX_RABBITMQ_USER") || "root",
+password: System.get_env("PHX_RABBITMQ_PASSWORD") || "randompassword",
+port: 5672,
+virtual_host: "/"
+
+# # Configurações do MongoDB
+config :chat_service, ChatService.Repo,
+url: System.get_env("PHX_MONGODB_URI") || "mongodb://root:example@localhost:27017/chats?authSource=admin",
+timeout: 60_000,
+idle_interval: 10_000,
+queue_target: 5_000,
+pool_size: 10
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
