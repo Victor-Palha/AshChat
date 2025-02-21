@@ -15,9 +15,6 @@
 # https://docs.docker.com/engine/reference/builder/#dockerignore-file
 
 .dockerignore
-load_env.sh
-start.sh
-.env
 
 # Ignore git, but keep git HEAD and refs to access current commit hash if needed:
 #
