@@ -145,6 +145,10 @@ services:
   translate_service:
     container_name: ashchatTranslateService
     build: ../services/translate_service
+    environment:
+      - PY_RABBITMQ_HOST=${PY_RABBITMQ_HOST}
+      - PY_RABBITMQ_USER=${PY_RABBITMQ_USER}
+      - PY_RABBITMQ_PASSWORD=${PY_RABBITMQ_PASSWORD}
     networks:
       - ashchat_network
     depends_on:
@@ -154,6 +158,16 @@ services:
   chat_service:
     container_name: ashchatChatService
     build: ../services/chat_service
+    environment:
+      - PHX_RABBITMQ_HOST=${PHX_RABBITMQ_HOST}
+      - PHX_RABBITMQ_USER=${PHX_RABBITMQ_USER}
+      - PHX_RABBITMQ_PASSWORD=${PHX_RABBITMQ_PASSWORD}
+      - PHX_MONGODB_URI=${PHX_MONGODB_URI}
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - R2_ACCOUNT_ID=${R2_ACCOUNT_ID}
+      - R2_ENDPOINT_URL=${R2_ENDPOINT_URL}
+      - R2_ACCESS_KEY=${R2_ACCESS_KEY}
+      - R2_SECRET_KEY=${R2_SECRET_KEY}
     ports:
       - "4000:4000"
     networks:
@@ -164,19 +178,6 @@ services:
       rabbitmq:
         condition: service_healthy
       redis:
-        condition: service_healthy
-
-  static_service:
-    container_name: ashchatStaticService
-    build: ../services/static_service
-    ports:
-      - "3006:3006"
-    volumes:
-      - ashchat_static_volume:/app/uploads
-    networks:
-      - ashchat_network
-    depends_on:
-      mongodb:
         condition: service_healthy
 
 networks:
