@@ -5,21 +5,23 @@ defmodule ChatServiceWeb.DeviceTokenPlug do
   def init(default), do: default
 
   def call(conn, _opts) do
-    device_token = conn |> get_req_header("device_token") |>  List.first()
-    case device_token do
-      nil ->
+    with [device_token | _] <- get_req_header(conn, "device_token"),
+         {:ok, _message} <- Auth.verify_device_token(conn.assigns[:user_id], device_token) do
+      conn
+    else
+      [] ->
         conn
         |> put_status(:bad_request)
+        |> put_resp_content_type("application/json")
+        |> send_resp(400, Jason.encode!(%{error: "Device token is missing"}))
         |> halt()
-      device_token ->
-        case Auth.verify_device_token(conn.assigns[:user_id], device_token) do
-          {:ok, _message} ->
-            conn
-          {:error, _reason} ->
-            conn
-            |> put_status(:unauthorized)
-            |> halt()
-        end
+
+      {:error, reason} ->
+        conn
+        |> put_status(:unauthorized)
+        |> put_resp_content_type("application/json")
+        |> send_resp(401, Jason.encode!(%{error: "Invalid device token", details: reason}))
+        |> halt()
     end
   end
 end
