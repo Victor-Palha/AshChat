@@ -1,6 +1,7 @@
 defmodule ChatServiceWeb.UserController do
   use ChatServiceWeb, :controller
 
+  alias ChatService.Utils.R2Uploader
   alias ChatService.Services.User
 
   def update_user_name(conn, %{"nickname" => nickname}) do
@@ -19,34 +20,17 @@ defmodule ChatServiceWeb.UserController do
   end
 
   def update_user_photo(conn, %{"photo" => %Plug.Upload{} = upload}) do
-      file_content = upload.path |> File.read!() |> Base.encode64()
-      mime_type = MIME.type(Path.extname(upload.filename) |> String.trim_leading("."))
+    case R2Uploader.upload_file(upload.path, upload.filename, upload.content_type) do
+      {:ok, url} -> User.update_user_photo_profile(conn.assigns.user_id, url)
+        conn
+        |> put_status(:ok)
+        |> json(%{message: "Upload successful", url: url})
 
-      multipart = {:multipart, [
-        {"file", file_content, {"form-data", [{"name", "file"}, {"filename", upload.filename}]},
-          [{"Content-Type", mime_type}]}
-      ]}
-
-      api_url = Application.get_env(:chat_service, ChatServiceWeb.Endpoint)[:static_server_url]
-      case HTTPoison.post("#{api_url}/upload", multipart, []) do
-        {:ok, %HTTPoison.Response{status_code: 201, body: body}} ->
-          photo_url = "/files/#{body}"
-          User.update_user_photo_profile(conn.assigns.user_id, photo_url)
-          conn
-          |> put_status(:ok)
-          |> json(%{message: "Upload successful", url: photo_url})
-
-        {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
-          conn
-          |> put_status(status_code)
-          |> json(%{error: body})
-
-        {:error, %HTTPoison.Error{reason: reason}} ->
-          IO.puts("Error: #{inspect(reason)}")
-          conn
-          |> put_status(500)
-          |> json(%{error: reason})
-      end
+      {:error, reason} ->
+        conn
+        |> put_status(500)
+        |> json(%{error: inspect(reason)})
+    end
   end
 
   def update_user_photo(conn, _params) do
