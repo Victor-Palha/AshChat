@@ -3,13 +3,13 @@ import { Button } from "../../components/Button";
 import { InputPassword } from "../../components/InputPassword";
 import { AuthContext } from "../../contexts/auth/authContext";
 import { useValidate } from '../../hooks/useValidate'
-import { useNavigate } from "react-router-dom";
+import { useRedirect } from "../../hooks/useRedirect";
 
 export function ResetPassword(){
-    const navigate = useNavigate();
     useValidate();
     const {onResetPassword} = useContext(AuthContext)
 
+    const [isLoading, setIsLoading] = useState(false)
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -40,12 +40,10 @@ export function ResetPassword(){
         if (newPassword !== confirmPassword){
             return alert("Passwords do not match");
         }
+        setIsLoading(true)
         const response = await onResetPassword(codeValue, newPassword);
-        if(response){
-            const [_, url] = response
-            navigate(url)
-
-        }
+        useRedirect(response)
+        setIsLoading(false)
     }
 
     return (
@@ -82,7 +80,7 @@ export function ResetPassword(){
                 onChange={(e)=>setConfirmPassword(e.target.value)}
             />
         </div>
-        <Button title="Verify and Proceed" onClick={handleConfirmNewDevice}/>
+        <Button title="Verify and Proceed" onClick={handleConfirmNewDevice} isLoading={isLoading}/>
     </div>
     )
 }

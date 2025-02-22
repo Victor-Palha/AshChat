@@ -1,12 +1,12 @@
 import { useContext, useRef, useState } from "react";
 import { AuthContext } from "../../contexts/auth/authContext";
 import { Button } from "../../components/Button";
-import { useNavigate } from "react-router-dom";
+import { useRedirect } from "../../hooks/useRedirect";
 
 export default function NewDevice(){
-    const navigate = useNavigate();
     const {onNewDevice} = useContext(AuthContext)
 
+    const [isLoading, setIsLoading] = useState(false)
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const inputs = useRef<Array<HTMLInputElement | null>>([]);
 
@@ -28,12 +28,11 @@ export default function NewDevice(){
     };
 
     async function handleConfirmNewDevice(){
+        setIsLoading(true)
         const codeValue = code.join('');
         const response = await onNewDevice(codeValue);
-        if(response){
-            const [_, url] = response
-            navigate(url)
-        }
+        useRedirect(response)
+        setIsLoading(false)
     }
     return (
         <div className="body flex flex-col flex-1 pt-[62px] items-center justify-center">
@@ -55,7 +54,7 @@ export default function NewDevice(){
                     />
                 ))}
             </div>
-            <Button title="Verify and Proceed" onClick={handleConfirmNewDevice}/>
+            <Button title="Verify and Proceed" onClick={handleConfirmNewDevice} isLoading={isLoading}/>
         </div>
     )
 }

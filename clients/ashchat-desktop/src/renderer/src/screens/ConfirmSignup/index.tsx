@@ -1,15 +1,15 @@
 import { useContext, useRef, useState } from "react";
 import { Button } from "../../components/Button";
 import { AuthContext } from "../../contexts/auth/authContext";
-import { useNavigate } from "react-router-dom";
 import { useValidate } from '../../hooks/useValidate'
+import { useRedirect } from "../../hooks/useRedirect";
 
 
 export function ConfirmSignUp(){
     useValidate();
-    const navigate = useNavigate()
     const {onConfirmSignUp} = useContext(AuthContext)
 
+    const [isLoading, setIsLoading] = useState(false)
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const inputs = useRef<Array<HTMLInputElement | null>>([]);
 
@@ -33,12 +33,10 @@ export function ConfirmSignUp(){
     async function handleConfirmSignUp(){
         const codeValue = code.join('');
         
+        setIsLoading(true)
         const response = await onConfirmSignUp(codeValue);
-        if(response){
-            const [_, url] = response
-            navigate(url)
-        }
-       
+        useRedirect(response)
+        setIsLoading(false)
     }
 
     return (
@@ -61,7 +59,7 @@ export function ConfirmSignUp(){
                     />
                 ))}
             </div>
-            <Button title="Verify and Proceed" onClick={handleConfirmSignUp}/>
+            <Button title="Verify and Proceed" onClick={handleConfirmSignUp} isLoading={isLoading}/>
         </div>
     )
 }

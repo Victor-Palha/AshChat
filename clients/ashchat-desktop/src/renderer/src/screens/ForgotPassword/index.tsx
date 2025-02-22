@@ -3,23 +3,23 @@ import { Button } from "../../components/Button";
 import { CaretLeft, EnvelopeSimple } from "@phosphor-icons/react";
 import { useContext, useState } from "react";
 import { AuthContext } from "../../contexts/auth/authContext";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useValidate } from '../../hooks/useValidate'
+import { useRedirect } from "../../hooks/useRedirect";
 
 export function ForgotPassword(){
-    const navigate = useNavigate();
     useValidate();
+    const [isLoading, setIsLoading] = useState(false)
     const [email, setEmail] = useState("");
     const {onForgotPassword} = useContext(AuthContext)
     async function handleSendCodeToEmail(){
         if (email.length < 3){
             return alert("Please enter a valid email address");
         }
+        setIsLoading(true)
         const response = await onForgotPassword(email);
-        if(response){
-            const [_, url] = response
-            navigate(url)
-        }
+        useRedirect(response)
+        setIsLoading(false)
     }
     return ( 
         <div className="body flex flex-col flex-1 items-center justify-center">
@@ -42,7 +42,7 @@ export function ForgotPassword(){
                     onChange={(e)=>setEmail(e.target.value)}
                 />
             </div>
-            <Button title="Send code" onClick={handleSendCodeToEmail}/>
+            <Button title="Send code" onClick={handleSendCodeToEmail} isLoading={isLoading}/>
         </div>
     )
 }

@@ -2,7 +2,7 @@ import { createContext, useEffect, useState } from "react";
 import { AxiosError } from "axios";
 import { AuthModelContext } from "./auth-model-context";
 
-type RedirectProps = [boolean, string];
+export type RedirectProps = [boolean, string];
 
 type AuthState = {
     user_id: string | null,
@@ -148,10 +148,8 @@ export function AuthContextProvider({children}: {children: React.ReactNode}){
             if(response.status === 202){
                 alert("You have successfully registered. Please check your email to confirm your account.")
                 AuthModelContext.persistenceAfterRegister({email, deviceTokenId})
-                // navigate('/confirmsignup')
                 return [true, '/confirmsignup'];
             }
-            
         } catch (error) {
             alert("An error occurred while trying to register. Please try again.")
         }

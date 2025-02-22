@@ -3,6 +3,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useState } from "react";
 import { PhoenixAPIClient } from "../../../../lib/api/phoenix-api-client";
 import LocalStoragePersistence from "../../../../lib/local-storage-persistence";
+import { Button } from "../../../../components/Button";
 
 type ResponseCreateChat = {
     chat_id: string;
@@ -14,6 +15,7 @@ type ResponseCreateChat = {
 }
 
 export function AddNewChat() {
+	const [isLoading, setIsLoading] = useState(false)
 	const [userTagId, setUserTagId] = useState<string>("");
 
 	async function handleCreateConnection(){
@@ -30,6 +32,7 @@ export function AddNewChat() {
 		}
 
 		try{
+			setIsLoading(true)
 			const response = await api.server.post("/chat", {
 				receiver_tag: userTagId
 			})
@@ -50,6 +53,8 @@ export function AddNewChat() {
 		catch(e) {
 			alert("An error occurred while creating chat")
 			console.error(e)
+		} finally {
+			setIsLoading(false)
 		}
 	}
 
@@ -83,9 +88,12 @@ export function AddNewChat() {
 				</fieldset>
 				<div className="mt-[25px] flex justify-end">
 					<Dialog.Close asChild>
-						<button className="inline-flex h-[35px] items-center justify-center rounded bg-green4 px-[15px] font-medium leading-none text-green11 outline-none outline-offset-1 hover:bg-green5 focus-visible:outline-2 focus-visible:outline-green6 select-none bg-purple-700 hover:scale-105 transition" onClick={handleCreateConnection}>
-							Add
-						</button>
+						<Button 
+							className="inline-flex h-[35px] items-center justify-center rounded bg-green4 px-[15px] font-medium leading-none text-green11 outline-none outline-offset-1 hover:bg-green5 focus-visible:outline-2 focus-visible:outline-green6 select-none bg-purple-700 hover:scale-105 transition" 
+							onClick={handleCreateConnection} 
+							title="Add" 
+							isLoading={isLoading}
+						/>
 					</Dialog.Close>
 				</div>
 

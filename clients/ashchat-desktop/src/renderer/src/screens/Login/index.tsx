@@ -1,6 +1,6 @@
 import { EnvelopeSimple } from '@phosphor-icons/react';
 import { useContext, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { Input } from '../../components/Input'
 import ashChatLogo from '../../assets/logo.png'
@@ -8,20 +8,20 @@ import { InputPassword } from '../../components/InputPassword';
 import { Button } from '../../components/Button';
 import { AuthContext } from '../../contexts/auth/authContext';
 import { useValidate } from '../../hooks/useValidate'
+import { useRedirect } from '../../hooks/useRedirect';
 
 export function Login(){
     useValidate();
-    const navigate = useNavigate();
     const {onLogin} = useContext(AuthContext);
+    const [isLoading, setIsLoading] = useState(false)
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
     async function handleLogin(){
-       const response = await onLogin(email, password);
-       if(response){
-            const [_, url] = response;
-            navigate(url);
-       }
+        setIsLoading(true)
+        const response = await onLogin(email, password);
+        useRedirect(response)
+        setIsLoading(false)
     }
 
     return (
@@ -49,7 +49,7 @@ export function Login(){
                 />
 
                 <Link to="/forgotpassword" className="text-sm font-semibold text-purple-700 mb-4">Forgot you password? Click here!</Link>
-                <Button title="Sign in" onClick={handleLogin}/>
+                <Button title="Sign in" onClick={handleLogin} isLoading={isLoading}/>
 
                 <div className="text-center items-center mt-2">
                     <Link to="/signup" className="text-sm font-semibold text-purple-700 mb-4">
