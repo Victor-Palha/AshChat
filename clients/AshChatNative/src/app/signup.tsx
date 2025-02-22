@@ -24,7 +24,7 @@ export default function Signup(){
     const {onRegister} = useContext(AuthContext)
 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
+    const [isLoading, setIsLoading] = useState(false)
     const [nickname, setNickname] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -46,10 +46,13 @@ export default function Signup(){
         }
 
         try {
+            setIsLoading(true)
             await onRegister(email, password, nickname, selectedLanguage.value)
         } catch (error) {
             console.log(error)
             Alert.alert("An error occurred")
+        } finally{
+            setIsLoading(false)
         }
     }
 
@@ -115,7 +118,7 @@ export default function Signup(){
                 )}
                 {/* End of Language Dropdown */}
             </View>
-            <Button title="Sign up"  onPress={handleRegister}/>
+            <Button title="Sign up"  onPress={handleRegister} isLoading={isLoading}/>
             <View className="text-center items-center mt-2">
                 <Link href="/login" className="text-sm font-semibold text-purple-700 mb-4">
                 Already have a account? Sign in

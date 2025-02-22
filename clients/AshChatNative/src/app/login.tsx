@@ -10,6 +10,7 @@ import { AuthContext } from "../contexts/auth/authContext";
 export default function Login(){
     const {onLogin} = useContext(AuthContext)
 
+    const [isLoading, setIsLoading] = useState(false)
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -18,10 +19,13 @@ export default function Login(){
             return Alert.alert("Please fill all the fields")
         }
         try {
+            setIsLoading(true)
             await onLogin(email, password)
         } catch (error) {
             Alert.alert("An error occurred while trying to login. Please try again.")
             console.log(error)
+        } finally {
+            setIsLoading(false)
         }
     }
     return (
@@ -53,7 +57,7 @@ export default function Login(){
                 />
 
                 <Link href="/forgotpassword" className="text-sm font-semibold text-purple-700 mb-4">Forgot you password? Click here!</Link>
-                <Button title="Sign in" onPress={handleLogin}/>
+                <Button title="Sign in" onPress={handleLogin} isLoading={isLoading}/>
 
                 <View className="text-center items-center mt-2">
                     <Link href="/signup" className="text-sm font-semibold text-purple-700 mb-4">

@@ -5,12 +5,14 @@ import { PhoenixAPIClient } from "@/src/api/phoenix-api-client";
 import SecureStoragePersistence from "@/src/persistence/SecureStorage";
 import { UserProfilePropsDTO } from "@/src/persistence/MMKVStorage/DTO/UserProfilePropsDTO";
 import { MMKVStorageProfile } from "@/src/persistence/MMKVStorage/MMKVProfile";
+import { Button } from "../Button";
 
 type ModalAddProps = {
     modalIsOpen: boolean;
     closeModal: (isOpen: boolean) => void;
 }
 export function ModalChangeDescription({modalIsOpen, closeModal}:ModalAddProps){
+    const [isLoading, setIsLoading] = useState(false)
     const [userProfile] = useMMKVObject<UserProfilePropsDTO>("ashchat.user_profile")
     const [newDescription, setNewDescription] = useState("");
     const [mmkvStorage] = useState(new MMKVStorageProfile())
@@ -29,6 +31,7 @@ export function ModalChangeDescription({modalIsOpen, closeModal}:ModalAddProps){
         api.setTokenAuth(token)
         api.setHeader("device_token", device_token)
         if(newDescription.length > 0 && newDescription.length <= 150){
+            setIsLoading(true)
             const response = await api.server.patch("/user/description/", {
                 description: newDescription
             })
@@ -43,6 +46,7 @@ export function ModalChangeDescription({modalIsOpen, closeModal}:ModalAddProps){
             }else{
                 Alert.alert("Error", "An error occurred while creating the chat")
             }
+            setIsLoading(false)
         }else{
             Alert.alert("Invalid Description", "Please enter a description with more then 0 characters and less then 150 characters")
         }
@@ -65,9 +69,14 @@ export function ModalChangeDescription({modalIsOpen, closeModal}:ModalAddProps){
                         ({150 - newDescription.length})
                     </Text>
                 </View>
-                <TouchableOpacity onPress={handleChangeDescription}>
+                <Button
+                    title="Save"
+                    onPress={handleChangeDescription}
+                    isLoading={isLoading}
+                />
+                {/* <TouchableOpacity onPress={handleChangeDescription}>
                     <Text className="text-purple-700 text-lg">Save</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
             <TextInput
                 className="w-[330] max-w-[330] h-[300] max-h-[300] p-4 placeholder:text-gray-700 bg-white rounded-lg text-start"

@@ -5,7 +5,7 @@ import { AuthContext } from "../contexts/auth/authContext";
 
 export default function ConfirmSignUp(){
     const {onConfirmSignUp} = useContext(AuthContext)
-
+    const [isLoading, setIsLoading] = useState(false)
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const inputs = useRef<Array<TextInput | null>>([]);
 
@@ -28,11 +28,9 @@ export default function ConfirmSignUp(){
 
     async function handleConfirmSignUp(){
         const codeValue = code.join('');
-        try {
-            await onConfirmSignUp(codeValue);
-        } catch (error) {
-            return
-        }
+        setIsLoading(true)
+        await onConfirmSignUp(codeValue);
+        setIsLoading(false)
     }
 
     return (
@@ -56,7 +54,7 @@ export default function ConfirmSignUp(){
                     />
                 ))}
             </View>
-            <Button title="Verify and Proceed" onPress={handleConfirmSignUp}/>
+            <Button title="Verify and Proceed" onPress={handleConfirmSignUp} isLoading={isLoading}/>
         </View>
         </TouchableWithoutFeedback>
     )

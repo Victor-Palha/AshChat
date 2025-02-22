@@ -15,6 +15,7 @@ type ModalAddProps = {
 }
 
 export function ModalChangeName({modalIsOpen, closeModal}: ModalAddProps) {
+    const [isLoading, setIsLoading] = useState(false)
     const [userProfile] = useMMKVObject<UserProfilePropsDTO>("ashchat.user_profile")
     const [mmkvStorage] = useState(new MMKVStorageProfile())
     const [newName, setNewName] = useState("");
@@ -33,6 +34,7 @@ export function ModalChangeName({modalIsOpen, closeModal}: ModalAddProps) {
         api.setTokenAuth(token)
         api.setHeader("device_token", device_token)
         if(newName.length > 3){
+            setIsLoading(true)
             const response = await api.server.patch("/user/nickname/", {
                 nickname: newName
             })
@@ -50,6 +52,7 @@ export function ModalChangeName({modalIsOpen, closeModal}: ModalAddProps) {
         }else{
             Alert.alert("Invalid Name", "Please enter a name with more then 3 characters")
         }
+        setIsLoading(false)
     }
 
     return (
@@ -74,6 +77,7 @@ export function ModalChangeName({modalIsOpen, closeModal}: ModalAddProps) {
             <Button
                 title="Save"
                 onPress={handleChangeUsername}
+                isLoading={isLoading}
             />
             </View>
         </View>

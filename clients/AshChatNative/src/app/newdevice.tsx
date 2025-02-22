@@ -6,6 +6,7 @@ import { AuthContext } from "../contexts/auth/authContext";
 export default function NewDevice(){
     const {onNewDevice} = useContext(AuthContext)
 
+    const [isLoading, setIsLoading] = useState(false)
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const inputs = useRef<Array<TextInput | null>>([]);
 
@@ -28,11 +29,9 @@ export default function NewDevice(){
 
     async function handleConfirmNewDevice(){
         const codeValue = code.join('');
-        try {
-            await onNewDevice(codeValue);
-        } catch (error) {
-            return
-        }
+        setIsLoading(true)
+        await onNewDevice(codeValue);
+        setIsLoading(false)
     }
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -55,7 +54,7 @@ export default function NewDevice(){
                     />
                 ))}
             </View>
-            <Button title="Verify and Proceed" onPress={handleConfirmNewDevice}/>
+            <Button title="Verify and Proceed" onPress={handleConfirmNewDevice} isLoading={isLoading}/>
         </View>
         </TouchableWithoutFeedback>
     )

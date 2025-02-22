@@ -6,7 +6,7 @@ import { Button } from "../components/Button";
 
 export default function ResetPassword(){
     const {onResetPassword} = useContext(AuthContext)
-
+    const [isLoading, setIsLoading] = useState(false)
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -37,7 +37,9 @@ export default function ResetPassword(){
         if (newPassword !== confirmPassword){
             return Alert.alert("Passwords do not match");
         }
+        setIsLoading(true)
         await onResetPassword(codeValue, newPassword);
+        setIsLoading(false)
     }
 
     return (
@@ -75,7 +77,7 @@ export default function ResetPassword(){
                         onChangeText={setConfirmPassword}
                     />
                 </View>
-                <Button title="Verify and Proceed" onPress={handleConfirmNewDevice}/>
+                <Button title="Verify and Proceed" onPress={handleConfirmNewDevice} isLoading={isLoading}/>
             </View>
             </TouchableWithoutFeedback>
         )

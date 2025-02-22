@@ -5,13 +5,16 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../contexts/auth/authContext";
 
 export default function ForgotPassword(){
+    const [isLoading, setIsLoading] = useState(false)
     const [email, setEmail] = useState("");
     const {onForgotPassword} = useContext(AuthContext)
     async function handleSendCodeToEmail(){
         if (email.length < 3){
             return Alert.alert("Please enter a valid email address");
         }
+        setIsLoading(true)
         await onForgotPassword(email);
+        setIsLoading(false)
     }
 
     return (
@@ -32,7 +35,7 @@ export default function ForgotPassword(){
                     onChangeText={setEmail}
                 />
             </View>
-            <Button title="Send code" onPress={handleSendCodeToEmail}/>
+            <Button title="Send code" onPress={handleSendCodeToEmail} isLoading={isLoading}/>
         </View>
         </TouchableWithoutFeedback>
     )
