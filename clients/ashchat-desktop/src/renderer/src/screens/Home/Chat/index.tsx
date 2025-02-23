@@ -87,13 +87,22 @@ export function Chat({ chat_id, nickname }: ChatProps) {
 
       {/* Input Area */}
       <div className="bg-gray-900 p-3 pb-5">
-        <form className="bg-gray-200 rounded-md flex flex-row items-center" onSubmit={(e)=>handleSendMessage(e)}>
-          <input
-            type="text"
-            className="flex-1 rounded-md bg-gray-200 px-4 py-2 text-gray-800 outline-none"
-            placeholder="Message..."
-            value={inputMessage}
-            onChange={(e) => handleWriteMessage(e.target.value)}
+        <form
+            className="bg-gray-200 rounded-md flex flex-row items-center"
+            onSubmit={(e) => { handleSendMessage(e) }}
+        >
+          <textarea
+              className="flex-1 rounded-md bg-gray-200 px-4 py-2 text-gray-800 outline-none resize-none max-h-40 overflow-y-auto"
+              placeholder="Message..."
+              value={inputMessage}
+              onChange={(e) => handleWriteMessage(e.target.value)}
+              onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      e.currentTarget.form?.requestSubmit();
+                  }
+              }}
+              style={{ width: '100%' }}
           />
         </form>
       </div>
