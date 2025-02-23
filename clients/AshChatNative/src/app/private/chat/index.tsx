@@ -97,11 +97,22 @@ export default function index(){
       <View className="bg-gray-900 p-3 pb-12">
         <View className="bg-gray-200 rounded-full flex-row items-center">
           <TextInput
-            className="flex-1 rounded-full bg-gray-200 px-4 py-2 text-gray-800"
-            placeholder="Message..."
-            value={inputMessage}
-            onChangeText={handleWriteMessage}
-            keyboardType="default"
+              style={{
+                  flex: 1,
+                  backgroundColor: '#E5E7EB',
+                  borderRadius: 20,
+                  paddingHorizontal: 16,
+                  paddingVertical: 8,
+                  color: '#1F2937',
+                  maxHeight: 120,
+                  textAlignVertical: 'top',
+              }}
+              placeholder="Message..."
+              placeholderTextColor="#6B7280"
+              value={inputMessage}
+              onChangeText={handleWriteMessage}
+              multiline={true}
+              keyboardType="default"
           />
           <TouchableOpacity
             className="ml-2 bg-purple-700 rounded-full p-3 m-1"
