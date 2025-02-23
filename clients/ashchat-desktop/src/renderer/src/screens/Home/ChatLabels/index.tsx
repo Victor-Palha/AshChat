@@ -43,17 +43,19 @@ export function ChatLabels(data: LabelChatProps){
                         src={chat.profile_picture}
                         alt={chat.nickname + " photo"}
                     />
-                    <div className="flex flex-col w-full">
+                    <div className="flex flex-col max-w-[80%]">
                         <div className="flex flex-row justify-between items-center">
                             <p>{chat.nickname}</p>
                             <span className="text-xs italic">
                                 {chat.last_interaction && formatTimeOrDate(chat.last_interaction.toISOString())}
                             </span>
                         </div>
-                        <div className="text-sm text-gray-400 flex max-w-full max-h-5 mt-2 justify-between items-center">
-                            <span className="overflow-hidden overflow-ellipsis">{chat?.last_message?.content}</span>
+                        <div className="text-sm text-gray-400 flex mt-2 justify-between items-center">
+                            <span className="overflow-hidden overflow-ellipsis whitespace-nowrap">
+                                {chat?.last_message?.content}
+                            </span>
                             {chat.notification >= 1 && (
-                                <div className="bg-purple-700 w-5 h-5 rounded-full justify-center items-center">
+                                <div className="bg-purple-700 w-5 h-5 rounded-full flex justify-center items-center flex-shrink-0">
                                     <span className="text-white text-[12px] font-semibold">
                                         {chat.notification}
                                     </span>

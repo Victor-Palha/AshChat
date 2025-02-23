@@ -36,7 +36,7 @@ export function Home(){
     return (
         <div>
             {/* ChatLabels */}
-            <main className="grid grid-cols-[8%_30%_62%] lg:grid-cols-[7%_30%_63%] xl:grid-cols-[6%_30%_64%] h-screen">
+            <main className="grid grid-cols-[8%_35%_57%] lg:grid-cols-[7%_30%_63%] xl:grid-cols-[6%_30%_64%] h-screen">
                 <SideBar />
                 {chatLabelsToShow && (
                     <ChatLabels
