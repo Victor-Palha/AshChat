@@ -1,0 +1,128 @@
+services:
+  kong:
+    container_name: ashchat_kong
+    image: kong:3.7
+    restart: on-failure
+    ports:
+      - "8000:8000"
+      - "8443:8443"
+      - "8001:8001"
+      - "8444:8444"
+      - "8002:8002"
+      - "8445:8445"
+      - "8003:8003"
+      - "8004:8004"
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong_db
+      KONG_PG_DATABASE: kong
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yaml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_ADMIN_GUI_URL: http://localhost:8002
+    volumes:
+      - ./kong/declarative:../kong/declarative
+    depends_on:
+      - kong_migrations
+    networks:
+      - ashchat_network
+
+  kong_db:
+    container_name: ashchat_kong_db
+    image: bitnami/postgresql:latest
+    environment:
+      POSTGRESQL_USERNAME: kong
+      POSTGRESQL_PASSWORD: kong
+      POSTGRESQL_DATABASE: kong
+    ports:
+      - "5432:5432"
+    networks:
+      - ashchat_network
+
+  kong_migrations:
+    container_name: ashchat_kong_migration
+    image: kong:3.7
+    command: "kong migrations bootstrap"
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong_db
+      KONG_PG_DATABASE: kong
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong
+    depends_on:
+      - kong_db
+    networks:
+      - ashchat_network
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_container_dev
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+      - ashchat_network
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq_container_dev
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: root
+      RABBITMQ_DEFAULT_PASS: randompassword
+    networks:
+      - ashchat_network
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  redis:
+    image: redis:latest
+    container_name: redis_container_dev
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=yourpassword 
+    command: ["redis-server", "--requirepass", "yourpassword"]
+    networks:
+      - ashchat_network
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "yourpassword", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+networks:
+  ashchat_network:
+    external: true
+
+volumes:
+  mongo-data:
+    driver: local
+  redis_data:
+    driver: local
+  ashchat_static_volume:
+    driver: local

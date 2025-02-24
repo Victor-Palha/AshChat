@@ -1,0 +1,543 @@
+{
+  "info": {
+    "version": "1.0",
+    "description": "Documentation for Chat Service from AshChat Application",
+    "title": "AshChat - Chat Service"
+  },
+  "definitions": {},
+  "paths": {
+    "/api/chat": {
+      "get": {
+        "description": "Returns all chats associated with the authenticated user.",
+        "operationId": "ChatServiceWeb.ChatController.get_chats",
+        "parameters": [
+          {
+            "description": "JWT access token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Device Unique Token",
+            "in": "header",
+            "name": "device_token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          [
+            "application/json"
+          ]
+        ],
+        "responses": {
+          "200": {
+            "description": "List of chats",
+            "schema": {
+              "example": {
+                "chats": [
+                  {
+                    "id": "507f1f77bcf86cd799439011",
+                    "messages": [
+                      {
+                        "content": "Hello there",
+                        "id": "1",
+                        "sender_id": "2",
+                        "status": "sent",
+                        "timestamp": "2025-02-24T15:00:00Z",
+                        "translated_content": "Olá"
+                      }
+                    ],
+                    "receiver": {
+                      "description": "Friend",
+                      "id": "3",
+                      "nickname": "Jane Doe",
+                      "photo_url": "https://static.victor-palha.com/default.png",
+                      "preferred_language": "en",
+                      "tag_user_id": "ash_chat_17280273"
+                    },
+                    "same_language": true
+                  }
+                ]
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "schema": {
+              "example": {
+                "error": "Internal Server Error"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwtAuth": []
+          },
+          {
+            "deviceTokenAuth": []
+          }
+        ],
+        "summary": "Retrieves all chats of a user",
+        "tags": [
+          "Chat"
+        ]
+      },
+      "post": {
+        "consumes": [
+          [
+            "application/json"
+          ]
+        ],
+        "description": "Creates a new chat between two users based on the receiver_tag.",
+        "operationId": "ChatServiceWeb.ChatController.create",
+        "parameters": [
+          {
+            "description": "JWT access token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Device Unique Token",
+            "in": "header",
+            "name": "device_token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Receiver user's tag",
+            "in": "body",
+            "name": "receiver_tag",
+            "required": true,
+            "schema": "string",
+            "x-example": "ash_chat_17280273"
+          }
+        ],
+        "produces": [
+          [
+            "application/json"
+          ]
+        ],
+        "responses": {
+          "201": {
+            "description": "Chat successfully created",
+            "schema": {
+              "example": {
+                "chat_id": "507f1f77bcf86cd799439011",
+                "description": "Hey I'm using AshChat :)",
+                "message": "Chat created successfully",
+                "messages": [],
+                "nickname": "Jane Doe",
+                "preferred_language": "en",
+                "profile_picture": "https://static.victor-palha.com/default.png"
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "schema": {
+              "example": {
+                "error": "User not found"
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "schema": {
+              "example": {
+                "error": "Chat already exists or contact is already in user's contacts"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "schema": {
+              "example": {
+                "error": "Internal Server Error"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwtAuth": []
+          },
+          {
+            "deviceTokenAuth": []
+          }
+        ],
+        "summary": "Creates a new chat",
+        "tags": [
+          "Chat"
+        ]
+      }
+    },
+    "/api/user": {
+      "get": {
+        "description": "Retrieves the profile of the authenticated user.",
+        "operationId": "ChatServiceWeb.UserController.get_user_by_id",
+        "parameters": [
+          {
+            "description": "JWT access token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Device Unique Token",
+            "in": "header",
+            "name": "device_token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          [
+            "application/json"
+          ]
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile retrieved",
+            "schema": {
+              "example": {
+                "user": {
+                  "description": "Hey, I'm a Fullstack developer!",
+                  "nickname": "JohnDoe",
+                  "photo_url": "https://static.victor-palha.com/profile.jpg",
+                  "preferred_language": "en",
+                  "tag_user_id": "ash_chat_17280273"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "schema": {
+              "example": {
+                "error": "User not found"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwtAuth": []
+          },
+          {
+            "deviceTokenAuth": []
+          }
+        ],
+        "summary": "Get user profile",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/user/description": {
+      "patch": {
+        "consumes": [
+          [
+            "application/json"
+          ]
+        ],
+        "description": "Updates the description of the authenticated user.",
+        "operationId": "ChatServiceWeb.UserController.update_user_description",
+        "parameters": [
+          {
+            "description": "JWT access token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Device Unique Token",
+            "in": "header",
+            "name": "device_token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "New description",
+            "in": "body",
+            "name": "description",
+            "required": true,
+            "schema": "object",
+            "x-example": {
+              "description": "Hey I'm Ash, a Fullstack developer!"
+            }
+          }
+        ],
+        "produces": [
+          [
+            "application/json"
+          ]
+        ],
+        "responses": {
+          "200": {
+            "description": "User updated successfully",
+            "schema": {
+              "example": {
+                "message": "User updated successfully"
+              }
+            }
+          },
+          "400": {
+            "description": "Description too long",
+            "schema": {
+              "example": {
+                "error": "Description exceeds the maximum allowed length"
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "schema": {
+              "example": {
+                "error": "User not found"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwtAuth": []
+          },
+          {
+            "deviceTokenAuth": []
+          }
+        ],
+        "summary": "Update user description",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/user/nickname": {
+      "patch": {
+        "consumes": [
+          [
+            "application/json"
+          ]
+        ],
+        "description": "Updates the nickname of the authenticated user.",
+        "operationId": "ChatServiceWeb.UserController.update_user_name",
+        "parameters": [
+          {
+            "description": "JWT access token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Device Unique Token",
+            "in": "header",
+            "name": "device_token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "New nickname",
+            "in": "body",
+            "name": "nickname",
+            "required": true,
+            "schema": "string",
+            "x-example": "John Doe"
+          }
+        ],
+        "produces": [
+          [
+            "application/json"
+          ]
+        ],
+        "responses": {
+          "200": {
+            "description": "User updated successfully",
+            "schema": {
+              "example": {
+                "message": "User updated successfully"
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "schema": {
+              "example": {
+                "error": "User not found"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwtAuth": []
+          },
+          {
+            "deviceTokenAuth": []
+          }
+        ],
+        "summary": "Update user nickname",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/user/photo": {
+      "patch": {
+        "consumes": [
+          [
+            "multipart/form-data"
+          ]
+        ],
+        "description": "Uploads and updates the profile photo of the authenticated user.",
+        "operationId": "ChatServiceWeb.UserController.update_user_photo",
+        "parameters": [
+          {
+            "description": "JWT access token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Device Unique Token",
+            "in": "header",
+            "name": "device_token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Profile photo",
+            "in": "body",
+            "name": "photo",
+            "required": true,
+            "schema": "file"
+          }
+        ],
+        "produces": [
+          [
+            "application/json"
+          ]
+        ],
+        "responses": {
+          "200": {
+            "description": "Upload successful",
+            "schema": {
+              "example": {
+                "message": "Upload successful",
+                "url": "https://static.victor-palha.com/uploads/profile123.png"
+              }
+            }
+          },
+          "400": {
+            "description": "No photo uploaded",
+            "schema": {
+              "example": {
+                "error": "No photo uploaded"
+              }
+            }
+          },
+          "500": {
+            "description": "Upload failed",
+            "schema": {
+              "example": {
+                "error": "Internal server error during upload"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwtAuth": []
+          },
+          {
+            "deviceTokenAuth": []
+          }
+        ],
+        "summary": "Update user profile photo",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/user/{id}": {
+      "get": {
+        "description": "Retrieves the profile of a contact by ID.",
+        "operationId": "ChatServiceWeb.UserController.get_contact_by_id",
+        "parameters": [
+          {
+            "description": "JWT access token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Device Unique Token",
+            "in": "header",
+            "name": "device_token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Contact user ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "string",
+            "x-example": "507f1f77bcf86cd799439011"
+          }
+        ],
+        "produces": [
+          [
+            "application/json"
+          ]
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile retrieved",
+            "schema": {
+              "example": {
+                "user": {
+                  "description": "Hey, I'm using AshChat!",
+                  "nickname": "JaneDoe",
+                  "photo_url": "https://static.victor-palha.com/profile.jpg",
+                  "preferred_language": "en",
+                  "tag_user_id": "ash_chat_17280273"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "schema": {
+              "example": {
+                "error": "User not found"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwtAuth": []
+          },
+          {
+            "deviceTokenAuth": []
+          }
+        ],
+        "summary": "Get contact profile",
+        "tags": [
+          "User"
+        ]
+      }
+    }
+  },
+  "swagger": "2.0"
+}

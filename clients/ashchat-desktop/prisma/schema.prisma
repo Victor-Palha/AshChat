@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../data/database.sqlite"
+}
+
+model User {
+  id                  String        @id @default(uuid())
+  nickname            String
+  description         String
+  photo_url           String
+  preferred_language  String
+  tag_user_id         String        @unique
+}
+
+model Chat {
+  id                 String        @id @default(uuid())
+  nickname           String
+  description        String
+  profile_picture     String
+  preferred_language String
+  labels             ChatLabel[]
+  messages           Message[]
+}
+
+model ChatLabel {
+  id             String  @id @default(uuid())
+  chat_id        String
+  notifications   Int     @default(0)
+  chat           Chat    @relation(fields: [chat_id], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  chat_id   String
+  sender_id String
+  content   String
+  timestamp DateTime @default(now())
+  status    String   @default("pending")
+  chat      Chat     @relation(fields: [chat_id], references: [id], onDelete: Cascade)
+}
