@@ -16,8 +16,10 @@ config :chat_service, ChatServiceWeb.Endpoint,
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
     formats: [json: ChatServiceWeb.ErrorJSON],
-    layout: false
+    layout: false,
+    accepts: ~w(json)
   ],
+  json_encoder: Jason,
   pubsub_server: ChatService.PubSub,
   live_view: [signing_salt: "oorrvuVO"]
 
@@ -31,6 +33,20 @@ config :joken,
     signer_alg: "RS256",
     key_pem: File.read!("priv/keys/public_key.pem")
   ]
+
+# config :chat_service, :phoenix_swagger,
+#   swagger_files: %{
+#     "priv/static/swagger.json" => ChatServiceWeb.SwaggerSchema
+#   }
+
+config :phoenix_swagger, json_library: Jason
+
+config :chat_service, :phoenix_swagger,
+  swagger_files: %{
+    "priv/static/swagger.json" => [
+      router: ChatServiceWeb.Router,
+    ]
+  }
 
 config :chat_service, :rabbitmq,
 host: System.get_env("PHX_RABBITMQ_HOST") || "localhost",

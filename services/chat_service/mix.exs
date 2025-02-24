@@ -9,7 +9,8 @@ defmodule ChatService.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      compilers: Mix.compilers ++ [:phoenix_swagger],
     ]
   end
 
@@ -49,7 +50,9 @@ defmodule ChatService.MixProject do
       {:ex_aws, "~> 2.5"},
       {:ex_aws_s3, "~> 2.4"},
       {:hackney, "~> 1.18"},
-      {:sweet_xml, "~> 0.7"}
+      {:sweet_xml, "~> 0.7"},
+      {:phoenix_swagger, "~> 0.8"},
+      {:ex_json_schema, "~> 0.5"}
     ]
   end
 

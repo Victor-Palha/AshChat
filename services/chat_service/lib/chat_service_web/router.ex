@@ -17,9 +17,22 @@ defmodule ChatServiceWeb.Router do
     get "/user/:id", UserController, :get_contact_by_id
     get "/user", UserController, :get_user_by_id
     get "/chats", ChatController, :get_chats
+    get "/swagger.json", SwaggerController, :index
   end
 
+  scope "/api/swagger" do
+    forward "/", PhoenixSwagger.Plug.SwaggerUI, otp_app: :chat_service, swagger_file: "swagger.json"
+  end
 
+  def swagger_info do
+    %{
+      info: %{
+        title: "AshChat - Chat Service",
+        version: "1.0",
+        description: "Documentation for Chat Service from AshChat Application"
+      }
+    }
+  end
 
   # Enable LiveDashboard in development
   if Application.compile_env(:chat_service, :dev_routes) do
