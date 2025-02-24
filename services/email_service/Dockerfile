@@ -17,10 +17,10 @@ COPY --from=build /usr/src/app/package*.json ./
 COPY --from=build /usr/src/app/build ./build
 COPY --from=build /usr/src/app/node_modules ./node_modules
 
-ENV NODE_ENV="production" \
-    AMQP_URI="amqp://root:randompassword@rabbitmq_container_dev:5672" \
-    REDIS_URI="redis://:yourpassword@redis_container_dev:6379" \
-    SMTP_EMAIL= \
-    SMTP_PASSWORD=
+ENV NODE_ENV="production" 
+ENV SMTP_EMAIL=${SMTP_EMAIL}
+ENV SMTP_PASSWORD=${SMTP_PASSWORD}
+ENV REDIS_URI=${REDIS_URI}
+ENV AMQP_URI=${AMQP_URI}
 
 CMD ["npm", "run", "start:prod"]

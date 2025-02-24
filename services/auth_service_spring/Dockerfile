@@ -26,11 +26,11 @@ COPY --from=builder /app/target/*.jar app.jar
 # Expose the application port
 EXPOSE 3005
 
-ENV RABBITMQ_URI="amqp://root:randompassword@rabbitmq_container_dev:5672" \
-    SPRING_DATABASE_URI="mongodb://root:example@mongodb_container_dev:27017/authservice?authSource=admin" \
-    SERVER_PORT=3005 \
-    JWT_REFRESH_TOKEN=refreshToken \
-    JWT_TEMPORARY_TOKEN=temporaryToken
+ENV SPG_RABBITMQ_URI=${SPG_RABBITMQ_URI}
+ENV SPG_DATABASE_URI=${SPG_DATABASE_URI}
+ENV SPG_SERVER_PORT=${SPG_SERVER_PORT}
+ENV SPG_JWT_REFRESH=${SPG_JWT_REFRESH} 
+ENV SPG_JWT_TEMPORARY=${SPG_JWT_TEMPORARY} 
 
 # Use the non-root user
 USER springbootuser
