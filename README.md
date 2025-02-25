@@ -185,6 +185,6 @@ This document provides detailed information about the API endpoints available in
 All endpoints related to user authentication are available in the Authentication Service Swagger UI.
 Just run the service and navigate to the Swagger UI to view the endpoints.
 
-## Chat Service Endpoints - http://localhost:4000/api/swagger-ui/index.html
+### Chat Service Endpoints - http://localhost:4000/api/swagger-ui/index.html
 All endpoints related to user authentication are available in the Authentication Service Swagger UI.
 Just run the service and navigate to the Swagger UI to view the endpoints.
